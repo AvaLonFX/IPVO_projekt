@@ -83,61 +83,18 @@ export default function SearchPlayers() {
 */
 "use client";
 
-import { useState } from "react";
-import { supabase } from "../lib/supabase"; // Pretpostavljam da već imaš konfiguraciju Supabase
+import SearchPlayers from "../components/nba_comp/SearchPlayers";
 
-export default function SearchPlayers() {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [players, setPlayers] = useState<any[]>([]);
-
-  const handleSearch = async (term: string) => {
-    setSearchTerm(term);
-
-    // Ako nema teksta u tražilici, očisti rezultate
-    if (term === "") {
-      setPlayers([]);
-      return;
-    }
-
-    // Dohvaćanje podataka iz baze
-    const { data, error } = await supabase
-      .from("Osnovno_NBA") // Naziv tablice
-      .select("*")
-      .or(
-        `PLAYER_FIRST_NAME.ilike.%${term}%,PLAYER_LAST_NAME.ilike.%${term}%`
-      );
-
-    if (error) {
-      console.error("Error fetching players:", error);
-      return;
-    }
-
-    // Ažuriraj rezultate
-    setPlayers(data || []);
+export default function HomePage() {
+  const handlePlayerClick = (player: any) => {
+    console.log("Selected player:", player);
   };
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>NBA Player Search</h1>
-      <input
-        type="text"
-        placeholder="Search by name..."
-        value={searchTerm}
-        onChange={(e) => handleSearch(e.target.value)}
-        style={{ width: "100%", padding: "10px", fontSize: "16px", marginBottom: "20px" }}
-      />
-
-      {players.length > 0 ? (
-        <ul style={{ listStyleType: "none", padding: "0" }}>
-          {players.map((player) => (
-            <li key={player.PERSON_ID} style={{ marginBottom: "10px" }}>
-              {player.PLAYER_FIRST_NAME} {player.PLAYER_LAST_NAME} - {player.TEAM_NAME || "No Team"}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No players found.</p>
-      )}
+      <h1 className="text-center text-4xl mb-4">Welcome to the NBA App</h1>
+      <p className="text-center px-2">Search for your favorite players and learn more about them.</p>
+      <SearchPlayers onPlayerClick={handlePlayerClick} />
     </div>
   );
 }

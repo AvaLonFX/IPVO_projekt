@@ -6,24 +6,34 @@ import { supabase } from "../../../lib/supabase"; // Prilagodite putanju prema v
 
 export default function PlayerPage({ params }: { params: { id: string } }) {
   const [player, setPlayer] = useState<any>(null);
+  const [stats, setStats] = useState<any | null>(null);
   const router = useRouter(); // Inicijalizacija routera
 
   useEffect(() => {
     const fetchPlayer = async () => {
       try {
         const resolvedParams = await params; // Otpakivanje params
-        const { data, error } = await supabase
+        const { data: playerData, error: playerError } = await supabase
           .from("Osnovno_NBA") // Naziv vaše tablice
           .select("*")
           .eq("PERSON_ID", resolvedParams.id) // Filtriraj po ID-u igrača
           .single(); // Dohvati samo jednog igrača
 
-        if (error) {
-          console.error("Error fetching player:", error);
-          return;
-        }
+        const { data: playerStats, error: statsError } = await supabase
+          .from("FullStats_NBA") // Naziv vaše tablice
+          .select("*")
+          .eq("PERSON_ID", resolvedParams.id) // Filtriraj po ID-u igrača
+          .single(); // Dohvati samo jednog igrača
 
-        setPlayer(data);
+          if (playerError || statsError) {
+            console.error('Error fetching data:', playerError || statsError);
+          } else {
+            console.log('Player data:', playerData);
+            console.log('Stats data:', playerStats);
+          }
+
+        setPlayer(playerData);
+        setStats(playerStats);
       } catch (err) {
         console.error("Error resolving params:", err);
       }
@@ -42,12 +52,12 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
   return (
     <div style={{ padding: "20px" }}>
       <button
-        onClick={() => router.push("/search")} // Navigacija na stranicu za pretragu
+        onClick={() => router.push("/")} // Navigacija na stranicu za pretragu
         style={{
           marginBottom: "20px",
           padding: "10px 20px",
-          backgroundColor: "#0070f3",
-          color: "white",
+          backgroundColor: "#FFFF",
+          color: "black",
           border: "none",
           borderRadius: "5px",
           cursor: "pointer",
@@ -58,7 +68,6 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
       <h1>
         {player.PLAYER_FIRST_NAME} {player.PLAYER_LAST_NAME}
       </h1>
-      {/* Dinamički prikaz slike igrača */}
       <img
         src={playerImageUrl}
         alt={`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME}`}
@@ -71,9 +80,15 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
       <p>College: {player.COLLEGE || "N/A"}</p>
       <p>Country: {player.COUNTRY}</p>
       <p>Draft Year: {player.DRAFT_YEAR || "N/A"}</p>
+      <p>Draft Round: {player.DRAFT_ROUND || "N/A"}</p>
+      <p>Draft Number: {player.DRAFT_NUMBER || "N/A"}</p>
       <p>Points per game: {player.PTS}</p>
       <p>Rebounds per game: {player.REB}</p>
       <p>Assists per game: {player.AST}</p>
+
+
+      {/* test da vidim ako mi rade statovi */}
+      <p>3PA: {stats.FG3_PCT}</p> 
     </div>
   );
 }
