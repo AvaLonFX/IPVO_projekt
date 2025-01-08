@@ -26,4 +26,4 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}  # Store your Supabase URL in GitHub secrets
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}  # Store your Supabase key in GitHub secrets
-        run: node components/scripte/updateNBAData.js  # Replace with your actual script filename
+        run: node ../components/scripte/updateNBAData.js  # Replace with your actual script filename
