@@ -69,13 +69,9 @@ export default function AllTimeStats() {
           Back to Search
         </button>
       </div>
-
-      {/* Naslov */}
       <h2 className="text-2xl mb-2" style={{ marginBottom: "20px" }}>
         Explore Players by Stats
       </h2>
-
-      {/* Filteriranje i sortiranje */}
       <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
         <label>
           Filter by:
@@ -99,7 +95,6 @@ export default function AllTimeStats() {
             <option value="FT_PCT">Free Throw %</option> {/* Dodano */}
           </select>
         </label>
-
         <label>
           Order:
           <select
@@ -117,8 +112,6 @@ export default function AllTimeStats() {
           </select>
         </label>
       </div>
-
-      {/* Tablica */}
       {players.length > 0 ? (
         <div>
           <table
@@ -130,7 +123,7 @@ export default function AllTimeStats() {
             }}
           >
             <thead>
-              <tr style={{ backgroundColor: "#0070f3", color: "white" }}>
+              <tr style={{ backgroundColor: "#0070f3", color: "black" }}>
                 <th
                   style={{
                     padding: "20px",
@@ -209,7 +202,7 @@ export default function AllTimeStats() {
                     textAlign: "left",
                     border: "1px solid #ddd",
                     backgroundColor: "#d4edda", // Zelenkasta pozadina
-                    color: "#155724", // Tamnozelena boja teksta
+                    color: "#0000", // Tamnozelena boja teksta
                   }}
                 >
                   Player Rating
@@ -242,10 +235,10 @@ export default function AllTimeStats() {
                   <td style={{ padding: "20px" }}>{player.BLK || 0}</td>
                   <td style={{ padding: "20px" }}>
                     {player.FG_PCT ? parseFloat(player.FG_PCT).toFixed(2) : 0}
-                  </td> {/* Dodano */}
+                  </td>
                   <td style={{ padding: "20px" }}>
                     {player.FT_PCT ? parseFloat(player.FT_PCT).toFixed(2) : 0}
-                  </td> {/* Dodano */}
+                  </td>
                   <td
                     style={{
                       padding: "10px",

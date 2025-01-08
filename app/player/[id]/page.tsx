@@ -75,7 +75,7 @@ export default function PlayerPage({ params }: { params: { id: string } }) {
       />
       <p>Team: {player.TEAM_NAME || "No Team"}</p>
       <p>Position: {player.POSITION}</p>
-      <p>Height: {player.HEIGHT}</p>
+      <p>Height: {player.HEIGHT}</p> 
       <p>Weight: {player.WEIGHT}</p>
       <p>College: {player.COLLEGE || "N/A"}</p>
       <p>Country: {player.COUNTRY}</p>
