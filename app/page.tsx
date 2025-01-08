@@ -1,13 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import SearchPlayers from "../components/nba_comp/SearchPlayers";
-import AllTimeStats from "../components/nba_comp/AllTimeStats";
-import '../styles/globals.css';
-import { FileX } from "lucide-react";
+import "../styles/globals.css";
 
 export default function HomePage() {
-  const [showStats, setShowStats] = useState(false);
+  const router = useRouter();
 
   const handlePlayerClick = (player: any) => {
     console.log("Selected player:", player);
@@ -15,39 +13,39 @@ export default function HomePage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      {!showStats ? (
-        <>
-          <h1 className="text-center text-4xl mb-4">Welcome to the NBA App</h1>
-          <p className="text-center px-2">
-            Search for your favorite players and learn more about them.
-          </p>
-          <SearchPlayers onPlayerClick={handlePlayerClick} />
-                      {/* Gumb za All Time Stats */}
+      <h1 className="text-center text-4xl mb-4">Welcome to the NBA App</h1>
+      <p className="text-center px-2">
+        Search for your favorite players and learn more about them.
+      </p>
 
-          <div style={{marginTop: "20px", display: "flex", justifyContent: "center", gap: "20px" }}>
-            <button
-              onClick={() => setShowStats(true)}
-              className="custom-button all-time-stats"
-            >
-              <div className="button-overlay"></div>
-              <span className="button-text">All Time Stats</span>
-            </button>    
-            <button
-              onClick={() => setShowStats(true)}
-              className="custom-button current-stats"
-            >
-              <div className="button-overlay"></div>
-              <span className="button-text">Current Stats</span>
-            </button>
-          
-          </div>
-                      {/* Gumb za Current Stats */}
+      {/* Search Players */}
+      <SearchPlayers onPlayerClick={handlePlayerClick} />
 
-        
-        </>
-      ) : (
-        <AllTimeStats />
-      )}
+      {/* Buttons for All Time Stats and Current Stats */}
+      <div
+        style={{
+          marginTop: "20px",
+          display: "flex",
+          justifyContent: "center",
+          gap: "20px",
+        }}
+      >
+        <button
+          onClick={() => router.push("/alltimestats")} // Navigate to All Time Stats page
+          className="custom-button all-time-stats"
+        >
+          <div className="button-overlay"></div>
+          <span className="button-text">All Time Stats</span>
+        </button>
+
+        <button
+          onClick={() => router.push("/currentstats")} // Navigate to Current Stats page
+          className="custom-button current-stats"
+        >
+          <div className="button-overlay"></div>
+          <span className="button-text">Current Stats</span>
+        </button>
+      </div>
     </div>
   );
 }
