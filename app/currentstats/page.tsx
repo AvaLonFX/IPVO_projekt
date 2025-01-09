@@ -81,6 +81,7 @@ export default function CurrentStats() {
             <option value="BLK">Blocks</option>
             <option value="FG_PCT">Field Goal %</option>
             <option value="FT_PCT">Free Throw %</option>
+            <option value="Player_Rating">Player Rating</option> {/* Dodano */}
           </select>
         </div>
 
@@ -112,6 +113,7 @@ export default function CurrentStats() {
                   "Blocks",
                   "FG %",
                   "FT %",
+                  "Player Rating", // Dodano
                 ].map((heading) => (
                   <th key={heading} className="px-4 py-2 text-left border">
                     {heading}
@@ -137,6 +139,9 @@ export default function CurrentStats() {
                   </td>
                   <td className="px-4 py-2 border">
                     {player.FT_PCT ? parseFloat(player.FT_PCT).toFixed(2) : 0}
+                  </td>
+                  <td className="px-4 py-2 border bg-green-100 text-green-700 font-semibold">{/* Dodano */}
+                    {player.Player_Rating || 0}
                   </td>
                 </tr>
               ))}
