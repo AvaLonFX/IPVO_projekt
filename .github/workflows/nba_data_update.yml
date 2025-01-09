@@ -1,0 +1,29 @@
+name: NBA Data Update
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Runs at 6 AM UTC every day
+  workflow_dispatch:  # Allows manual triggering of the action
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest  # Use the latest Ubuntu image for the job
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # You can choose the Node.js version
+
+      - name: Install dependencies
+        run: |
+          npm install axios @supabase/supabase-js  # Install dependencies
+
+      - name: Run NBA Data Update Script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}  # Store your Supabase URL in GitHub secrets
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}  # Store your Supabase key in GitHub secrets
+        run: node components/scripte/updateNBAData.js  # Replace with your actual script filename
