@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
-export const dynamic = 'force-dynamic'; // Ova linija sprječava prerendering
+export const dynamic = "force-dynamic"; // Prevent prerendering
 
 export default function ComparePage() {
   const router = useRouter();
@@ -19,7 +19,6 @@ export default function ComparePage() {
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
 
   useEffect(() => {
-    // Extract search params manually from the URL
     const searchParams = new URLSearchParams(window.location.search);
     const p1Id = searchParams.get("player1");
     const p2Id = searchParams.get("player2");
@@ -67,7 +66,7 @@ export default function ComparePage() {
   }, [player1Id, player2Id]);
 
   if (!player1 || !player2) {
-    return <p>Loading...</p>;
+    return <p className="text-center text-xl font-bold">Loading...</p>;
   }
 
   const totalStatsData = [
@@ -87,32 +86,24 @@ export default function ComparePage() {
   ];
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Player Comparison</h1>
+    <div className="p-5">
+      <h1 className="text-2xl font-bold mb-5 text-center">Player Comparison</h1>
       <button
         onClick={() => router.push("/")}
-        style={{
-          marginBottom: "20px",
-          padding: "10px 20px",
-          backgroundColor: "#FFFF",
-          color: "black",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
+        className="mb-5 px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300"
       >
         Back to Search
       </button>
-      <div style={{ display: "flex", justifyContent: "space-around", padding: "20px" }}>
+      <div className="flex justify-around p-5">
         {[{ player: player1, stats: stats1 }, { player: player2, stats: stats2 }].map(
           ({ player, stats }, index) => (
-            <div key={index} style={{ width: "45%", textAlign: "center" }}>
+            <div key={index} className="w-1/2 text-center">
               <img
                 src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PERSON_ID}.png`}
                 alt={`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME}`}
-                style={{ width: "200px", height: "auto", marginBottom: "20px" }}
+                className="w-48 h-auto mx-auto mb-5"
               />
-              <h2>
+              <h2 className="text-xl font-bold">
                 {player.PLAYER_FIRST_NAME} {player.PLAYER_LAST_NAME}
               </h2>
               <p>Team: {player.TEAM_NAME || "No Team"}</p>
@@ -129,49 +120,39 @@ export default function ComparePage() {
           )
         )}
       </div>
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+      <div className="text-center mb-5">
         <button
           onClick={() => setActiveChart("total")}
-          style={{
-            padding: "10px 20px",
-            marginRight: "10px",
-            backgroundColor: activeChart === "total" ? "#82ca9d" : "#f0f0f0",
-            color: activeChart === "total" ? "#fff" : "#000",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
+          className={`px-4 py-2 rounded-lg mr-2 ${
+            activeChart === "total" ? "bg-green-500 text-white" : "bg-gray-200 text-black"
+          }`}
         >
           Total
         </button>
         <button
           onClick={() => setActiveChart("perGame")}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: activeChart === "perGame" ? "#8884d8" : "#f0f0f0",
-            color: activeChart === "perGame" ? "#fff" : "#000",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
+          className={`px-4 py-2 rounded-lg ${
+            activeChart === "perGame" ? "bg-purple-500 text-white" : "bg-gray-200 text-black"
+          }`}
         >
           Per Game
         </button>
       </div>
-      <BarChart
-        width={800}
-        height={400}
-        data={activeChart === "total" ? totalStatsData : perGameStatsData}
-        style={{ margin: "auto" }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="stat" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="player1" fill="#8884d8" name={player1.PLAYER_FIRST_NAME} />
-        <Bar dataKey="player2" fill="#82ca9d" name={player2.PLAYER_FIRST_NAME} />
-      </BarChart>
+      <div className="flex justify-center">
+        <BarChart
+          width={800}
+          height={400}
+          data={activeChart === "total" ? totalStatsData : perGameStatsData}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="stat" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="player1" fill="#8884d8" name={player1.PLAYER_FIRST_NAME} />
+          <Bar dataKey="player2" fill="#82ca9d" name={player2.PLAYER_FIRST_NAME} />
+        </BarChart>
+      </div>
     </div>
   );
 }

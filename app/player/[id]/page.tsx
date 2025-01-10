@@ -16,7 +16,7 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
     console.log("Odabrani drugi igrač s ID-jem:", secondPlayerId);
     router.push(`/compare?player1=${resolvedParams?.id}&player2=${secondPlayerId}`);
   };
-  
+
 
   const router = useRouter();
 

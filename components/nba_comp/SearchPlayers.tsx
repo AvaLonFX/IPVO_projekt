@@ -141,7 +141,7 @@ export default function SearchPlayers({ onPlayerClick, onPlayerSelect }: SearchP
       {hoveredPlayer && (
         <div
           style={{
-            position: "absolute",
+            position: "fixed",
             top: `${cursorPosition.y + 10}px`, // Slightly offset from the cursor
             left: `${cursorPosition.x + 10}px`,
             background: "#fff",
