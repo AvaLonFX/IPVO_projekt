@@ -2,7 +2,7 @@ VERCEL SERVER FUNCTION ZA DAILY UPDATE UPDATENBADATA.JS
 User interface
 Dream Team
 Napravit formulu kao sta je za alltime da racuna score igraca za currentstats (dodat stupac za score u bazu), pozeljno u kodu tkd server moze i njega racunat svaki put
-
+Fixat update na githubu jebe ga ja msm axiom timeout iako prode git action
 
 
 
