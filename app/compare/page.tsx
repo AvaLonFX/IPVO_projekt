@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
-
 export default function ComparePage() {
   const searchParams = useSearchParams();
   const player1Id = searchParams?.get("player1");
@@ -19,6 +18,12 @@ export default function ComparePage() {
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
 
   useEffect(() => {
+    if (!player1Id || !player2Id) {
+      console.error("Player IDs not found in the URL!");
+      router.push("/"); // Redirect to home if IDs are missing
+      return;
+    }
+
     const fetchPlayerData = async (playerId: string, setPlayer: any, setStats: any) => {
       try {
         const { data: playerData, error: playerError } = await supabase
@@ -44,9 +49,9 @@ export default function ComparePage() {
       }
     };
 
-    if (player1Id) fetchPlayerData(player1Id, setPlayer1, setStats1);
-    if (player2Id) fetchPlayerData(player2Id, setPlayer2, setStats2);
-  }, [player1Id, player2Id]);
+    fetchPlayerData(player1Id, setPlayer1, setStats1);
+    fetchPlayerData(player2Id, setPlayer2, setStats2);
+  }, [player1Id, player2Id, router]);
 
   if (!player1 || !player2) {
     return <p>Loading...</p>;
