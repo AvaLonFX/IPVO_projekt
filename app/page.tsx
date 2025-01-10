@@ -8,8 +8,10 @@ export default function HomePage() {
   const router = useRouter();
 
   const handlePlayerClick = (player: any) => {
-    console.log("Selected player:", player);
+    console.log("Player clicked:", player);
+    router.push(`/player/${player.PERSON_ID}`);
   };
+  
 
   return (
     <div style={{ padding: "20px" }}>
@@ -48,4 +50,5 @@ export default function HomePage() {
       </div>
     </div>
   );
+  
 }

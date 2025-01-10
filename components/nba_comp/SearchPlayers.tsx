@@ -6,9 +6,11 @@ import { supabase } from "../../lib/supabase";
 
 interface SearchPlayersProps {
   onPlayerClick?: (player: any) => void;
+  onPlayerSelect?: (playerId: string) => void;
+
 }
 
-export default function SearchPlayers({ onPlayerClick }: SearchPlayersProps) {
+export default function SearchPlayers({ onPlayerClick, onPlayerSelect }: SearchPlayersProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [players, setPlayers] = useState<any[]>([]);
   const [hoveredPlayer, setHoveredPlayer] = useState<any | null>(null); // Player being hovered
@@ -46,13 +48,14 @@ export default function SearchPlayers({ onPlayerClick }: SearchPlayersProps) {
   };
 
   const handlePlayerClick = (player: any) => {
-    console.log("Player clicked:", player); // Debug click
-    if (onPlayerClick) {
-      onPlayerClick(player);
-      router.push(`/player/${player.PERSON_ID}`);
-    } else {
+    console.log("Player clicked:", player); // Debug za provjeru odabira igrača
+    if (onPlayerSelect) {
+      onPlayerSelect(player.PERSON_ID); // Ovdje prosljeđuje ID igrača u onPlayerSelect
+    } else if (onPlayerClick) {
+      onPlayerClick(player); // Alternativna logika za redirekciju
     }
   };
+  
 
   const handleMouseMove = (e: React.MouseEvent) => {
     setCursorPosition({ x: e.clientX, y: e.clientY });
@@ -103,6 +106,7 @@ export default function SearchPlayers({ onPlayerClick }: SearchPlayersProps) {
               }}
               onClick={() => {
                 handlePlayerClick(player);
+                
               }}
               onMouseEnter={() => handleMouseEnter(player)} 
               onMouseLeave={handleMouseLeave} 
