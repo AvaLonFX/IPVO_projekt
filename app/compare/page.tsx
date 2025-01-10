@@ -1,15 +1,16 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 
+export const dynamic = 'force-dynamic'; // Ova linija sprječava prerendering
+
 export default function ComparePage() {
-  const searchParams = useSearchParams();
-  const player1Id = searchParams?.get("player1");
-  const player2Id = searchParams?.get("player2");
   const router = useRouter();
+  const [player1Id, setPlayer1Id] = useState<string | null>(null);
+  const [player2Id, setPlayer2Id] = useState<string | null>(null);
 
   const [player1, setPlayer1] = useState<any>(null);
   const [player2, setPlayer2] = useState<any>(null);
@@ -18,11 +19,23 @@ export default function ComparePage() {
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
 
   useEffect(() => {
-    if (!player1Id || !player2Id) {
+    // Extract search params manually from the URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const p1Id = searchParams.get("player1");
+    const p2Id = searchParams.get("player2");
+
+    if (!p1Id || !p2Id) {
       console.error("Player IDs not found in the URL!");
       router.push("/"); // Redirect to home if IDs are missing
       return;
     }
+
+    setPlayer1Id(p1Id);
+    setPlayer2Id(p2Id);
+  }, [router]);
+
+  useEffect(() => {
+    if (!player1Id || !player2Id) return;
 
     const fetchPlayerData = async (playerId: string, setPlayer: any, setStats: any) => {
       try {
@@ -51,7 +64,7 @@ export default function ComparePage() {
 
     fetchPlayerData(player1Id, setPlayer1, setStats1);
     fetchPlayerData(player2Id, setPlayer2, setStats2);
-  }, [player1Id, player2Id, router]);
+  }, [player1Id, player2Id]);
 
   if (!player1 || !player2) {
     return <p>Loading...</p>;
