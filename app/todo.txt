@@ -6,5 +6,4 @@ Napravit formulu kao sta je za alltime da racuna score igraca za currentstats (d
 
 
 
-
 *u slucaju da je problem u pullu updateNBAData moguce da je zato jer je PLAYER_ID a ne PERSON_ID*
