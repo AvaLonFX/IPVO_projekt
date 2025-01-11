@@ -4,7 +4,8 @@ const { createClient } = require("@supabase/supabase-js");
 
 // Supabase credentials
 const supabaseUrl = "https://vyhxpbndpwokyybzmugb.supabase.co"; // Replace with your Supabase project URL
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5aHhwYm5kcHdva3l5YnptdWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMjkyMjksImV4cCI6MjA1MTYwNTIyOX0.z00dgXfozx-ya9zFQbSL-zz2VCMS7tXzhPbeUzUZleg"; // Replace with your Supabase anon key
+const supabaseKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5aHhwYm5kcHdva3l5YnptdWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMjkyMjksImV4cCI6MjA1MTYwNTIyOX0.z00dgXfozx-ya9zFQbSL-zz2VCMS7tXzhPbeUzUZleg"; // Replace with your Supabase anon key
 
 console.log("Setting up Supabase client...");
 if (!supabaseUrl || !supabaseKey) {
@@ -49,7 +50,10 @@ const updateNBAData = async () => {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 OPR/114.0.0.0",
         Referer: "https://www.nba.com/",
         Origin: "https://www.nba.com/",
+        "Accept-Encoding": "gzip, compress, deflate, br",
+        Accept: "application/json, text/plain, */*",
       },
+
       timeout: 10000, // Set timeout to 10 seconds
     });
 
