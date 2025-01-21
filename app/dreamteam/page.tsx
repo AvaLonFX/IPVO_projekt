@@ -1,26 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase"; // Adjust the import based on your setup
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client"; 
 
 export default function DreamTeam() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const supabase = createClient(); // ✅ Ispravan Supabase klijent
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getSession();
+        console.log("Session data:", data);
 
-        if (!session) {
-          router.push("/sign-in"); // Redirect to your sign-in page
-        } else {
-          setUser(session.user); // Store user info if needed
+        if (error) {
+          console.error("Error fetching session:", error);
+          router.push("/sign-in");
+          return;
         }
+
+        if (!data?.session) {
+          console.warn("No active session. Redirecting...");
+          router.push("/sign-in");
+          return;
+        }
+
+        console.log("User authenticated:", data.session.user);
+        setUser(data.session.user);
       } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.error("Unexpected error:", error);
         router.push("/sign-in");
       } finally {
         setLoading(false);
@@ -31,7 +42,7 @@ export default function DreamTeam() {
   }, [router]);
 
   if (loading) {
-    return <p>Loading...</p>; // Show a loader while checking authentication
+    return <p>Loading...</p>;
   }
 
   return (
