@@ -6,11 +6,16 @@ import { supabase } from "../../../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
 import SearchPlayers from "../../../components/nba_comp/SearchPlayers"
+import { createClient } from "@/utils/supabase/client"; // ✅ Importiraj Supabase klijent
+
 export default function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
   const [player, setPlayer] = useState<any>(null);
   const [stats, setStats] = useState<any | null>(null);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
   const [showCompareSearch, setShowCompareSearch] = useState(false);
   const handlePlayerSelect = (secondPlayerId: string) => {
     console.log("Odabrani drugi igrač s ID-jem:", secondPlayerId);
@@ -28,7 +33,27 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
 
     resolveParams();
   }, [params]);
-
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("Error fetching session:", error);
+        return;
+      }
+  
+      if (!data?.session) {
+        console.warn("No active session.");
+        return;
+      }
+  
+      console.log("User authenticated:", data.session.user);
+      setUser(data.session.user);
+    };
+  
+    fetchUser();
+  }, []);
+  
   useEffect(() => {
     const fetchPlayer = async () => {
       if (!resolvedParams) return;
@@ -267,7 +292,36 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
     >
       Compare
     </button>
+    <button
+        onClick={async () => {
+          if (!player) return;
+          try {
+            const { error } = await supabase
+              .from("UserDreamTeams")
+              .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
 
+            if (error) {
+              console.error("Error adding player to Dream Team:", error);
+            } else {
+              console.log("Player added to Dream Team successfully!");
+              alert(`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`);
+            }
+          } catch (error) {
+            console.error("Unexpected error adding player:", error);
+          }
+        }}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          backgroundColor: "#28A745",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Add to Dream Team
+   </button>
     {showCompareSearch && (
       <div style={{ marginTop: "20px" }}>
         <SearchPlayers
