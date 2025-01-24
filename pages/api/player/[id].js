@@ -1,12 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "../../../lib/supabase";
-import { Redis } from '@upstash/redis';
-
-// Hard-code the Redis client configuration
-const redis = new Redis({
-  url: 'https://generous-jawfish-45569.upstash.io', // Your Upstash Redis URL
-  token: 'AbIBAAIjcDFkYjM2NDgyZDlkNzE0YzIyOGJkMGE5MGY5YzM5YzUxMXAxMA', // Your Upstash Redis Token
-});
+import redis from '../../../lib/redis'; // Import the updated Redis client from lib
 
 export async function GET(req) {
   try {
@@ -18,6 +10,12 @@ export async function GET(req) {
 
     // Check if data is cached in Redis
     const cachedData = await redis.get(`player:${playerId}`);
+    if (cachedData) {
+  console.log("Returning cached data from Redis:", cachedData);  // Log the cached data
+  return NextResponse.json(JSON.parse(cachedData));
+} else {
+  console.log("Cache miss: Fetching data from Supabase...");
+}
 
     if (cachedData) {
       console.log("Returning cached data from Redis");
@@ -51,7 +49,7 @@ export async function GET(req) {
     };
 
     console.log("Caching data in Redis for 1 hour...");
-    await redis.set(`player:${playerId}`, JSON.stringify(playerResponse), { ex: 3600 });
+    await redis.set(`player:${playerId}`, JSON.stringify(playerResponse), 'EX', 3600); // Cache for 1 hour
 
     return NextResponse.json(playerResponse);
 

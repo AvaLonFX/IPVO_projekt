@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['prometheus:9090']
+
+  - job_name: 'nextjs'
+    metrics_path: '/api/metrics' # API route for metrics
+    static_configs:
+      - targets: 
+          - 'nextjs-app-instance1:3000'
+          - 'nextjs-app-instance2:3000'
+          - 'nextjs-app-instance3:3000'
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
