@@ -1,12 +1,9 @@
-import { supabase } from '../../lib/supabase';
+import { Redis } from '@upstash/redis'
 
-export default async function handler(req, res) {
-  // Testni upit za dohvaćanje podataka iz tablice "Test"
-  const { data, error } = await supabase.from('nbatest').select('*');
+const redis = new Redis({
+  url: 'https://generous-jawfish-45569.upstash.io',
+  token: 'AbIBAAIjcDFkYjM2NDgyZDlkNzE0YzIyOGJkMGE5MGY5YzM5YzUxMXAxMA',
+})
 
-  if (error) {
-    res.status(500).json({ error: error.message });
-  } else {
-    res.status(200).json(data);
-  }
-}
+await redis.set('foo', 'bar');
+const data = await redis.get('foo');

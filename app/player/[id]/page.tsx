@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from "recharts";
 import { motion } from "framer-motion";
-import SearchPlayers from "../../../components/nba_comp/SearchPlayers"
+import SearchPlayers from "../../../components/nba_comp/SearchPlayers";
 import { createClient } from "@/utils/supabase/client"; // ✅ Importiraj Supabase klijent
 
 export default function PlayerPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +21,6 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
     console.log("Odabrani drugi igrač s ID-jem:", secondPlayerId);
     router.push(`/compare?player1=${resolvedParams?.id}&player2=${secondPlayerId}`);
   };
-  /*komentar*/
 
   const router = useRouter();
 
@@ -33,6 +32,7 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
 
     resolveParams();
   }, [params]);
+
   useEffect(() => {
     const fetchUser = async () => {
       const { data, error } = await supabase.auth.getSession();
@@ -41,19 +41,19 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
         console.error("Error fetching session:", error);
         return;
       }
-  
+
       if (!data?.session) {
         console.warn("No active session.");
         return;
       }
-  
+
       console.log("User authenticated:", data.session.user);
       setUser(data.session.user);
     };
-  
+
     fetchUser();
   }, []);
-  
+
   useEffect(() => {
     const fetchPlayer = async () => {
       if (!resolvedParams) return;
@@ -229,110 +229,43 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
         )}
       </div>
 
-    {/* Pie Chart za raspodjelu poena u postocima */}
-    <h2>Point Distribution</h2>
-    <PieChart width={500} height={400}>
-      <Pie
-        data={[
-          { name: "Two-Point Field Goals", value: ((stats?.FGM || 0) - (stats?.FG3M || 0)) / (stats?.PTS || 1) * 100*2 },
-          { name: "Three-Point Field Goals", value: (stats?.FG3M || 0) / (stats?.PTS || 1) * 100*3 },
-          { name: "Free Throws", value: (stats?.FTM || 0) / (stats?.PTS || 1) * 100 },
-        ]}
-        dataKey="value"
-        nameKey="name"
-        cx="50%"
-        cy="50%"
-        outerRadius={150}
-        fill="#8884d8"
-        label={({ cx, cy, midAngle, outerRadius, percent, index }) => {
-          const RADIAN = Math.PI / 180;
-          const radius = outerRadius + 20; // Pomičemo labelu van kruga
-          const x = cx + radius * Math.cos(-midAngle * RADIAN);
-          const y = cy + radius * Math.sin(-midAngle * RADIAN);
-          const value = [
-            ((stats?.FGM || 0) - (stats?.FG3M || 0)) / (stats?.PTS || 1) * 100*2,
-            (stats?.FG3M || 0) / (stats?.PTS || 1) * 100*3,
-            (stats?.FTM || 0) / (stats?.PTS || 1) * 100,
-          ][index];
+      {/* Pie Chart za raspodjelu poena u postocima */}
+      <h2>Point Distribution</h2>
+      <PieChart width={400} height={400}>
+        <Pie
+          data={pieData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          innerRadius={70}
+          outerRadius={90}
+          fill="#8884d8"
+          paddingAngle={5}
+        >
+          {pieData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
 
-          return (
-            <text
-              x={x}
-              y={y}
-              fill="black"
-              textAnchor={x > cx ? "start" : "end"}
-              dominantBaseline="central"
-              fontSize={12}
-            >
-              {`${value.toFixed(1)}%`}
-            </text>
-          );
-        }}
-      >
-        {pieColors.map((color, index) => (
-          <Cell key={`cell-${index}`} fill={pieColors[index]} />
-        ))}
-      </Pie>
-      <Tooltip formatter={(value: any) => `${value.toFixed(1)}%`} />
-    </PieChart>
-
-
-
-        <button
-      onClick={() => setShowCompareSearch(true)} // Otvori SearchPlayers komponentu
-      style={{
-        marginTop: "20px",
-        padding: "10px 20px",
-        backgroundColor: "#007BFF",
-        color: "white",
-        border: "none",
-        borderRadius: "5px",
-        cursor: "pointer",
-      }}
-    >
-      Compare
-    </button>
-    <button
-        onClick={async () => {
-          if (!player) return;
-          try {
-            const { error } = await supabase
-              .from("UserDreamTeams")
-              .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
-
-            if (error) {
-              console.error("Error adding player to Dream Team:", error);
-            } else {
-              console.log("Player added to Dream Team successfully!");
-              alert(`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`);
-            }
-          } catch (error) {
-            console.error("Unexpected error adding player:", error);
-          }
-        }}
+      {/* Search for comparison */}
+      <button
+        onClick={() => setShowCompareSearch(true)}
         style={{
-          marginTop: "20px",
           padding: "10px 20px",
-          backgroundColor: "#28A745",
-          color: "white",
+          marginTop: "20px",
+          backgroundColor: "#ffcc00",
+          color: "black",
           border: "none",
           borderRadius: "5px",
           cursor: "pointer",
         }}
       >
-        Add to Dream Team
-   </button>
-    {showCompareSearch && (
-      <div style={{ marginTop: "20px" }}>
-        <SearchPlayers
-          onPlayerSelect={(secondPlayerId: string) => {
-            handlePlayerSelect(secondPlayerId); // Ovdje pozovi logiku za odabir igrača
-            setShowCompareSearch(false); // Zatvori SearchPlayers komponentu nakon odabira
-          }}
-        />
-      </div>
-    )}
-
+        Compare Player
+      </button>
+      {showCompareSearch && <SearchPlayers onPlayerSelect={handlePlayerSelect} />}
     </div>
   );
 }

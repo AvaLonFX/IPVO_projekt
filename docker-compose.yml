@@ -1,11 +1,36 @@
 version: '3.8'
 
 services:
-  app:
-    build:
+  # Next.js instances (for load balancing)
+  nextjs-app-instance1:
+    build: 
       context: .
     ports:
-      - "3000:3000"
+      - "3001:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEXT_PUBLIC_SUPABASE_URL=https://vyhxpbndpwokyybzmugb.supabase.co
+      - NEXT_PUBLIC_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5aHhwYm5kcHdva3l5YnptdWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMjkyMjksImV4cCI6MjA1MTYwNTIyOX0.z00dgXfozx-ya9zFQbSL-zz2VCMS7tXzhPbeUzUZleg
+    depends_on:
+      - redis
+  nextjs-app-instance2:
+    build: 
+      context: .
+    ports:
+      - "3002:3000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - NEXT_PUBLIC_SUPABASE_URL=https://vyhxpbndpwokyybzmugb.supabase.co
+      - NEXT_PUBLIC_SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5aHhwYm5kcHdva3l5YnptdWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzYwMjkyMjksImV4cCI6MjA1MTYwNTIyOX0.z00dgXfozx-ya9zFQbSL-zz2VCMS7tXzhPbeUzUZleg
+    depends_on:
+      - redis
+  nextjs-app-instance3:
+    build: 
+      context: .
+    ports:
+      - "3003:3000"
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -14,8 +39,19 @@ services:
     depends_on:
       - redis
 
+  # Redis service
   redis:
     image: redis:6.2
     ports:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "yes"]
+
+  # Nginx load balancer
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - nextjs-app-instance1
+      - nextjs-app-instance2
+      - nextjs-app-instance3
