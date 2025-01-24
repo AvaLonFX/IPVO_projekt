@@ -15,7 +15,7 @@ export default function HomePage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1 className="text-center text-4xl mb-4">Welcome to the NBA App</h1>
+      <h1 className="text-center text-4xl mb-4">Welcome to the QNBA</h1>
       <p className="text-center px-2">
         Search for your favorite players and learn more about them.
       </p>

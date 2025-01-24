@@ -8,6 +8,8 @@ import { redirect } from "next/navigation";
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
+  const username = formData.get("username") as string; // Uzmi username iz forme
+
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
@@ -23,6 +25,7 @@ export const signUpAction = async (formData: FormData) => {
     email,
     password,
     options: {
+      data: {username},
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });

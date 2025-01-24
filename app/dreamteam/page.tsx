@@ -43,6 +43,7 @@ export default function DreamTeam() {
           .from("UserDreamTeams")
           .select("player_id, FullStats_NBA(PLAYER_NAME, PTS, REB, AST, Player_Rating)")
           .eq("user_id", user.id);
+          console.log("USPJESNO")
 
         if (error) {
           console.error("Error fetching Dream Team:", error);
@@ -148,7 +149,7 @@ export default function DreamTeam() {
       <h1 className="text-2xl font-semibold">
         Create Your Dream Team ({dreamTeam.length}/{MAX_PLAYERS})
       </h1>
-      <p>Welcome, {user?.email}!</p>
+      <p>Welcome, {user.user_metadata.username || user.email}!</p>
 
       <SearchPlayers onPlayerSelect={(playerId: string) => addToDreamTeam(parseInt(playerId))} />
 
