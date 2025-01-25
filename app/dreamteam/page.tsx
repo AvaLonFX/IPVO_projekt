@@ -84,27 +84,34 @@ export default function DreamTeam() {
 
   const addToDreamTeam = async (playerId: number) => {
     if (!user) return;
+  
+    const isAlreadyAdded = dreamTeam.some((player) => player.player_id === playerId);
+    if (isAlreadyAdded) {
+      alert("This player is already in your Dream Team!");
+      return; 
+    }
+  
     if (dreamTeam.length >= MAX_PLAYERS) {
       alert("You have reached the maximum number of players (12) in your Dream Team!");
       return;
     }
-
+  
     try {
       const { data: playerData, error: fetchError } = await supabase
         .from("FullStats_NBA")
         .select("PLAYER_NAME, PTS, REB, AST, Player_Rating")
         .eq("PERSON_ID", playerId)
         .single();
-
+  
       if (fetchError || !playerData) {
         console.error("Error fetching player data:", fetchError);
         return;
       }
-
+  
       const { error } = await supabase
         .from("UserDreamTeams")
         .insert([{ user_id: user.id, player_id: playerId, position: dreamTeam.length + 1 }]);
-
+  
       if (error) {
         console.error("Error adding player to Dream Team:", error);
       } else {
@@ -114,6 +121,7 @@ export default function DreamTeam() {
       console.error("Unexpected error adding player:", error);
     }
   };
+  
 
   const removeFromDreamTeam = async (playerId: number) => {
     if (!user) return;

@@ -34,6 +34,7 @@ export default function PlayerPage({
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
+  const [isPlayerInDreamTeam, setIsPlayerInDreamTeam] = useState(false);
 
   const [showCompareSearch, setShowCompareSearch] = useState(false);
   const handlePlayerSelect = (secondPlayerId: string) => {
@@ -108,6 +109,21 @@ export default function PlayerPage({
 
     fetchPlayer();
   }, [resolvedParams]);
+
+  useEffect(() => {
+    if (!user || !player) return;
+    const checkIfPlayerInDreamTeam = async () => {
+      const { data } = await supabase
+        .from("UserDreamTeams")
+        .select("player_id")
+        .eq("user_id", user.id)
+        .eq("player_id", player.PERSON_ID)
+        .single();
+
+      if (data) setIsPlayerInDreamTeam(true);
+    };
+    checkIfPlayerInDreamTeam();
+  }, [user, player]);
 
   if (!player) {
     return <p>Loading...</p>;
@@ -355,38 +371,38 @@ export default function PlayerPage({
         >
           Compare
         </button>
-        <button
-          onClick={async () => {
-            if (!player) return;
-            try {
-              const { error } = await supabase
-                .from("UserDreamTeams")
-                .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
+              <button
+        onClick={async () => {
+          if (!player || isPlayerInDreamTeam) return;
+          try {
+            const { error } = await supabase
+              .from("UserDreamTeams")
+              .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
 
-              if (error) {
-                console.error("Error adding player to Dream Team:", error);
-              } else {
-                console.log("Player added to Dream Team successfully!");
-                alert(
-                  `${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`
-                );
-              }
-            } catch (error) {
-              console.error("Unexpected error adding player:", error);
+            if (error) {
+              console.error("Error adding player to Dream Team:", error);
+            } else {
+              alert(`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`);
+              setIsPlayerInDreamTeam(true);
             }
-          }}
-          style={{
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "black",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-          }}
-        >
-          Add to Dream Team
-        </button>
+          } catch (error) {
+            console.error("Unexpected error adding player:", error);
+          }
+        }}
+        disabled={isPlayerInDreamTeam}
+        style={{
+          marginTop: "20px",
+          padding: "10px 20px",
+          backgroundColor: isPlayerInDreamTeam ? "gray" : "black",
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: isPlayerInDreamTeam ? "not-allowed" : "pointer",
+        }}
+      >
+        {isPlayerInDreamTeam ? "Player already in Dream Team" : "Add to Dream Team"}
+      </button>
+
       </div>
       {showCompareSearch && (
         <div style={{ marginTop: "20px" }}>

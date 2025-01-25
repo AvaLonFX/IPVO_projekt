@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { updateSearchCount } from "../../app/api/updateSearch"; // Import funkcije
 
 interface SearchPlayersProps {
   onPlayerClick?: (player: any) => void;
@@ -47,14 +48,20 @@ export default function SearchPlayers({ onPlayerClick, onPlayerSelect }: SearchP
     }
   };
 
-  const handlePlayerClick = (player: any) => {
+  const handlePlayerClick = async (player: any) => {
     console.log("Player clicked:", player); // Debug za provjeru odabira igrača
+    console.log(`Sending player ID ${player.PERSON_ID} to updateSearchCount`);
+
+    await updateSearchCount(player.PERSON_ID); // Poziv RPC funkcije
+    console.log("TEST");
+
     if (onPlayerSelect) {
       onPlayerSelect(player.PERSON_ID); // Ovdje prosljeđuje ID igrača u onPlayerSelect
     } else if (onPlayerClick) {
       onPlayerClick(player); // Alternativna logika za redirekciju
     }
   };
+
   
 
   const handleMouseMove = (e: React.MouseEvent) => {
