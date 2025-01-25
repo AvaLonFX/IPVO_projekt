@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabase";
+import Button from "@/components/backtosearchbutton";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 
 export const dynamic = "force-dynamic"; // Prevent prerendering
 
@@ -88,38 +91,58 @@ export default function ComparePage() {
   return (
     <div className="p-5">
       <h1 className="text-2xl font-bold mb-5 text-center">Player Comparison</h1>
-      <button
-        onClick={() => router.push("/")}
-        className="mb-5 px-4 py-2 bg-gray-200 text-black rounded-lg hover:bg-gray-300"
-      >
-        Back to Search
-      </button>
+      <Button/>
+      <br/>
       <div className="flex justify-around p-5">
-        {[{ player: player1, stats: stats1 }, { player: player2, stats: stats2 }].map(
-          ({ player, stats }, index) => (
-            <div key={index} className="w-1/2 text-center">
-              <img
-                src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PERSON_ID}.png`}
-                alt={`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME}`}
-                className="w-48 h-auto mx-auto mb-5"
-              />
-              <h2 className="text-xl font-bold">
-                {player.PLAYER_FIRST_NAME} {player.PLAYER_LAST_NAME}
-              </h2>
-              <p>Team: {player.TEAM_NAME || "No Team"}</p>
-              <p>Position: {player.POSITION}</p>
-              <p>Height: {player.HEIGHT}</p>
-              <p>Weight: {player.WEIGHT}</p>
-              <p>College: {player.COLLEGE || "N/A"}</p>
-              <p>Country: {player.COUNTRY}</p>
-              <p>Draft Year: {player.DRAFT_YEAR || "N/A"}</p>
-              <p>Draft Round: {player.DRAFT_ROUND || "N/A"}</p>
-              <p>Draft Number: {player.DRAFT_NUMBER || "N/A"}</p>
-              <br />
-            </div>
-          )
-        )}
-      </div>
+  {[{ player: player1, stats: stats1 }, { player: player2, stats: stats2 }].map(
+    ({ player, stats }, index) => (
+      <Card key={player.PERSON_ID} className="mb-8 m-2">
+        <CardHeader>
+          <CardTitle>
+            {player.PLAYER_FIRST_NAME} {player.PLAYER_LAST_NAME}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col md:flex-row items-center gap-6 justify-between">
+          <img
+            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PERSON_ID}.png`}
+            alt={`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME}`}
+            className="w-60 h-auto rounded-lg"
+          />
+          <div className="space-y-2 text-sm text-right">
+            <p>
+              <strong>Team:</strong> {player.TEAM_NAME || "No Team"}
+            </p>
+            <p>
+              <strong>Position:</strong> {player.POSITION}
+            </p>
+            <p>
+              <strong>Height:</strong> {player.HEIGHT}
+            </p>
+            <p>
+              <strong>Weight:</strong> {player.WEIGHT}
+            </p>
+            <p>
+              <strong>College:</strong> {player.COLLEGE || "N/A"}
+            </p>
+            <p>
+              <strong>Country:</strong> {player.COUNTRY}
+            </p>
+            <p>
+              <strong>Draft Year:</strong> {player.DRAFT_YEAR || "N/A"}
+            </p>
+            <p>
+              <strong>Draft Round:</strong> {player.DRAFT_ROUND || "N/A"}
+            </p>
+            <p>
+              <strong>Draft Number:</strong> {player.DRAFT_NUMBER || "N/A"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  )}
+</div>
+
       <div className="text-center mb-5">
         <button
           onClick={() => setActiveChart("total")}

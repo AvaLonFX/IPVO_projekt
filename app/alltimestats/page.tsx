@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
+import Button from "@/components/backtosearchbutton";
+
 
 export default function AllTimeStats() {
   const [players, setPlayers] = useState<any[]>([]);
@@ -55,12 +57,7 @@ export default function AllTimeStats() {
     <div className="p-6">
       {/* Back to Search Button */}
       <div className="mb-6">
-        <button
-          onClick={() => router.push("../")}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Back to Search
-        </button>
+        <Button/>
       </div>
 
       <h2 className="text-2xl font-semibold mb-4">Explore Players by Stats</h2>
