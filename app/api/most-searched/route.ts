@@ -1,21 +1,24 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/server";
+import { supabase } from "@/lib/supabase";
+
+export const revalidate = 600;
 
 export async function GET() {
-  const supabase = createClient();
-  console.log("Fetching most searched players...");
+    try {
+        const { data, error } = await supabase
+            .from("searchstats")
+            .select("player_id, search_count, FullStats_NBA(PLAYER_NAME)")
+            .order("search_count", { ascending: false })
+            .limit(5);
 
-  const { data, error } = await (await supabase)
-    .from("searchstats")
-    .select("player_id, search_count, FullStats_NBA(PLAYER_NAME)")
-    .order("search_count", { ascending: false })
-    .limit(5);
+        if (error) throw error;
 
-  if (error) {
-    console.error("Supabase error:", error);  // LOG ERRORA U KONZOLU
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  console.log("Fetched data:", data);
-  return NextResponse.json(data, { status: 200 });
+        return NextResponse.json(data, {
+            headers: {
+                "Cache-Control": "s-maxage=600, stale-while-revalidate=300",
+            }
+        });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 }
