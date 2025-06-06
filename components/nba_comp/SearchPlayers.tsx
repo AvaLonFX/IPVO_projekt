@@ -58,7 +58,7 @@ export default function SearchPlayers({ onPlayerClick, onPlayerSelect }: SearchP
     if (onPlayerSelect) {
       onPlayerSelect(player.PERSON_ID); // Ovdje prosljeđuje ID igrača u onPlayerSelect
     } else if (onPlayerClick) {
-      onPlayerClick(player); // Alternativna logika za redirekciju
+      onPlayerClick(player.PERSON_ID); // Alternativna logika za redirekciju
     }
   };
 

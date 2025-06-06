@@ -9,6 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import "./globals.css";
 import DreamtButton from "@/components/dreamt-button";
+import TeamsButton from "@/components/teams-button";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -55,6 +56,7 @@ export default function RootLayout({
                     </Link>
                     <div className="flex items-center gap-2">
                       {/**<DeployButton />**/}
+                      <TeamsButton />
                       <DreamtButton />
                     </div>
                   </div>

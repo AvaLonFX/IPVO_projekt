@@ -20,6 +20,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Button from "@/components/backtosearchbutton";
 import SearchPlayers from "../../../components/nba_comp/SearchPlayers";
 import { createClient } from "@/utils/supabase/client"; // ✅ Importiraj Supabase klijent
+import axios from "axios";
 
 export default function PlayerPage({
   params,
@@ -35,6 +36,9 @@ export default function PlayerPage({
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const [isPlayerInDreamTeam, setIsPlayerInDreamTeam] = useState(false);
+  const [reactionCounts, setReactionCounts] = useState<{
+    [key: string]: number;
+  }>({});
 
   const [showCompareSearch, setShowCompareSearch] = useState(false);
   const handlePlayerSelect = (secondPlayerId: string) => {
@@ -125,6 +129,21 @@ export default function PlayerPage({
     checkIfPlayerInDreamTeam();
   }, [user, player]);
 
+  useEffect(() => {
+    if (!resolvedParams) return;
+    const fetchReactions = async () => {
+      const res = await fetch(`/api/reactions?player_id=${resolvedParams.id}`);
+      const data = await res.json();
+      const counts: { [key: string]: number } = {};
+      data.forEach((item: { _id: string; count: number }) => {
+        counts[item._id] = item.count;
+      });
+      setReactionCounts(counts);
+    };
+
+    fetchReactions();
+  }, [resolvedParams]);
+
   if (!player) {
     return <p>Loading...</p>;
   }
@@ -213,6 +232,38 @@ export default function PlayerPage({
           </div>
         </CardContent>
       </Card>
+
+      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+        <p style={{ fontWeight: "bold", marginBottom: "8px" }}>
+          React to player:
+        </p>
+        {["🔥", "🐐", "🗑️"].map((emoji) => (
+          <button
+            key={emoji}
+            onClick={async () => {
+              await axios.post("/api/reactions", {
+                user_id: user?.id,
+                player_id: player.PERSON_ID,
+                reaction: emoji,
+              });
+
+              setReactionCounts((prev) => ({
+                ...prev,
+                [emoji]: (prev[emoji] || 0) + 1,
+              }));
+            }}
+            style={{
+              fontSize: "2rem",
+              margin: "0 10px",
+              cursor: "pointer",
+              background: "none",
+              border: "none",
+            }}
+          >
+            {emoji} {reactionCounts[emoji] || 0}
+          </button>
+        ))}
+      </div>
 
       <br />
       <br />
@@ -351,11 +402,13 @@ export default function PlayerPage({
         <Tooltip formatter={(value: any) => `${value.toFixed(1)}%`} />
       </PieChart>
 
-      <div style={{
+      <div
+        style={{
           display: "flex",
           justifyContent: "center",
           marginBottom: "20px",
-        }}>
+        }}
+      >
         <button
           onClick={() => setShowCompareSearch(true)} // Otvori SearchPlayers komponentu
           style={{
@@ -371,38 +424,41 @@ export default function PlayerPage({
         >
           Compare
         </button>
-              <button
-        onClick={async () => {
-          if (!player || isPlayerInDreamTeam) return;
-          try {
-            const { error } = await supabase
-              .from("UserDreamTeams")
-              .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
+        <button
+          onClick={async () => {
+            if (!player || isPlayerInDreamTeam) return;
+            try {
+              const { error } = await supabase
+                .from("UserDreamTeams")
+                .insert([{ user_id: user?.id, player_id: player.PERSON_ID }]);
 
-            if (error) {
-              console.error("Error adding player to Dream Team:", error);
-            } else {
-              alert(`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`);
-              setIsPlayerInDreamTeam(true);
+              if (error) {
+                console.error("Error adding player to Dream Team:", error);
+              } else {
+                alert(
+                  `${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME} added to your Dream Team!`
+                );
+                setIsPlayerInDreamTeam(true);
+              }
+            } catch (error) {
+              console.error("Unexpected error adding player:", error);
             }
-          } catch (error) {
-            console.error("Unexpected error adding player:", error);
-          }
-        }}
-        disabled={isPlayerInDreamTeam}
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          backgroundColor: isPlayerInDreamTeam ? "gray" : "black",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: isPlayerInDreamTeam ? "not-allowed" : "pointer",
-        }}
-      >
-        {isPlayerInDreamTeam ? "Player already in Dream Team" : "Add to Dream Team"}
-      </button>
-
+          }}
+          disabled={isPlayerInDreamTeam}
+          style={{
+            marginTop: "20px",
+            padding: "10px 20px",
+            backgroundColor: isPlayerInDreamTeam ? "gray" : "black",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: isPlayerInDreamTeam ? "not-allowed" : "pointer",
+          }}
+        >
+          {isPlayerInDreamTeam
+            ? "Player already in Dream Team"
+            : "Add to Dream Team"}
+        </button>
       </div>
       {showCompareSearch && (
         <div style={{ marginTop: "20px" }}>

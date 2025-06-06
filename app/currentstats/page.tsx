@@ -5,25 +5,37 @@ import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import Button from "@/components/backtosearchbutton";
 
-
 export default function CurrentStats() {
   const [players, setPlayers] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("PTS");
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [page, setPage] = useState<number>(1);
+  const [teamFilter, setTeamFilter] = useState<string>(""); // Team filter
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
   const playersPerPage = 10;
   const router = useRouter();
 
+  const nbaTeams = [
+    "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
+    "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK",
+    "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
+  ];
+
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const { data, error, count } = await supabase
+        let query = supabase
           .from("CurrentStats_NBA")
           .select("*", { count: "exact" })
           .neq(filter, 0)
           .order(filter, { ascending: order === "asc" })
           .range((page - 1) * playersPerPage, page * playersPerPage - 1);
+
+        if (teamFilter) {
+          query = query.eq("TEAM_ABBREVIATION", teamFilter);
+        }
+
+        const { data, error, count } = await query;
 
         if (error) {
           console.error("Error fetching players:", error);
@@ -37,7 +49,7 @@ export default function CurrentStats() {
     };
 
     fetchPlayers();
-  }, [filter, order, page]);
+  }, [filter, order, page, teamFilter]);
 
   const nextPage = () => {
     if (page < Math.ceil(totalPlayers / playersPerPage)) setPage(page + 1);
@@ -55,15 +67,14 @@ export default function CurrentStats() {
 
   return (
     <div className="p-6">
-      {/* Back to Search Button */}
       <div className="mb-6">
-        <Button/>
+        <Button />
       </div>
 
       <h2 className="text-2xl font-semibold mb-4">Explore Players by Stats</h2>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-wrap items-center gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium">Filter by:</label>
           <select
@@ -78,7 +89,7 @@ export default function CurrentStats() {
             <option value="BLK">Blocks</option>
             <option value="FG_PCT">Field Goal %</option>
             <option value="FT_PCT">Free Throw %</option>
-            <option value="Player_Rating">Player Rating</option> {/* Dodano */}
+            <option value="Player_Rating">Player Rating</option>
           </select>
         </div>
 
@@ -93,9 +104,28 @@ export default function CurrentStats() {
             <option value="desc">Descending</option>
           </select>
         </div>
+
+        <div>
+          <label className="block text-sm font-medium">Team:</label>
+          <select
+            value={teamFilter}
+            onChange={(e) => {
+              setTeamFilter(e.target.value);
+              setPage(1); // reset to page 1 on new filter
+            }}
+            className="mt-1 px-3 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="">All Teams</option>
+            {nbaTeams.map((team) => (
+              <option key={team} value={team}>
+                {team}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      {/* Players Table */}
+      {/* Table */}
       {players.length > 0 ? (
         <div>
           <table className="w-full border-collapse border border-gray-300 mb-6 text-sm">
@@ -110,7 +140,7 @@ export default function CurrentStats() {
                   "Blocks",
                   "FG %",
                   "FT %",
-                  "Player Rating", // Dodano
+                  "Player Rating"
                 ].map((heading) => (
                   <th key={heading} className="px-4 py-2 text-left border">
                     {heading}
@@ -123,7 +153,9 @@ export default function CurrentStats() {
                 <tr
                   key={player.PLAYER_ID}
                   className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => window.location.assign(`/player/${player.PLAYER_ID}`)}
+                  onClick={() =>
+                    window.location.assign(`/player/${player.PLAYER_ID}`)
+                  }
                 >
                   <td className="px-4 py-2 border">{player.PLAYER_NAME}</td>
                   <td className="px-4 py-2 border">{player.PTS || 0}</td>
@@ -137,7 +169,7 @@ export default function CurrentStats() {
                   <td className="px-4 py-2 border">
                     {player.FT_PCT ? parseFloat(player.FT_PCT).toFixed(2) : 0}
                   </td>
-                  <td className="px-4 py-2 border bg-green-100 text-green-700 font-semibold">{/* Dodano */}
+                  <td className="px-4 py-2 border bg-green-100 text-green-700 font-semibold">
                     {player.Player_Rating || 0}
                   </td>
                 </tr>
