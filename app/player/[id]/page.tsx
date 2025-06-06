@@ -36,6 +36,9 @@ export default function PlayerPage({
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const [isPlayerInDreamTeam, setIsPlayerInDreamTeam] = useState(false);
+  const [hofChance, setHofChance] = useState<number | null>(null);
+  const [animatedChance, setAnimatedChance] = useState<number>(0);
+
   const [reactionCounts, setReactionCounts] = useState<{
     [key: string]: number;
   }>({});
@@ -113,6 +116,43 @@ export default function PlayerPage({
 
     fetchPlayer();
   }, [resolvedParams]);
+
+  useEffect(() => {
+    if (!resolvedParams) return;
+
+    const fetchHOFProbability = async () => {
+      const { data, error } = await supabase
+        .from("Active_Players_HOF_Predictions")
+        .select("HOF_Probability")
+        .eq("PLAYER_ID", resolvedParams.id)
+        .single();
+
+      if (error || !data || data.HOF_Probability === undefined) {
+        // Silently skip HOF if prediction is not available
+        return;
+      }
+
+      if (data?.HOF_Probability !== undefined) {
+        setHofChance(data.HOF_Probability);
+      }
+    };
+
+    fetchHOFProbability();
+  }, [resolvedParams]);
+
+  useEffect(() => {
+    if (hofChance === null) return;
+
+    let current = 0;
+    const target = hofChance;
+    const interval = setInterval(() => {
+      current += 1;
+      setAnimatedChance(Math.min(current, target));
+      if (current >= target) clearInterval(interval);
+    }, 20); // brzina punjenja
+
+    return () => clearInterval(interval);
+  }, [hofChance]);
 
   useEffect(() => {
     if (!user || !player) return;
@@ -232,6 +272,41 @@ export default function PlayerPage({
           </div>
         </CardContent>
       </Card>
+
+      {hofChance !== null && (
+        <div style={{ margin: "20px 0" }}>
+          <p style={{ fontWeight: "bold", textAlign: "center" }}>
+            Hall of Fame Probability
+          </p>
+          <div
+            style={{
+              height: "30px",
+              width: "100%",
+              backgroundColor: "#e0e0e0",
+              borderRadius: "10px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                width: `${animatedChance}%`,
+                background: `linear-gradient(90deg, #4CAF50, #81C784)`,
+                transition: "width 0.2s ease-in-out",
+              }}
+            ></div>
+          </div>
+          <p
+            style={{
+              textAlign: "center",
+              marginTop: "5px",
+              fontWeight: "bold",
+            }}
+          >
+            {animatedChance.toFixed(1)}%
+          </p>
+        </div>
+      )}
 
       <div style={{ textAlign: "center", marginBottom: "20px" }}>
         <p style={{ fontWeight: "bold", marginBottom: "8px" }}>
