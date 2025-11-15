@@ -10,6 +10,7 @@ import Image from "next/image";
 import "./globals.css";
 import DreamtButton from "@/components/dreamt-button";
 import TeamsButton from "@/components/teams-button";
+import GuessButton from "@/components/guess-button";   
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -42,9 +43,13 @@ export default function RootLayout({
         >
           <main className="min-h-screen flex flex-col items-center">
             <div className="flex-1 w-full flex flex-col gap-20 items-center">
+
+              {/* NAVBAR */}
               <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
                 <div className="w-full max-w-8xl flex justify-between items-center p-3 px-5 text-sm">
                   <div className="flex gap-5 items-center font-semibold">
+
+                    {/* LOGO */}
                     <Link href={"/"}>
                       <Image
                         src="/slike_test/qnba_logo.png"
@@ -54,19 +59,33 @@ export default function RootLayout({
                         priority
                       />
                     </Link>
+
+                    {/* BUTTONI */}
                     <div className="flex items-center gap-2">
-                      {/**<DeployButton />**/}
                       <TeamsButton />
                       <DreamtButton />
+                      <GuessButton /> 
                     </div>
                   </div>
+
                   {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
                 </div>
               </nav>
-              <div className="flex flex-col gap-20 max-w-5xl p-5">
-                {children}
+
+              {/* CONTENT */}
+              <div
+                  className={`
+                    flex flex-col gap-20 p-5 w-full
+                    ${typeof window !== "undefined" && window.location.pathname === "/guess"
+                      ? "max-w-none" 
+                      : "max-w-5xl"}
+                  `}
+                >
+                    {children}
               </div>
 
+
+              {/* FOOTER */}
               <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
                 <p>
                   Powered by{" "}
@@ -81,6 +100,7 @@ export default function RootLayout({
                 </p>
                 <ThemeSwitcher />
               </footer>
+
             </div>
           </main>
         </ThemeProvider>
