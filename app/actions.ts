@@ -42,22 +42,23 @@ export const signUpAction = async (formData: FormData) => {
   }
 };
 
-export const signInAction = async (formData: FormData) => {
+export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const supabase = await createClient();
+  const redirectTo = (formData.get("redirectTo") as string) || "/";
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    return {
+      message: error.message,
+      redirect: redirectTo,
+    };
   }
 
-  return redirect("/");
-};
+  redirect(redirectTo);
+}
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -135,3 +136,22 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
+export async function signInWithGoogleAction() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`, 
+      // ili neka tvoja ruta na koju Supabase vraća usera
+    },
+  });
+
+  if (error) {
+    console.error(error);
+    throw new Error("Google sign-in failed");
+  }
+
+  // Supabase vraća URL za redirect – pošaljemo tamo usera
+  return redirect(data.url);
+}

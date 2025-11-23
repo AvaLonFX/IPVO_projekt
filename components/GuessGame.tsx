@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { GuessStatsChart } from "@/components/GuessStatsChart";
 import SearchPlayers from "@/components/nba_comp/SearchPlayers";
 
 type PlayerInfo = {
-  id: number;
+  id: number | string;
   name: string;
   team: string | null;
   position: string | null;
@@ -20,8 +21,14 @@ type Stats = {
   ast: number;
 };
 
+type GuessEntry = {
+  id: number;
+  name: string;
+  correct: boolean;
+};
+
 type GuessGameProps = {
-  apiPath: string;        // npr. "/api/guess/alltime-practice"
+  apiPath: string;
   title: string;
   subtitle: string;
 };
@@ -35,6 +42,9 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
   const [loading, setLoading] = useState(false);
   const [finished, setFinished] = useState(false);
 
+  const [guesses, setGuesses] = useState<GuessEntry[]>([]);
+  const [guessedIds, setGuessedIds] = useState<number[]>([]);
+
   const maxAttempts = 6;
   const maxHints = 4;
 
@@ -44,6 +54,8 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
     setAttempts(0);
     setHints(0);
     setFinished(false);
+    setGuesses([]);
+    setGuessedIds([]);
 
     try {
       const res = await fetch(apiPath);
@@ -51,7 +63,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
       console.log("API response:", apiPath, data);
 
       if (!res.ok || data.error) {
-        setMessage("Greška pri dohvaćanju igrača: " + (data.error || ""));
+        setMessage("Error fetching player: " + (data.error || ""));
         setStats(null);
         setPlayer(null);
         return;
@@ -61,7 +73,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
       setStats(data.stats);
     } catch (err) {
       console.error("Fetch error:", err);
-      setMessage("Dogodila se greška.");
+      setMessage("An error occurred while loading player data.");
       setStats(null);
       setPlayer(null);
     } finally {
@@ -73,26 +85,46 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
     loadNewPlayer();
   }, [apiPath]);
 
-  const handlePlayerSelect = (selected: any) => {
+  // Called when player is clicked in SearchPlayers
+  const handlePlayerGuess = (clicked: any) => {
     if (!player || finished) return;
 
-    const selectedNumericId = Number(
-      selected.PERSON_ID ?? selected.PLAYER_ID
-    );
+    const selectedNumericId = Number(clicked.PERSON_ID ?? clicked.PLAYER_ID);
+    const targetNumericId = Number(player.id);
+
+    // Prevent guessing same player twice
+    if (guessedIds.includes(selectedNumericId)) {
+      setMessage("You already guessed this player. Try someone else.");
+      return;
+    }
+
     const newAttempts = attempts + 1;
     setAttempts(newAttempts);
+    setGuessedIds((prev) => [...prev, selectedNumericId]);
 
-    if (selectedNumericId === player.id) {
-      setMessage(`TOČNO! Igrač je ${player.name}.`);
+    const guessName = `${clicked.PLAYER_FIRST_NAME} ${clicked.PLAYER_LAST_NAME}`;
+    const isCorrect = selectedNumericId === targetNumericId;
+
+    setGuesses((prev) => [
+      ...prev,
+      {
+        id: selectedNumericId,
+        name: guessName,
+        correct: isCorrect,
+      },
+    ]);
+
+    if (isCorrect) {
+      setMessage(`Correct! The player is ${player.name}.`);
       setFinished(true);
     } else {
       if (newAttempts >= maxAttempts) {
         setMessage(
-          `Iskoristio si sve pokušaje. Traženi igrač je bio ${player.name}.`
+          `You've used all attempts. The correct player was ${player.name}.`
         );
         setFinished(true);
       } else {
-        setMessage("Netočno, pokušaj ponovo!");
+        setMessage("Incorrect! Try again.");
       }
     }
   };
@@ -108,7 +140,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
       if (newAttempts >= maxAttempts && player) {
         setFinished(true);
         setMessage(
-          `Iskoristio si sve pokušaje. Traženi igrač je bio ${player.name}.`
+          `You've used all attempts. The correct player was ${player.name}.`
         );
       }
 
@@ -119,13 +151,13 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50 px-4 py-10 flex justify-center">
       <div className="w-full max-w-4xl">
-        {/* header */}
+        {/* Header */}
         <header className="mb-6">
           <h1 className="text-3xl font-bold">{title}</h1>
           <p className="text-slate-300">{subtitle}</p>
         </header>
 
-        {/* slika + graf */}
+        {/* Image + Chart */}
         <section className="mb-10">
           <div className="grid gap-8 md:grid-cols-2 md:items-center">
             {player && (
@@ -140,14 +172,13 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
                     className={`h-64 w-64 md:h-80 md:w-80 object-cover transition-all duration-700
                       ${finished ? "blur-0 brightness-100" : "blur-xl brightness-75"}`}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display =
-                        "none";
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
                     }}
                   />
                   {!finished && (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="text-xs uppercase tracking-wide text-slate-100/85 bg-slate-900/70 px-3 py-1 rounded-full">
-                        Tko je ovaj igrač?
+                        Who is this player?
                       </span>
                     </div>
                   )}
@@ -157,7 +188,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
 
             <div className="flex justify-center">
               <div className="w-full">
-                {loading && <p>Učitavanje igrača...</p>}
+                {loading && <p>Loading player...</p>}
                 {!loading && stats && (
                   <GuessStatsChart
                     pts={stats.pts}
@@ -166,53 +197,79 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
                   />
                 )}
                 {!loading && !stats && (
-                  <p className="text-slate-300">Nema dostupne statistike.</p>
+                  <p className="text-slate-300">No stats available.</p>
                 )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* search + hintovi + status */}
+        {/* Search + hints + status */}
         <section className="bg-slate-900/80 rounded-xl p-5 space-y-4 border border-slate-700">
-          <SearchPlayers onPlayerSelect={handlePlayerSelect} />
+          <SearchPlayers
+            onPlayerClick={handlePlayerGuess}
+            inputTextColor="black"
+          />
 
           <div className="flex items-center justify-between text-sm text-slate-300">
             <span>
-              Pokušaj: {attempts} / {maxAttempts}
+              Attempts: {attempts} / {maxAttempts}
             </span>
             <button
               onClick={revealHint}
               disabled={hints >= maxHints || finished}
               className="text-emerald-400 hover:underline disabled:opacity-40"
             >
-              Prikaži hint ({hints}/{maxHints})
+              Show hint ({hints}/{maxHints})
             </button>
           </div>
 
+          {/* Hints */}
           {player && hints > 0 && (
             <div className="space-y-2 text-sm text-slate-200">
               {hints >= 1 && (
                 <div className="p-2 bg-slate-800 rounded-md border border-slate-700">
-                  <strong>Pozicija:</strong> {player.position || "N/A"}
+                  <strong>Position:</strong> {player.position || "N/A"}
                 </div>
               )}
               {hints >= 2 && (
                 <div className="p-2 bg-slate-800 rounded-md border border-slate-700">
-                  <strong>Tim:</strong> {player.team || "N/A"}
+                  <strong>Team:</strong> {player.team || "N/A"}
                 </div>
               )}
               {hints >= 3 && (
                 <div className="p-2 bg-slate-800 rounded-md border border-slate-700">
-                  <strong>Država / visina:</strong>{" "}
+                  <strong>Country / Height:</strong>{" "}
                   {player.country || "N/A"} / {player.height || "N/A"}
                 </div>
               )}
               {hints >= 4 && (
                 <div className="p-2 bg-slate-800 rounded-md border border-slate-700">
-                  <strong>Draft godina:</strong> {player.draftYear || "N/A"}
+                  <strong>Draft Year:</strong> {player.draftYear || "N/A"}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Guess history */}
+          {guesses.length > 0 && (
+            <div className="mt-3 text-sm text-slate-200">
+              <p className="font-semibold mb-1">Guess history:</p>
+              <ul className="space-y-1">
+                {guesses.map((g, idx) => (
+                  <li
+                    key={`${g.id}-${idx}`}
+                    className={`flex justify-between text-xs md:text-sm ${
+                      g.correct ? "text-emerald-400" : "text-slate-300"
+                    }`}
+                  >
+                    <span>
+                      {idx + 1}. {g.name}
+                    </span>
+                    <span>{g.correct ? "✅ Correct" : "❌ Incorrect"}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -221,7 +278,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
           {finished && player && (
             <div className="mt-3 p-4 rounded-xl bg-slate-800 border border-emerald-500/70">
               <p className="text-xs uppercase tracking-wide text-emerald-400 mb-1">
-                Otkriveni igrač
+                Revealed Player
               </p>
               <p className="text-lg font-bold text-white">{player.name}</p>
               <p className="text-xs text-gray-300">
@@ -233,12 +290,23 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
           )}
 
           {finished && (
-            <button
-              onClick={loadNewPlayer}
-              className="mt-4 px-6 py-3 rounded-lg text-white bg-black hover:bg-gray-800 transition font-semibold"
-            >
-              Novi igrač
-            </button>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                onClick={loadNewPlayer}
+                className="px-6 py-3 rounded-lg text-white bg-black hover:bg-gray-800 transition font-semibold"
+              >
+                New Player
+              </button>
+
+              {player && (
+                <Link
+                  href={`/player/${player.id}`}
+                  className="px-6 py-3 rounded-lg text-white bg-black hover:bg-gray-800 transition font-semibold"
+                >
+                  Show stats
+                </Link>
+              )}
+            </div>
           )}
         </section>
       </div>

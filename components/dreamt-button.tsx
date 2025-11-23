@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 
@@ -9,7 +10,7 @@ export default function DreamtButton() {
     <Button
       className="flex items-center gap-2"
       size="sm"
-      onClick={() => router.push("/dreamteam")} // Navigate to /dreamteam on click
+      onClick={() => router.push("/dreamteam")}
     >
       <svg
         className="h-3 w-3"
