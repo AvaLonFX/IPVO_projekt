@@ -5,7 +5,7 @@ export default function CurrentPracticePage() {
     <GuessGame
       apiPath="/api/guess/current-practice"
       title="Current Practice"
-      subtitle="Aktivni NBA igrači – statistika ove sezone."
+      subtitle="Active NBA players – statistika ove sezone."
     />
   );
 }
