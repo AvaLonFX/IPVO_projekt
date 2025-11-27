@@ -1,24 +1,50 @@
-import { createClient } from "@/utils/supabase/server";
+// app/auth/callback/route.ts
 import { NextResponse } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function GET(request: Request) {
-  // The `/auth/callback` route is required for the server-side auth flow implemented
-  // by the SSR package. It exchanges an auth code for the user's session.
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
-  const requestUrl = new URL(request.url);
-  const code = requestUrl.searchParams.get("code");
-  const origin = requestUrl.origin;
-  const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
+  const url = new URL(request.url);
+  const code = url.searchParams.get("code");
+  const redirectTo = url.searchParams.get("redirect_to") || "/";
 
-  if (code) {
-    const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+  // Odmah pripremimo response na koji ćemo ZAPISATI cookie
+  const response = NextResponse.redirect(new URL(redirectTo, url.origin));
+
+  if (!code) {
+    return response;
   }
 
-  if (redirectTo) {
-    return NextResponse.redirect(`${origin}${redirectTo}`);
+  // Supabase client koji koristi REQUEST za čitanje cookieja
+  // i RESPONSE za zapisivanje cookieja (ključna razlika!)
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          const cookie = request.headers
+            .get("cookie")
+            ?.split("; ")
+            .find((c) => c.startsWith(`${name}=`));
+          return cookie?.split("=")[1];
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set(name, value, options);
+        },
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set(name, "", { ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error("exchangeCodeForSession error:", error.message);
+    // Ako želiš, možeš ovdje redirectat na /sign-in?error=...
   }
 
-  // URL to redirect to after sign up process completes
-  return NextResponse.redirect(`${origin}/`);
+  // Vraćamo response koji sada u sebi ima postavljen Supabase session cookie
+  return response;
 }
