@@ -5,13 +5,21 @@ const { v4: uuidv4 } = require("uuid");
 // Supabase setup
 const supabase = createClient(
   "https://fdlcdiqvbldqwjbbdjhv.supabase.co/",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbGNkaXF2YmxkcXdqYmJkamh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzQwNTcsImV4cCI6MjA3ODY1MDA1N30._ZYUsn03GY-Co6gKNCJCovjvrMkxewilL9tzYGP8jWM"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbGNkaXF2YmxkcXdqYmJkamh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzQwNTcsImV4cCI6MjA3ODY1MDA1N30._ZYUsn03GY-Co6gKNCJCovjvrMkxewilL9tzYGP8jWM" // IMPORTANT: use service_role, not anon
 );
 
-// Fetch and upsert WNBA schedule
-const fetchWNBA = async () => {
+const fetchNBA = async () => {
   try {
-    const res = await axios.get("https://www.wnba.com/api/schedule?season=2025&regionId=1");
+    const res = await axios.get(
+      "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json",
+      {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Cache-Control": "no-cache",
+        }
+      }
+    );
+
     const gameDates = res.data?.leagueSchedule?.gameDates;
 
     if (!gameDates || !Array.isArray(gameDates)) {
@@ -23,10 +31,11 @@ const fetchWNBA = async () => {
 
     for (const dateEntry of gameDates) {
       const date = dateEntry.gameDate;
+
       for (const game of dateEntry.games) {
         flatGames.push({
           gameID: uuidv4(),
-          date: new Date(game.gameDateEst).toISOString().split("T")[0],
+          date: date, // NBA already gives YYYY-MM-DD
           homeTeam: game.homeTeam?.teamTricode || "TBD",
           awayTeam: game.awayTeam?.teamTricode || "TBD",
           startTime: game.gameDateTimeUTC || null,
@@ -35,7 +44,7 @@ const fetchWNBA = async () => {
       }
     }
 
-    console.log(`📋 Fetched ${flatGames.length} games. Uploading...`);
+    console.log(`📋 Fetched ${flatGames.length} NBA games. Uploading...`);
 
     for (const game of flatGames) {
       const { error } = await supabase
@@ -47,10 +56,11 @@ const fetchWNBA = async () => {
       }
     }
 
-    console.log("✅ WNBA schedule successfully upserted.");
+    console.log("✅ NBA schedule successfully upserted.");
+
   } catch (err) {
     console.error("❌ Fetch failed:", err.message);
   }
 };
 
-fetchWNBA();
+fetchNBA();

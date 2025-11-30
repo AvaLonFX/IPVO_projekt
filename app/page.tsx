@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import SearchPlayers from "../components/nba_comp/SearchPlayers";
-import WNBASchedule from "@/components/WNBASchedule";
+import NBASchedule from "@/components/NBASchedule";
 
 import Image from "next/image";
 import "../styles/globals.css";
@@ -136,7 +136,7 @@ export default function HomePage() {
 
         {/* WNBA Schedule Section */}
         <div style={{ marginTop: "50px" }}>
-          <WNBASchedule />
+          <NBASchedule />
         </div>
       </div>
 
