@@ -43,6 +43,7 @@ export default function GuessHubPage() {
               <p className="text-sm text-slate-300">{c.desc}</p>
             </Link>
           ))}
+          <script src="//code.tidio.co/t0zsr4txzmtglq7in179bxsfexa8dn7w.js" async></script>
         </div>
       </div>
     </main>
