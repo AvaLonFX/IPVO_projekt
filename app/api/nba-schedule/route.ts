@@ -6,7 +6,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("GameSchedule")
     .select("*")
-    .gt("startTime", new Date().toISOString()) // just for filtering future games
+    .gt("startTime", new Date().toISOString())
     .order("startTime", { ascending: true })
     .limit(25);
 
