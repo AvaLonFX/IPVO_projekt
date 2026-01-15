@@ -4,9 +4,15 @@ import { updateSession } from "@/utils/supabase/middleware";
 export async function middleware(request: NextRequest) {
   const url = request.nextUrl;
 
-  // FIX za Vercel/Supabase OAuth: ponekad vrati na "/" s ?code=...
-  // Preusmjeri na /auth/callback da se odradi exchangeCodeForSession
-  if (url.pathname === "/" && url.searchParams.get("code")) {
+  const hasCode = url.searchParams.has("code");
+  const isHome = url.pathname === "/";
+  const isAnalyticsFlow =
+    url.searchParams.has("scope") ||
+    url.searchParams.get("state")?.startsWith("ga") ||
+    url.searchParams.get("redirect_uri")?.includes("/analytics/callback");
+
+  // FIX za Supabase OAuth, ali NE diraj GA OAuth
+  if (isHome && hasCode && !isAnalyticsFlow) {
     url.pathname = "/auth/callback";
     return NextResponse.redirect(url);
   }
