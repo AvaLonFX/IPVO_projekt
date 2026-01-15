@@ -92,6 +92,10 @@ export default function RootLayout({
                       <TeamsButton />
                       <DreamtButton />
                       <GuessButton />
+                      <Link className="px-3 py-2 rounded-md border" href="/analytics">
+                            Analytics
+                       </Link>
+
                     </div>
                   </div>
 
