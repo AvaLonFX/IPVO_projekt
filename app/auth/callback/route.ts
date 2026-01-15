@@ -1,38 +1,33 @@
 // app/auth/callback/route.ts
 import { NextResponse } from "next/server";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const redirectTo = url.searchParams.get("redirect_to") || "/";
 
-  // Response na koji ćemo ZAPISATI cookie
+  const cookieStore = await cookies();
+
   const response = NextResponse.redirect(new URL(redirectTo, url.origin));
 
-  if (!code) {
-    return response;
-  }
+  if (!code) return response;
 
-  // Supabase client koji:
-  // - cookie čita iz requesta
-  // - cookie ZAPISUJE u response
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          const raw = request.headers.get("cookie") ?? "";
-          const cookies = raw.split("; ").map((c) => c.split("="));
-          const cookie = cookies.find(([n]) => n === name);
-          return cookie?.[1];
+          return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: CookieOptions) {
-          response.cookies.set(name, value, options);
+        set(name: string, value: string, options: any) {
+          // NextResponse cookies API
+          response.cookies.set({ name, value, ...options });
         },
-        remove(name: string, options: CookieOptions) {
-          response.cookies.set(name, "", { ...options, maxAge: 0 });
+        remove(name: string, options: any) {
+          response.cookies.set({ name, value: "", ...options, maxAge: 0 });
         },
       },
     }
@@ -42,7 +37,7 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("exchangeCodeForSession error:", error.message);
-    // možeš i redirectati natrag na /sign-in?error=...
+    // opciono: return NextResponse.redirect(new URL(`/sign-in?error=${encodeURIComponent(error.message)}`, url.origin));
   }
 
   return response;
