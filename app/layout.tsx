@@ -11,6 +11,9 @@ import "./globals.css";
 import DreamtButton from "@/components/dreamt-button";
 import TeamsButton from "@/components/teams-button";
 import GuessButton from "@/components/guess-button";   
+import Script from "next/script";
+import GAListener from "@/components/ga/GAListener";
+import { GA_ID } from "@/lib/gtag";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -41,6 +44,25 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          {GA_ID && (
+              <>
+                <Script
+                  strategy="afterInteractive"
+                  src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+                />
+                <Script strategy="afterInteractive" id="ga-init">
+                  {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    window.gtag = gtag;
+                    gtag('js', new Date());
+                    gtag('config', '${GA_ID}', { send_page_view: false });
+                  `}
+                </Script>
+                <GAListener />
+              </>
+            )}
+
           <main className="min-h-screen flex flex-col items-center">
             <div className="flex-1 w-full flex flex-col gap-20 items-center">
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GuessStatsChart } from "@/components/GuessStatsChart";
 import SearchPlayers from "@/components/nba_comp/SearchPlayers";
+import { trackEvent } from "@/lib/gtag";
 
 type PlayerInfo = {
   id: number | string;
@@ -48,6 +49,9 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
   const maxAttempts = 6;
   const maxHints = 4;
 
+  const era = apiPath.includes("alltime") ? "all_time" : "current";
+  const mode = apiPath.includes("daily") ? "daily" : "practice";
+
   const loadNewPlayer = async () => {
     setLoading(true);
     setMessage(null);
@@ -66,11 +70,14 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
         setMessage("Error fetching player: " + (data.error || ""));
         setStats(null);
         setPlayer(null);
+
         return;
       }
 
       setPlayer(data.player);
       setStats(data.stats);
+      trackEvent("guesser_start", { era, mode });
+
     } catch (err) {
       console.error("Fetch error:", err);
       setMessage("An error occurred while loading player data.");
@@ -104,6 +111,13 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
 
     const guessName = `${clicked.PLAYER_FIRST_NAME} ${clicked.PLAYER_LAST_NAME}`;
     const isCorrect = selectedNumericId === targetNumericId;
+    trackEvent("guesser_guess", {
+      era,
+      mode,
+      correct: isCorrect,
+      attempt: newAttempts,
+    });
+
 
     setGuesses((prev) => [
       ...prev,
@@ -116,12 +130,26 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
 
     if (isCorrect) {
       setMessage(`Correct! The player is ${player.name}.`);
+      trackEvent("guesser_end", {
+        era,
+        mode,
+        result: "win",
+        attempts_used: newAttempts,
+      });
+
       setFinished(true);
     } else {
       if (newAttempts >= maxAttempts) {
         setMessage(
           `You've used all attempts. The correct player was ${player.name}.`
         );
+        trackEvent("guesser_end", {
+        era,
+        mode,
+        result: "lose",
+        attempts_used: newAttempts,
+      });
+
         setFinished(true);
       } else {
         setMessage("Incorrect! Try again.");
@@ -131,8 +159,13 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
 
   const revealHint = () => {
     if (!player || finished) return;
-
+    
     setHints((h) => Math.min(h + 1, maxHints));
+    trackEvent("guesser_hint", {
+      era,
+      mode,
+      hint_number: hints + 1,
+    });
 
     setAttempts((prev) => {
       const newAttempts = prev + 1;
@@ -297,7 +330,7 @@ export default function GuessGame({ apiPath, title, subtitle }: GuessGameProps) 
               >
                 New Player
               </button>
-
+              
               {player && (
                 <Link
                   href={`/player/${player.id}`}

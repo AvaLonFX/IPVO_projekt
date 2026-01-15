@@ -41,8 +41,14 @@ export default function HomePage() {
     fetchSchedule();
   }, []);
 
-  const handlePlayerClick = (playerId: string) => {
-    router.push(`/player/${playerId}`);
+  const handlePlayerClick = (playerOrId: any) => {
+    const id =
+      playerOrId?.PERSON_ID ??
+      playerOrId?.PLAYER_ID ??
+      playerOrId?.id ??
+      playerOrId;
+
+    router.push(`/player/${id}`);
   };
 
   return (

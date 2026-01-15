@@ -136,31 +136,22 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
-export async function signInWithGoogleAction(formData: FormData) {
+export async function signInWithGoogleAction() {
   const supabase = await createClient();
-
-  const redirectTo = (formData.get("redirectTo") as string) || "/";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL is not set on Vercel");
-  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${siteUrl}/auth/callback?redirect_to=${encodeURIComponent(
-        redirectTo
-      )}`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`, 
+      // ili neka tvoja ruta na koju Supabase vraća usera
     },
   });
 
   if (error) {
-    console.error("Google OAuth error:", error.message);
+    console.error(error);
     throw new Error("Google sign-in failed");
   }
 
-  // Najstabilnije u server actions
+  // Supabase vraća URL za redirect – pošaljemo tamo usera
   return redirect(data.url);
 }
-
