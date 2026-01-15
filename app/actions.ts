@@ -139,24 +139,17 @@ export const signOutAction = async () => {
 export async function signInWithGoogleAction(formData: FormData) {
   const supabase = await createClient();
 
-  // što god želiš nakon logina (npr. "/")
   const redirectTo = (formData.get("redirectTo") as string) || "/";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-  // pouzdan origin na Vercelu
-  const h = await headers();
-  const proto = h.get("x-forwarded-proto");
-  const host = h.get("x-forwarded-host");
-
-  const origin =
-    proto && host
-      ? `${proto}://${host}`
-      : h.get("origin") || process.env.NEXT_PUBLIC_SITE_URL!;
+  if (!siteUrl) {
+    throw new Error("NEXT_PUBLIC_SITE_URL is not set on Vercel");
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      // KLJUČNO: mora pogoditi tvoju server rutu koja radi exchangeCodeForSession
-      redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(
+      redirectTo: `${siteUrl}/auth/callback?redirect_to=${encodeURIComponent(
         redirectTo
       )}`,
     },
@@ -167,6 +160,7 @@ export async function signInWithGoogleAction(formData: FormData) {
     throw new Error("Google sign-in failed");
   }
 
-  // Najsigurnije za OAuth u server actions: vrati HTTP redirect response
-  return Response.redirect(data.url, 302);
+  // Najstabilnije u server actions
+  return redirect(data.url);
 }
+
