@@ -37,7 +37,6 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error("exchangeCodeForSession error:", error.message);
-    // opciono: return NextResponse.redirect(new URL(`/sign-in?error=${encodeURIComponent(error.message)}`, url.origin));
   }
 
   return response;

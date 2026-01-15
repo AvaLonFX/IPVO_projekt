@@ -22,8 +22,11 @@ export default async function Login(props: {
       </p>
 
       <div className="mt-8 flex flex-col gap-4">
-        {/* FORM 1: samo Google login */}
+        {/* FORM 1: Google login */}
         <form action={signInWithGoogleAction as any} className="w-full">
+          {/* KLJUČNO: pošalji redirectTo i za Google */}
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+
           <SubmitButton
             pendingText="Redirecting..."
             formAction={signInWithGoogleAction as any}
@@ -69,10 +72,7 @@ export default async function Login(props: {
             required
           />
 
-          <SubmitButton
-            pendingText="Signing In..."
-            formAction={signInAction as any}
-          >
+          <SubmitButton pendingText="Signing In..." formAction={signInAction as any}>
             Sign in
           </SubmitButton>
         </form>

@@ -136,22 +136,37 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
-export async function signInWithGoogleAction() {
+export async function signInWithGoogleAction(formData: FormData) {
   const supabase = await createClient();
+
+  // što god želiš nakon logina (npr. "/")
+  const redirectTo = (formData.get("redirectTo") as string) || "/";
+
+  // pouzdan origin na Vercelu
+  const h = await headers();
+  const proto = h.get("x-forwarded-proto");
+  const host = h.get("x-forwarded-host");
+
+  const origin =
+    proto && host
+      ? `${proto}://${host}`
+      : h.get("origin") || process.env.NEXT_PUBLIC_SITE_URL!;
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`, 
-      // ili neka tvoja ruta na koju Supabase vraća usera
+      // KLJUČNO: mora pogoditi tvoju server rutu koja radi exchangeCodeForSession
+      redirectTo: `${origin}/auth/callback?redirect_to=${encodeURIComponent(
+        redirectTo
+      )}`,
     },
   });
 
   if (error) {
-    console.error(error);
+    console.error("Google OAuth error:", error.message);
     throw new Error("Google sign-in failed");
   }
 
-  // Supabase vraća URL za redirect – pošaljemo tamo usera
-  return redirect(data.url);
+  // Najsigurnije za OAuth u server actions: vrati HTTP redirect response
+  return Response.redirect(data.url, 302);
 }
