@@ -142,14 +142,7 @@ async function getValidAccessToken() {
 
   const refreshed = await refreshAccessToken(refresh);
 
-  // cache it in cookie to reduce refresh calls
-  c.set("ga_access_token", refreshed.access_token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-    maxAge: refreshed.expires_in,
-  });
+
 
   return refreshed.access_token;
 }
