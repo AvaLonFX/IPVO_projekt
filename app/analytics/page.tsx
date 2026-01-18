@@ -9,7 +9,7 @@ export default async function AnalyticsPage({
 }) {
   const sp = await searchParams;
 
-  const authUrl = getGoogleAuthUrl();
+  //const authUrl = getGoogleAuthUrl();
   const summary = await fetchGuesserEventsSummary(7); // last 7 days
 
   async function disconnectAction() {
@@ -37,7 +37,8 @@ export default async function AnalyticsPage({
             <b>analytics.readonly</b>.
           </p>
           <Link
-            href={authUrl}
+            href="/api/google/start"
+
             className="inline-block px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition"
           >
             Connect Google Analytics
