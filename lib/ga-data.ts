@@ -16,7 +16,8 @@ export function getBaseUrl() {
 
 export function getGoogleAuthUrl() {
   const baseUrl = getBaseUrl();
-  const redirectUri = `${baseUrl}/analytics/callback`;
+  //const redirectUri = `${baseUrl}/analytics/callback`;
+  const redirectUri = `${baseUrl}/api/google/callback`;
 
   const params = new URLSearchParams({
     client_id: GA_CLIENT_ID,
@@ -33,7 +34,8 @@ export function getGoogleAuthUrl() {
 
 async function exchangeCodeForTokens(code: string) {
   const baseUrl = getBaseUrl();
-  const redirectUri = `${baseUrl}/analytics/callback`;
+  //const redirectUri = `${baseUrl}/analytics/callback`;
+  const redirectUri = `${baseUrl}/api/google/callback`;
 
   const body = new URLSearchParams({
     code,
