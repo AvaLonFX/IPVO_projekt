@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { fetchGuesserEventsSummary, getGoogleAuthUrl, disconnectGa } from "@/lib/ga-data";
 
+
 export default async function AnalyticsPage({
   searchParams,
 }: {

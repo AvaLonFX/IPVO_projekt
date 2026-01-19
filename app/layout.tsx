@@ -95,6 +95,9 @@ export default function RootLayout({
                       <Link className="px-3 py-2 rounded-md border" href="/analytics">
                             Analytics
                        </Link>
+                      <Link className="px-3 py-2 rounded-md border" href="/FunnelRetention">
+                            FunnelRetention
+                       </Link>
 
                     </div>
                   </div>
