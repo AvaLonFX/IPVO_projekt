@@ -24,7 +24,6 @@ export default async function Login(props: {
       <div className="mt-8 flex flex-col gap-4">
         {/* FORM 1: Google login */}
         <form action={signInWithGoogleAction as any} className="w-full">
-          {/* KLJUČNO: pošalji redirectTo i za Google */}
           <input type="hidden" name="redirectTo" value={redirectTo} />
 
           <SubmitButton

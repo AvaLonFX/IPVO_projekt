@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { updateSearchCount } from "../../app/api/updateSearch";
+import { trackInteraction } from "@/lib/trackInteraction";
 
 interface SearchPlayersProps {
   onPlayerClick?: (player: any) => void;      // dobije cijeli player objekt
@@ -58,6 +59,12 @@ export default function SearchPlayers({
     console.log(`Sending player ID ${player.PERSON_ID} to updateSearchCount`);
 
     await updateSearchCount(player.PERSON_ID);
+    await trackInteraction({
+      itemType: "player",
+      itemId: player.PERSON_ID,
+      eventType: "search_click",
+      weight: 2,
+    });
 
     // 1) Pošalji cijeli objekt (za guess history itd.)
     if (onPlayerClick) {

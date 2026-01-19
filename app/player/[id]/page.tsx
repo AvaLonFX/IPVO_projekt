@@ -21,6 +21,7 @@ import Button from "@/components/backtosearchbutton";
 import SearchPlayers from "../../../components/nba_comp/SearchPlayers";
 import { createClient } from "@/utils/supabase/client"; // ✅ Importiraj Supabase klijent
 import axios from "axios";
+import { trackInteraction } from "@/lib/trackInteraction";
 
 export default function PlayerPage({
   params,
@@ -86,6 +87,13 @@ export default function PlayerPage({
   useEffect(() => {
     const fetchPlayer = async () => {
       if (!resolvedParams) return;
+      trackInteraction({
+        itemType: "player",
+        itemId: resolvedParams.id,
+        eventType: "view_player",
+        weight: 3,
+      });
+
 
       try {
         const { data: playerData, error: playerError } = await supabase
