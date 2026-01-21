@@ -3,15 +3,23 @@
 import { useEffect, useMemo, useState } from "react";
 
 type RetentionResponse = {
-  retention: {
-    newUsers: number;
-    day1: number; // 0-100 (postotak)
-    day7: number; // 0-100
-  };
+  day1?: number;
+  day7?: number;
+  d1?: number;
+  d7?: number;
+  retention1?: number;
+  retention7?: number;
 };
 
-function clamp01(x: number) {
-  return Math.max(0, Math.min(1, x));
+function pct(n: number) {
+  if (!Number.isFinite(n)) return "0%";
+  return `${n.toFixed(1)}%`;
+}
+
+function getD1D7(r: RetentionResponse | null) {
+  const d1 = r?.day1 ?? r?.d1 ?? r?.retention1 ?? null;
+  const d7 = r?.day7 ?? r?.d7 ?? r?.retention7 ?? null;
+  return { d1, d7 };
 }
 
 export default function RetentionPanel() {
@@ -24,13 +32,16 @@ export default function RetentionPanel() {
       try {
         setLoading(true);
         setErr(null);
+
+        // ako ti je endpoint drugačiji, samo promijeni ovu liniju:
         const res = await fetch("/api/analytics/retention", { cache: "no-store" });
         const json = (await res.json()) as RetentionResponse;
 
         if (!res.ok) throw new Error((json as any)?.error || "Retention API error");
         setData(json);
       } catch (e: any) {
-        setErr(e?.message ?? "Unknown error");
+        // ako endpoint ne postoji ili nema podataka, nećemo rušiti UI
+        setErr(e?.message ?? null);
         setData(null);
       } finally {
         setLoading(false);
@@ -38,128 +49,93 @@ export default function RetentionPanel() {
     })();
   }, []);
 
-  const r = data?.retention;
+  const { d1, d7 } = useMemo(() => getD1D7(data), [data]);
 
-  const heat = useMemo(() => {
-    if (!r) return [];
-    const cells = [
-      { label: "Day 1", value: r.day1 },
-      { label: "Day 7", value: r.day7 },
-    ];
-    return cells.map((c) => ({
-      ...c,
-      intensity: clamp01((c.value ?? 0) / 100),
-    }));
-  }, [r]);
+  const hasNumbers = d1 !== null && d7 !== null;
 
   return (
-    <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="w-full rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-slate-900">Retention</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-xl font-semibold text-foreground">Retention</h2>
+          <p className="text-sm text-foreground/70">
             Koliko novih korisnika se vrati nakon 1 i 7 dana.
           </p>
         </div>
 
-        {r && (
+        {hasNumbers ? (
           <div className="text-right">
-            <div className="text-xs text-slate-500">New users (period)</div>
-            <div className="text-2xl font-semibold text-slate-900">{r.newUsers}</div>
+            <div className="text-xs text-foreground/60">D7 / D1 ratio</div>
+            <div className="text-2xl font-semibold text-foreground">
+              {d1 && d1 > 0 ? pct((d7! / d1) * 100) : "—"}
+            </div>
           </div>
-        )}
+        ) : null}
       </div>
 
-      <div className="mt-6">
-        {loading && <div className="text-sm text-slate-500">Učitavam retention…</div>}
-        {err && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            {err}
+      <div className="mt-5">
+        {loading && <div className="text-sm text-foreground/70">Učitavam retention…</div>}
+
+        {!loading && err && (
+          <div className="text-sm text-foreground/60">
+            Nema podataka još. (ili endpoint nije postavljen)
           </div>
         )}
 
-        {!loading && !err && !r && (
-          <div className="text-sm text-slate-500">Nema podataka još.</div>
+        {!loading && !err && !hasNumbers && (
+          <div className="text-sm text-foreground/60">Nema podataka još.</div>
         )}
 
-        {!loading && !err && r && (
-          <>
-            {/* KPI cards */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs text-slate-500">Day 1</div>
-                <div className="mt-1 text-2xl font-semibold text-slate-900">
-                  {r.day1.toFixed(1)}%
-                </div>
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white">
-                  <div
-                    className="h-full rounded-full bg-indigo-500 transition-all"
-                    style={{ width: `${Math.max(0, Math.min(100, r.day1))}%` }}
-                  />
-                </div>
-              </div>
+        {!loading && hasNumbers && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <RetentionCard title="Day 1" value={d1!} />
+            <RetentionCard title="Day 7" value={d7!} />
 
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs text-slate-500">Day 7</div>
-                <div className="mt-1 text-2xl font-semibold text-slate-900">
-                  {r.day7.toFixed(1)}%
-                </div>
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white">
-                  <div
-                    className="h-full rounded-full bg-emerald-500 transition-all"
-                    style={{ width: `${Math.max(0, Math.min(100, r.day7))}%` }}
-                  />
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                <div className="text-xs text-slate-500">Decay (D7 vs D1)</div>
-                <div className="mt-1 text-2xl font-semibold text-slate-900">
-                  {(r.day7 - r.day1).toFixed(1)} pp
-                </div>
-                <p className="mt-2 text-xs text-slate-500">
-                  “pp” = postotni poeni. Negativno znači pad retencije do 7. dana.
-                </p>
-              </div>
-            </div>
-
-            {/* Mini “heatmap” */}
-            <div className="mt-6 rounded-2xl border border-slate-200 p-4">
-              <div className="text-sm font-medium text-slate-900">Heat view</div>
-              <p className="text-xs text-slate-500">
-                Tamnije = veći postotak povratka.
+            <div className="sm:col-span-2 rounded-2xl border border-border bg-muted/30 p-4">
+              <div className="text-sm font-semibold text-foreground">Trend (mini)</div>
+              <p className="mt-1 text-xs text-foreground/60">
+                Ovo je samo “D1 → D7” vizual. Za pravi trend po danima treba timeseries iz GA.
               </p>
 
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                {heat.map((c) => (
-                  <div
-                    key={c.label}
-                    className="rounded-xl border border-slate-200 p-4"
-                    style={{
-                      backgroundColor: `rgba(15, 23, 42, ${0.05 + c.intensity * 0.35})`,
-                    }}
-                  >
-                    <div className="text-xs text-slate-600">{c.label}</div>
-                    <div className="mt-1 text-2xl font-semibold text-slate-900">
-                      {c.value.toFixed(1)}%
-                    </div>
-                  </div>
-                ))}
+              <div className="mt-4 flex items-end gap-3">
+                <Bar label="D1" value={d1!} max={Math.max(d1!, d7!)} />
+                <Bar label="D7" value={d7!} max={Math.max(d1!, d7!)} />
               </div>
             </div>
-
-            {/* kratka interpretacija (da ti odmah paše za zadatak) */}
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div className="text-sm font-semibold text-slate-900">Interpretacija</div>
-              <p className="mt-1 text-sm text-slate-700">
-                Ako je Day 1 znatno veći od Day 7, korisnici probaju app ali se ne vraćaju dugoročno.
-                UX ideje: jasniji “next step” nakon prvog pregleda igrača, podsjetnik/“daily challenge”
-                (guesser daily), ili istakni preporuke/usporedbe odmah na homeu.
-              </p>
-            </div>
-          </>
+          </div>
         )}
       </div>
     </section>
+  );
+}
+
+function RetentionCard({ title, value }: { title: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-border bg-muted/30 p-4">
+      <div className="text-xs text-foreground/60">{title}</div>
+      <div className="text-2xl font-semibold text-foreground">{pct(value)}</div>
+    </div>
+  );
+}
+
+function Bar({ label, value, max }: { label: string; value: number; max: number }) {
+  const width = max > 0 ? (value / max) * 100 : 0;
+
+  return (
+    <div className="flex-1">
+      <div className="flex items-center justify-between text-xs text-foreground/60">
+        <span>{label}</span>
+        <span className="font-semibold text-foreground/80">{pct(value)}</span>
+      </div>
+      <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+        <div
+          className="h-full rounded-full"
+          style={{
+            width: `${width}%`,
+            background: "linear-gradient(90deg, hsl(var(--chart-2)), hsl(var(--chart-1)))",
+          }}
+        />
+      </div>
+    </div>
   );
 }
