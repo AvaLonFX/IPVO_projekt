@@ -36,29 +36,44 @@ const teamAbbreviationToId: Record<string, string> = {
 };
 
 interface Game {
-  gameID: string;
+  nba_game_id: string;
   date: string;
   homeTeam: string;
   awayTeam: string;
   status: string;
+  startTime?: string | null;
+
+  // odds (optional)
+  odds_home_decimal?: number | null;
+  odds_away_decimal?: number | null;
+  p_home?: number | null;
+  model_name?: string | null;
 }
+
+type ModelName = "lr_moneyline_v1" | "xgb_moneyline_v1";
 
 export default function NBASchedule() {
   const [games, setGames] = useState<Game[]>([]);
+  const [model, setModel] = useState<ModelName>("lr_moneyline_v1");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchSchedule = async () => {
+      setLoading(true);
       try {
-        const res = await fetch("/api/nba-schedule");
+        const res = await fetch(`/api/nba-schedule?model=${model}`);
         const data = await res.json();
-        setGames(data);
+        setGames(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error fetching NBA schedule:", error);
+        setGames([]);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchSchedule();
-  }, []);
+  }, [model]);
 
   const getLogoUrl = (tricode: string) => {
     const teamId = teamAbbreviationToId[tricode];
@@ -67,9 +82,49 @@ export default function NBASchedule() {
       : null;
   };
 
+  const formatDate = (d?: string) => {
+    if (!d) return "TBD";
+    const dt = new Date(d);
+    return Number.isNaN(dt.getTime()) ? "TBD" : dt.toLocaleDateString("en-US");
+  };
+
+  const formatTime = (iso?: string | null, fallback?: string) => {
+    // prefer startTime if present; otherwise show status
+    if (iso) {
+      const dt = new Date(iso);
+      if (!Number.isNaN(dt.getTime())) {
+        return dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+      }
+    }
+    return fallback || "TBD";
+  };
+
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">NBA Schedule</h2>
+      <h2 className="text-3xl font-bold mb-3 text-center">NBA Schedule</h2>
+
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-500">
+          {loading ? "Loading..." : `${games.length} upcoming games`}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-600">Model:</span>
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value as ModelName)}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value="lr_moneyline_v1">Baseline (LogReg)</option>
+            <option value="xgb_moneyline_v1">XGBoost_v1</option>
+            <option value="xgb_moneyline_v2">XGBoost_v2</option>
+            <option value="lr_moneyline_v2_scaled">Baseline (LogRegv2)</option>
+            <option value="xgb_moneyline_v3">XGBoost_v3</option>
+
+          </select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 text-sm shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-100 text-gray-700">
@@ -78,48 +133,85 @@ export default function NBASchedule() {
               <th className="py-3 px-4 text-left">Home</th>
               <th className="py-3 px-4 text-left">Away</th>
               <th className="py-3 px-4 text-left">Time</th>
+              <th className="py-3 px-4 text-left">Odds</th>
             </tr>
           </thead>
+
           <tbody className="divide-y divide-gray-200 bg-white">
             {games.map((game) => {
-              const dateStr = game.date
-                ? new Date(game.date).toLocaleDateString("en-US")
-                : "TBD";
+              const dateStr = formatDate(game.date);
+              const timeStr = formatTime(game.startTime, game.status);
+
+              const homeLogo = getLogoUrl(game.homeTeam);
+              const awayLogo = getLogoUrl(game.awayTeam);
+
+              const hasOdds =
+                game.odds_home_decimal != null && game.odds_away_decimal != null;
 
               return (
-                <tr key={game.gameID} className="hover:bg-gray-50 transition">
+                <tr key={game.nba_game_id} className="hover:bg-gray-50 transition">
                   <td className="py-2 px-4 font-medium text-gray-800">
                     {dateStr}
                   </td>
 
-                  <td className="py-2 px-4 flex items-center gap-2">
-                    {getLogoUrl(game.homeTeam) && (
-                      <img
-                        src={getLogoUrl(game.homeTeam)!}
-                        alt={game.homeTeam}
-                        className="w-6 h-6 object-contain"
-                      />
-                    )}
-                    {game.homeTeam}
+                  <td className="py-2 px-4">
+                    <div className="flex items-center gap-2">
+                      {homeLogo && (
+                        <img
+                          src={homeLogo}
+                          alt={game.homeTeam}
+                          className="w-6 h-6 object-contain"
+                        />
+                      )}
+                      <span>{game.homeTeam}</span>
+                    </div>
                   </td>
 
-                  <td className="py-2 px-4 flex items-center gap-2">
-                    {getLogoUrl(game.awayTeam) && (
-                      <img
-                        src={getLogoUrl(game.awayTeam)!}
-                        alt={game.awayTeam}
-                        className="w-6 h-6 object-contain"
-                      />
-                    )}
-                    {game.awayTeam}
+                  <td className="py-2 px-4">
+                    <div className="flex items-center gap-2">
+                      {awayLogo && (
+                        <img
+                          src={awayLogo}
+                          alt={game.awayTeam}
+                          className="w-6 h-6 object-contain"
+                        />
+                      )}
+                      <span>{game.awayTeam}</span>
+                    </div>
                   </td>
 
-                  <td className="py-2 px-4 text-gray-600">
-                    {game.status || "TBD"}
+                  <td className="py-2 px-4 text-gray-600">{timeStr}</td>
+
+                  <td className="py-2 px-4 text-gray-700">
+                    {hasOdds ? (
+                      <div className="flex flex-col leading-tight">
+                        <span className="font-medium">
+                          {game.homeTeam}: {Number(game.odds_home_decimal).toFixed(2)}
+                        </span>
+                        <span className="font-medium">
+                          {game.awayTeam}: {Number(game.odds_away_decimal).toFixed(2)}
+                        </span>
+                        {game.p_home != null && (
+                          <span className="text-xs text-gray-500">
+                            p(home) {(Number(game.p_home) * 100).toFixed(1)}%
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
                   </td>
                 </tr>
               );
             })}
+
+            {!loading && games.length === 0 && (
+              <tr>
+                <td className="py-4 px-4 text-gray-500" colSpan={5}>
+                  No upcoming games found.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
