@@ -16,51 +16,28 @@ export default function DreamTeam() {
   const supabase = createClient();
   const MAX_PLAYERS = 12;
 
-  // ✅ provjera auth-a, ali BEZ redirecta – samo postavi user / null
   useEffect(() => {
     const checkAuth = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error("Error getting session:", error);
-          setUser(null);
-        } else {
-          setUser(data?.session?.user ?? null);
-        }
-      } catch (err) {
-        console.error("Unexpected error getting session:", err);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
+      const { data } = await supabase.auth.getSession();
+      setUser(data?.session?.user ?? null);
+      setLoading(false);
     };
-
     checkAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supabase]);
 
-  // ✅ dohvat DreamTeama samo ako user postoji
   useEffect(() => {
     if (!user) return;
 
     const fetchDreamTeam = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("UserDreamTeams")
-          .select(
-            "player_id, FullStats_NBA(PLAYER_NAME, PTS, REB, AST, Player_Rating)"
-          )
-          .eq("user_id", user.id);
+      const { data } = await supabase
+        .from("UserDreamTeams")
+        .select(
+          "player_id, FullStats_NBA(PLAYER_NAME, PTS, REB, AST, Player_Rating)"
+        )
+        .eq("user_id", user.id)
+        .order("position", { ascending: true });
 
-        if (error) {
-          console.error("Error fetching Dream Team:", error);
-        } else {
-          setDreamTeam(data || []);
-        }
-      } catch (error) {
-        console.error("Unexpected error fetching Dream Team:", error);
-      }
+      setDreamTeam(data || []);
     };
 
     fetchDreamTeam();
@@ -73,196 +50,158 @@ export default function DreamTeam() {
     const oldIndex = dreamTeam.findIndex((p) => p.player_id === active.id);
     const newIndex = dreamTeam.findIndex((p) => p.player_id === over.id);
 
-    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      const updatedTeam = arrayMove(dreamTeam, oldIndex, newIndex);
-      setDreamTeam(updatedTeam);
+    if (oldIndex === -1 || newIndex === -1) return;
 
-      try {
-        for (let i = 0; i < updatedTeam.length; i++) {
-          await supabase
-            .from("UserDreamTeams")
-            .update({ position: i + 1 })
-            .match({ user_id: user.id, player_id: updatedTeam[i].player_id });
-        }
-      } catch (error) {
-        console.error("Error updating player positions:", error);
-      }
+    const updated = arrayMove(dreamTeam, oldIndex, newIndex);
+    setDreamTeam(updated);
+
+    for (let i = 0; i < updated.length; i++) {
+      await supabase
+        .from("UserDreamTeams")
+        .update({ position: i + 1 })
+        .match({ user_id: user.id, player_id: updated[i].player_id });
     }
   };
 
   const addToDreamTeam = async (playerId: number) => {
     if (!user) return;
+    if (dreamTeam.some((p) => p.player_id === playerId)) return;
+    if (dreamTeam.length >= MAX_PLAYERS) return;
 
-    const isAlreadyAdded = dreamTeam.some(
-      (player) => player.player_id === playerId
-    );
-    if (isAlreadyAdded) {
-      alert("This player is already in your Dream Team!");
-      return;
-    }
+    const { data } = await supabase
+      .from("FullStats_NBA")
+      .select("PLAYER_NAME, PTS, REB, AST, Player_Rating")
+      .eq("PERSON_ID", playerId)
+      .single();
 
-    if (dreamTeam.length >= MAX_PLAYERS) {
-      alert(
-        "You have reached the maximum number of players (12) in your Dream Team!"
-      );
-      return;
-    }
+    if (!data) return;
 
-    try {
-      const { data: playerData, error: fetchError } = await supabase
-        .from("FullStats_NBA")
-        .select("PLAYER_NAME, PTS, REB, AST, Player_Rating")
-        .eq("PERSON_ID", playerId)
-        .single();
+    await supabase.from("UserDreamTeams").insert([
+      {
+        user_id: user.id,
+        player_id: playerId,
+        position: dreamTeam.length + 1,
+      },
+    ]);
 
-      if (fetchError || !playerData) {
-        console.error("Error fetching player data:", fetchError);
-        return;
-      }
-
-      const { error } = await supabase
-        .from("UserDreamTeams")
-        .insert([
-          {
-            user_id: user.id,
-            player_id: playerId,
-            position: dreamTeam.length + 1,
-          },
-        ]);
-
-      if (error) {
-        console.error("Error adding player to Dream Team:", error);
-      } else {
-        setDreamTeam((prev) => [
-          ...prev,
-          { player_id: playerId, FullStats_NBA: playerData },
-        ]);
-      }
-    } catch (error) {
-      console.error("Unexpected error adding player:", error);
-    }
+    setDreamTeam((prev) => [
+      ...prev,
+      { player_id: playerId, FullStats_NBA: data },
+    ]);
   };
 
   const removeFromDreamTeam = async (playerId: number) => {
-    if (!user) return;
+    await supabase
+      .from("UserDreamTeams")
+      .delete()
+      .match({ user_id: user.id, player_id: playerId });
 
-    try {
-      const { error } = await supabase
-        .from("UserDreamTeams")
-        .delete()
-        .match({ user_id: user.id, player_id: playerId });
-
-      if (error) {
-        console.error("Error removing player:", error);
-        return;
-      }
-
-      setDreamTeam((prev) => prev.filter((p) => p.player_id !== playerId));
-    } catch (error) {
-      console.error("Unexpected error removing player:", error);
-    }
+    setDreamTeam((prev) => prev.filter((p) => p.player_id !== playerId));
   };
 
-  // ⏳ loading state
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
-        <p>Loading...</p>
-      </main>
+      <div className="min-h-[60vh] flex items-center justify-center text-sm text-foreground/70">
+        Loading…
+      </div>
     );
   }
 
-  // ❌ user nije logiran → prikaži modal
   if (!user) {
     return (
-      <main className="min-h-screen text-slate-50 justify-center px-60">
-        {/* backdrop */}
-        <div className="fixed inset-0 bg-black/60" />
-
-        {/* modal */}
-        <div className="relative z-10 max-w-md w-full bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="rounded-2xl border border-foreground/10 bg-background/30 backdrop-blur p-6 max-w-md w-full">
           <h1 className="text-xl font-semibold mb-2">Sign in required</h1>
-          <p className="text-sm text-slate-300 mb-4">
-            You need to be signed in to use the Dream Team feature. Please sign
-            in or create an account to continue.
+          <p className="text-sm text-foreground/70 mb-4">
+            You need to be signed in to use the Dream Team feature.
           </p>
 
-          <div className="flex justify-end gap-3 mt-2">
+          <div className="flex gap-3 justify-end">
             <button
               onClick={() => router.push("/")}
-              className="px-4 py-2 rounded-lg border border-slate-600 text-slate-100 text-sm hover:bg-slate-800 transition"
+              className="px-4 py-2 rounded-xl border border-foreground/15 hover:bg-foreground/5 transition"
             >
-              Back to Home
+              Back
             </button>
             <button
               onClick={() => router.push("/sign-in?redirect=/dreamteam")}
-              className="px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition"
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition"
             >
               Sign in
             </button>
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
-  // ✅ user logiran → pravi Dream Team UI
   const firstRow = dreamTeam.slice(0, 5);
-  const secondRow = dreamTeam.slice(5, 12);
+  const secondRow = dreamTeam.slice(5);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-6 py-8">
-      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-        <h1 className="text-2xl font-semibold">
-          Create Your Dream Team ({dreamTeam.length}/{MAX_PLAYERS})
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl font-bold">
+          Your Dream Team
         </h1>
-        <p className="mb-4">
-          Welcome, {user.user_metadata?.username || user.email}!
+        <p className="text-sm text-foreground/70">
+          {dreamTeam.length}/{MAX_PLAYERS} players selected
         </p>
+      </div>
 
-        <SearchPlayers
-          onPlayerSelect={(playerId: string) =>
-            addToDreamTeam(parseInt(playerId, 10))
-          }
-        />
+      <SearchPlayers
+        onPlayerSelect={(id: string) => addToDreamTeam(Number(id))}
+      />
 
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-4">Starting 5</h2>
-          <SortableContext items={dreamTeam.map((p) => p.player_id)}>
-            {dreamTeam.length === 0 ? (
-              <p>No players added yet.</p>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                  {firstRow.map((player) => (
-                    <DraggablePlayer
-                      key={player.player_id}
-                      player={player}
-                      removeFromDreamTeam={removeFromDreamTeam}
-                    />
-                  ))}
-                </div>
+      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+        <SortableContext items={dreamTeam.map((p) => p.player_id)}>
+          <Section title="Starting 5">
+            <Grid>
+              {firstRow.map((p) => (
+                <PlayerCard
+                  key={p.player_id}
+                  player={p}
+                  onRemove={removeFromDreamTeam}
+                />
+              ))}
+            </Grid>
+          </Section>
 
-                <h2 className="text-xl font-semibold mt-6 mb-4">Bench</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4 mt-4">
-                  {secondRow.map((player) => (
-                    <DraggablePlayer
-                      key={player.player_id}
-                      player={player}
-                      removeFromDreamTeam={removeFromDreamTeam}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
-          </SortableContext>
-        </div>
+          {secondRow.length > 0 && (
+            <Section title="Bench">
+              <Grid cols="grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                {secondRow.map((p) => (
+                  <PlayerCard
+                    key={p.player_id}
+                    player={p}
+                    onRemove={removeFromDreamTeam}
+                  />
+                ))}
+              </Grid>
+            </Section>
+          )}
+        </SortableContext>
       </DndContext>
-    </main>
+    </div>
   );
 }
 
-function DraggablePlayer({ player, removeFromDreamTeam }: any) {
+/* ---------- helpers ---------- */
+
+function Section({ title, children }: any) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-3">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function Grid({ children, cols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-5" }: any) {
+  return <div className={`grid ${cols} gap-4`}>{children}</div>;
+}
+
+function PlayerCard({ player, onRemove }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: player.player_id });
 
@@ -271,41 +210,47 @@ function DraggablePlayer({ player, removeFromDreamTeam }: any) {
     transition,
   };
 
+  const stats = player.FullStats_NBA || {};
+
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...attributes}
       {...listeners}
-      className="bg-white shadow-md rounded-lg p-4 text-center relative cursor-grab"
+      className="
+        relative cursor-grab
+        rounded-2xl border border-foreground/10
+        bg-background/30 backdrop-blur
+        p-4 text-center
+        hover:border-orange-500/30 transition
+      "
     >
+      <button
+        onClick={() => onRemove(player.player_id)}
+        className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500/90 text-white text-xs font-bold"
+      >
+        ×
+      </button>
+
       <img
         src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.player_id}.png`}
-        alt={player.FullStats_NBA?.PLAYER_NAME || "Unknown Player"}
-        className="w-32 h-32 object-cover mx-auto rounded-md"
+        alt={stats.PLAYER_NAME}
+        className="mx-auto h-28 w-28 object-cover rounded-xl"
       />
-      <div className="mt-2">
-        <p className="font-semibold">
-          {player.FullStats_NBA?.PLAYER_NAME || "Unknown Player"}
-        </p>
-        <p className="text-sm text-gray-500">
-          PTS: {player.FullStats_NBA?.PTS ?? 0}
-        </p>
-        <p className="text-sm text-gray-500">
-          REB: {player.FullStats_NBA?.REB ?? 0}
-        </p>
-        <p className="text-sm text-gray-500">
-          AST: {player.FullStats_NBA?.AST ?? 0}
-        </p>
-        <p className="text-sm font-semibold text-blue-600">
-          Rating: {player.FullStats_NBA?.Player_Rating ?? "N/A"}
-        </p>
-        <button
-          className="absolute top-1 right-1 bg-red-500 text-white px-2 py-1 rounded-md text-xs"
-          onClick={() => removeFromDreamTeam(player.player_id)}
-        >
-          ✖
-        </button>
+
+      <div className="mt-2 font-semibold text-sm truncate">
+        {stats.PLAYER_NAME}
+      </div>
+
+      <div className="mt-2 space-y-1 text-xs text-foreground/70">
+        <div>PTS {stats.PTS ?? 0}</div>
+        <div>REB {stats.REB ?? 0}</div>
+        <div>AST {stats.AST ?? 0}</div>
+      </div>
+
+      <div className="mt-2 text-sm font-semibold text-orange-400">
+        Rating {stats.Player_Rating ?? 0}
       </div>
     </div>
   );

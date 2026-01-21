@@ -1,193 +1,121 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import SearchPlayers from "../components/nba_comp/SearchPlayers";
-import NBASchedule from "@/components/NBASchedule";
-import Recommendations from "@/components/Recommendations";
-import Image from "next/image";
-import "../styles/globals.css";
 
-export default function HomePage() {
+export default function HomeLanding() {
   const router = useRouter();
-  const [mostSearchedPlayers, setMostSearchedPlayers] = useState([]);
-  const [mostAddedPlayers, setMostAddedPlayers] = useState([]);
-  const [schedule, setSchedule] = useState([]);
 
-  useEffect(() => {
-    const fetchMostSearchedPlayers = async () => {
-      const response = await fetch("/api/most-searched");
-      const data = await response.json();
-      setMostSearchedPlayers(data);
-    };
-    fetchMostSearchedPlayers();
-  }, []);
-
-  useEffect(() => {
-    const fetchMostAddedPlayers = async () => {
-      const response = await fetch("/api/most-added");
-      const data = await response.json();
-      setMostAddedPlayers(data);
-    };
-    fetchMostAddedPlayers();
-  }, []);
-
-  useEffect(() => {
-    const fetchSchedule = async () => {
-      const response = await fetch("/api/wnba-schedule");
-      const data = await response.json();
-      setSchedule(data || []);
-    };
-    fetchSchedule();
-  }, []);
-
-  const handlePlayerClick = (playerOrId: any) => {
+  const goPlayer = (playerOrId: any) => {
     const id =
       playerOrId?.PERSON_ID ??
       playerOrId?.PLAYER_ID ??
       playerOrId?.id ??
       playerOrId;
-
     router.push(`/player/${id}`);
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        padding: "0px",
-      }}
-    >
-      {/* Left Sidebar */}
-      <div style={{ width: "20%", textAlign: "left", marginLeft: "-30%" }}>
-        <h2 className="text-xl font-semibold mb-2 text-center">
-          Most Searched Players
-        </h2>
-        <ul>
-          {mostSearchedPlayers.map((player: any) => (
-            <li
-              key={player.player_id}
-              style={{
-                cursor: "pointer",
-                marginBottom: "10px",
-                fontWeight: "bold",
-              }}
-              onClick={() => handlePlayerClick(player.player_id)}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
-                <img
-                  src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.player_id}.png`}
-                  alt={player.FullStats_NBA?.PLAYER_NAME}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "50px",
-                    objectFit: "cover",
-                  }}
-                  onError={(e) => (e.currentTarget.style.display = "none")}
-                />
-                {player.FullStats_NBA?.PLAYER_NAME || "Unknown Player"}
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Center Content */}
-      <div style={{ width: "70%", textAlign: "center" }}>
-        <div className="flex justify-center mb-6">
+    <div className="w-full">
+      <div className="mx-auto max-w-4xl">
+        {/* HERO */}
+        <div className="flex flex-col items-center text-center">
+          {/* LOGO */}
           <Image
             src="/slike_test/qnba_logo.png"
-            alt="QNBA Logo"
-            width={400}
-            height={400}
+            alt="QNBA"
+            width={160}
+            height={160}
             priority
+            className="h-50 w-50 object-contain"
+          />
+
+          {/* TITLE */}
+          <h1 className="mt-4 text-3xl font-bold tracking-tight">
+            QNBA
+          </h1>
+
+          <p className="mt-2 max-w-xl text-sm text-foreground/60">
+            Search players, explore stats, track trends, and build your Dream Team.
+          </p>
+
+          {/* SEARCH */}
+          <div className="mt-8 w-full">
+            <div className="text-xs text-foreground/60 mb-1 text-left">
+            </div>
+            <SearchPlayers onPlayerClick={goPlayer} />
+            <p className="mt-2 text-xs text-foreground/50">
+              Tip: search any NBA player to open their profile card.
+            </p>
+          </div>
+
+          {/* PRIMARY CTA */}
+          
+        </div>
+
+        {/* FEATURES */}
+        <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <FeatureCard
+            title="Player Explorer"
+            desc="Open any player and dive into stats, bio, and trends."
+            href="/dashboard"
+            badge="Core"
+          />
+          <FeatureCard
+            title="Dream Team Builder"
+            desc="Save your favorite players and build your lineup."
+            href="/dreamteam"
+            badge="Popular"
+          />
+          <FeatureCard
+            title="Analytics"
+            desc="See what users search, add, and how funnels behave."
+            href="/analytics"
+            badge="Data"
+          />
+          <FeatureCard
+            title="Guesser"
+            desc="A fun guessing mode based on your player data."
+            href="/guess"
+            badge="Game"
           />
         </div>
-
-        <h1 className="text-center text-4xl mb-4">Welcome to the QNBA</h1>
-        <p className="text-center px-2">
-          Search for your favorite players and learn more about them.
-        </p>
-
-        <SearchPlayers onPlayerClick={handlePlayerClick} />
-
-        {/* ===== RECOMMENDATIONS (DODANO, NIŠTA DRUGO NIJE MIJENJANO) ===== */}
-        <div style={{ marginTop: "30px" }}>
-          <Recommendations />
-        </div>
-        {/* ============================================================ */}
-
-        {/* Buttons */}
-        <div
-          style={{
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "center",
-            gap: "20px",
-          }}
-        >
-          <button
-            onClick={() => router.push("/alltimestats")}
-            className="custom-button all-time-stats"
-          >
-            <div className="button-overlay"></div>
-            <span className="button-text">All Time Stats</span>
-          </button>
-          <button
-            onClick={() => router.push("/currentstats")}
-            className="custom-button current-stats"
-          >
-            <div className="button-overlay"></div>
-            <span className="button-text">Current Stats</span>
-          </button>
-        </div>
-
-        {/* WNBA Schedule Section */}
-        <div style={{ marginTop: "50px" }}>
-          <NBASchedule />
-        </div>
-      </div>
-
-      {/* Right Sidebar */}
-      <div style={{ width: "20%", textAlign: "left", marginRight: "-30%" }}>
-        <h2 className="text-xl font-semibold mb-2 text-center">
-          Most Added to Dream Team
-        </h2>
-        <ul>
-          {mostAddedPlayers.map((player: any) => (
-            <li
-              key={player.player_id}
-              style={{
-                cursor: "pointer",
-                marginBottom: "10px",
-                fontWeight: "bold",
-              }}
-              onClick={() => handlePlayerClick(player.player_id)}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "10px" }}
-              >
-                <img
-                  src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.player_id}.png`}
-                  alt={player.FullStats_NBA?.PLAYER_NAME}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    borderRadius: "50px",
-                    objectFit: "cover",
-                  }}
-                  onError={(e) => (e.currentTarget.style.display = "none")}
-                />
-                <span>{player.player_name || "Unknown Player"}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
+  );
+}
+
+function FeatureCard({
+  title,
+  desc,
+  href,
+  badge,
+}: {
+  title: string;
+  desc: string;
+  href: string;
+  badge: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-2xl border bg-card shadow-sm p-5 block card-hover"
+
+
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-sm font-bold">{title}</div>
+        <span className="text-xs rounded-full border px-2 py-1 text-foreground/70">
+          {badge}
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-foreground/60">{desc}</p>
+      <div className="mt-4 text-sm font-semibold transition-transform duration-200 group-hover:translate-x-1">
+        Open →
+      </div>
+
+    </Link>
   );
 }

@@ -12,52 +12,60 @@ export default async function Login(props: {
   const redirectTo = (searchParams?.redirect as string | undefined) ?? "/";
 
   return (
-    <div className="flex-1 flex flex-col min-w-64 max-w-sm mx-auto">
-      <h1 className="text-2xl font-medium">Sign in</h1>
-      <p className="text-sm text-foreground">
+    <div className="flex flex-col">
+      <h1 className="text-2xl sm:text-3xl font-semibold">Sign in</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link className="text-foreground font-medium underline" href="/sign-up">
+        <Link className="text-foreground font-semibold underline" href="/sign-up">
           Sign up
         </Link>
       </p>
 
-      <div className="mt-8 flex flex-col gap-4">
-        {/* FORM 1: Google login */}
+      <div className="mt-7 flex flex-col gap-4">
+        {/* Google */}
         <form action={signInWithGoogleAction as any} className="w-full">
           <input type="hidden" name="redirectTo" value={redirectTo} />
-
           <SubmitButton
             pendingText="Redirecting..."
             formAction={signInWithGoogleAction as any}
-            className="w-full flex items-center justify-center gap-3 py-2 border border-gray-300 rounded-md bg-white font-medium hover:bg-gray-50 transition"
+            className="w-full h-11 rounded-xl border border-border bg-card text-foreground hover:bg-accent transition flex items-center justify-center gap-3"
           >
             <img
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
               alt="Google"
               className="h-5 w-5"
             />
-            <span className="text-gray-700">Continue with Google</span>
+            <span className="font-semibold">Continue with Google</span>
           </SubmitButton>
         </form>
 
         {/* separator */}
-        <div className="flex items-center my-2">
-          <div className="flex-1 h-px bg-gray-300" />
-          <span className="px-3 text-xs text-gray-500">or</span>
-          <div className="flex-1 h-px bg-gray-300" />
+        <div className="flex items-center gap-3 py-1">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">or</span>
+          <div className="h-px flex-1 bg-border" />
         </div>
 
-        {/* FORM 2: email + password login */}
-        <form className="flex flex-col gap-2">
+        {/* Email + password */}
+        <form className="flex flex-col gap-3">
           <input type="hidden" name="redirectTo" value={redirectTo} />
 
-          <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              placeholder="you@example.com"
+              required
+              className="h-11 rounded-xl"
+              autoComplete="email"
+            />
+          </div>
 
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
             <Link
-              className="text-xs text-foreground underline"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
               href="/forgot-password"
             >
               Forgot Password?
@@ -65,13 +73,20 @@ export default async function Login(props: {
           </div>
 
           <Input
+            id="password"
             type="password"
             name="password"
             placeholder="Your password"
             required
+            className="h-11 rounded-xl"
+            autoComplete="current-password"
           />
 
-          <SubmitButton pendingText="Signing In..." formAction={signInAction as any}>
+          <SubmitButton
+            pendingText="Signing In..."
+            formAction={signInAction as any}
+            className="h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition font-semibold"
+          >
             Sign in
           </SubmitButton>
         </form>

@@ -10,44 +10,79 @@ export default async function Signup(props: {
   searchParams: Promise<Message>;
 }) {
   const searchParams = await props.searchParams;
+
   if ("message" in searchParams) {
     return (
-      <div className="w-full flex-1 flex items-center h-screen sm:max-w-md justify-center gap-2 p-4">
+      <div className="flex flex-col gap-4">
         <FormMessage message={searchParams} />
+        <SmtpMessage />
       </div>
     );
   }
 
   return (
-    <>
-      <form className="flex flex-col min-w-64 max-w-64 mx-auto">
-        <h1 className="text-2xl font-medium">Sign up</h1>
-        <p className="text-sm text text-foreground">
-          Already have an account?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
-            Sign in
-          </Link>
-        </p>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
+    <div className="flex flex-col">
+      <h1 className="text-2xl sm:text-3xl font-semibold">Sign up</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link className="text-foreground font-semibold underline" href="/sign-in">
+          Sign in
+        </Link>
+      </p>
+
+      <form className="mt-7 flex flex-col gap-3">
+        <div className="space-y-2">
           <Label htmlFor="username">Username</Label>
-          <Input name="username" placeholder="Choose a username" required />
+          <Input
+            id="username"
+            name="username"
+            placeholder="Choose a username"
+            required
+            className="h-11 rounded-xl"
+            autoComplete="username"
+          />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
+          <Input
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+            className="h-11 rounded-xl"
+            autoComplete="email"
+          />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
           <Input
+            id="password"
             type="password"
             name="password"
             placeholder="Your password"
             minLength={6}
             required
+            className="h-11 rounded-xl"
+            autoComplete="new-password"
           />
-          <SubmitButton formAction={signUpAction} pendingText="Signing up...">
-            Sign up
-          </SubmitButton>
-          <FormMessage message={searchParams} />
         </div>
+
+        <SubmitButton
+          formAction={signUpAction}
+          pendingText="Signing up..."
+          className="mt-2 h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition font-semibold"
+        >
+          Sign up
+        </SubmitButton>
+
+        <FormMessage message={searchParams} />
       </form>
-      <SmtpMessage />
-    </>
+
+      <div className="mt-6">
+        <SmtpMessage />
+      </div>
+    </div>
   );
 }

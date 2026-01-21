@@ -10,28 +10,43 @@ export default async function ForgotPassword(props: {
   searchParams: Promise<Message>;
 }) {
   const searchParams = await props.searchParams;
+
   return (
-    <>
-      <form className="flex-1 flex flex-col w-full gap-2 text-foreground [&>input]:mb-6 min-w-64 max-w-64 mx-auto">
-        <div>
-          <h1 className="text-2xl font-medium">Reset Password</h1>
-          <p className="text-sm text-secondary-foreground">
-            Already have an account?{" "}
-            <Link className="text-primary underline" href="/sign-in">
-              Sign in
-            </Link>
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
+    <div className="flex flex-col">
+      <h1 className="text-2xl sm:text-3xl font-semibold">Reset Password</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link className="text-foreground font-semibold underline" href="/sign-in">
+          Sign in
+        </Link>
+      </p>
+
+      <form className="mt-7 flex flex-col gap-3">
+        <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input name="email" placeholder="you@example.com" required />
-          <SubmitButton formAction={forgotPasswordAction}>
-            Reset Password
-          </SubmitButton>
-          <FormMessage message={searchParams} />
+          <Input
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            required
+            className="h-11 rounded-xl"
+            autoComplete="email"
+          />
         </div>
+
+        <SubmitButton
+          formAction={forgotPasswordAction}
+          className="mt-2 h-11 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition font-semibold"
+        >
+          Reset Password
+        </SubmitButton>
+
+        <FormMessage message={searchParams} />
       </form>
-      <SmtpMessage />
-    </>
+
+      <div className="mt-6">
+        <SmtpMessage />
+      </div>
+    </div>
   );
 }

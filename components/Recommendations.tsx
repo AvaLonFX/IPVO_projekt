@@ -166,7 +166,7 @@ export default function Recommendations() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="px-4 py-2 rounded-xl border bg-white hover:bg-gray-50 transition text-sm"
+          className="ml-auto h-9 rounded-xl px-4 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition"
         >
           {open ? "Hide recommendations" : "Show recommendations"}
         </button>
