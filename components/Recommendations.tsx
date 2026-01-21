@@ -159,14 +159,18 @@ export default function Recommendations() {
       {/* Header / Toggle */}
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
-          <h2 className="text-xl font-semibold">Recommended players</h2>
-          <p className="text-xs text-gray-500">Personalized suggestions based on your activity</p>
+          <h2 className="text-lg sm:text-xl font-semibold text-white/90">Recommended players</h2>
+          <p className="text-xs text-white/50">Personalized suggestions based on your activity</p>
         </div>
 
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="ml-auto h-9 rounded-xl px-4 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition"
+          className="
+            ml-auto h-9 rounded-xl px-4 text-sm font-semibold
+            bg-primary text-primary-foreground hover:bg-primary/90 transition
+            shadow-sm
+          "
         >
           {open ? "Hide recommendations" : "Show recommendations"}
         </button>
@@ -174,25 +178,37 @@ export default function Recommendations() {
 
       {/* Collapsible content */}
       {!open ? null : (
-        <div className="rounded-2xl border bg-white p-4">
+        <div
+          className="
+            rounded-2xl border border-white/10
+            bg-white/[0.03] backdrop-blur
+            p-4
+            shadow-[0_0_0_1px_rgba(255,255,255,0.02)]"
+        >
           {/* states */}
           {!userId ? (
-            <p className="text-sm text-gray-500">Please sign in to see recommendations.</p>
+            <p className="text-sm text-white/55">Please sign in to see recommendations.</p>
           ) : loadingRecs ? (
-            <p className="text-sm text-gray-500">Loading recommendations...</p>
+            <p className="text-sm text-white/55">Loading recommendations...</p>
           ) : error ? (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-400">{error}</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-gray-500">No recommendations yet (interact with players first).</p>
+            <p className="text-sm text-white/55">No recommendations yet (interact with players first).</p>
           ) : (
             <>
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs text-gray-500">Swipe or use arrows</p>
+                <p className="text-xs text-white/45">Swipe or use arrows</p>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => scrollByCard("prev")}
-                    className="h-9 w-9 rounded-full border bg-white hover:bg-gray-50 flex items-center justify-center"
+                    className="
+                      h-9 w-9 rounded-full border border-white/10
+                      bg-white/[0.04] hover:bg-white/[0.08]
+                      text-white/80
+                      flex items-center justify-center
+                      transition
+                    "
                     aria-label="Previous"
                     type="button"
                   >
@@ -200,7 +216,13 @@ export default function Recommendations() {
                   </button>
                   <button
                     onClick={() => scrollByCard("next")}
-                    className="h-9 w-9 rounded-full border bg-white hover:bg-gray-50 flex items-center justify-center"
+                    className="
+                      h-9 w-9 rounded-full border border-white/10
+                      bg-white/[0.04] hover:bg-white/[0.08]
+                      text-white/80
+                      flex items-center justify-center
+                      transition
+                    "
                     aria-label="Next"
                     type="button"
                   >
@@ -220,7 +242,7 @@ export default function Recommendations() {
                   "
                   style={{ WebkitOverflowScrolling: "touch" }}
                 >
-                  <div className="shrink-0 w-6 sm:w-16" />
+                  <div className="shrink-0 w-2 sm:w-10" />
                   {items.map((r, idx) => (
                     <RecCard
                       key={String(r.id)}
@@ -232,11 +254,12 @@ export default function Recommendations() {
                       onAdd={() => addToDreamTeam(r.id)}
                     />
                   ))}
-                  <div className="shrink-0 w-6 sm:w-16" />
+                  <div className="shrink-0 w-2 sm:w-10" />
                 </div>
 
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-white to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-white to-transparent" />
+                {/* subtle fades that match dark bg */}
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-10 sm:w-14 bg-gradient-to-r from-[#070b14] via-[#070b14]/70 to-transparent" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-10 sm:w-14 bg-gradient-to-l from-[#070b14] via-[#070b14]/70 to-transparent" />
               </div>
             </>
           )}
@@ -270,13 +293,17 @@ function RecCard({
       className="
         snap-center shrink-0
         w-[280px] sm:w-[340px] md:w-[380px]
-        rounded-2xl border bg-white shadow-sm
-        hover:shadow-md transition
+        rounded-2xl
+        border border-white/10
+        bg-white/[0.04] backdrop-blur
+        shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+        hover:bg-white/[0.06] hover:border-white/15
+        transition
         overflow-hidden
       "
     >
       {/* Image area */}
-      <div className="relative h-[180px] bg-white flex items-center justify-center">
+      <div className="relative h-[190px] bg-gradient-to-b from-white/[0.06] to-transparent flex items-center justify-center">
         <img
           src={playerImageUrl}
           alt={rec.name}
@@ -289,19 +316,30 @@ function RecCard({
         />
 
         {typeof rec.similarity === "number" && (
-          <div className="absolute top-3 right-3 text-xs text-gray-700 bg-white/90 border rounded-full px-2 py-1 shadow-sm">
-            sim: <span className="font-medium">{rec.similarity.toFixed(3)}</span>
+          <div
+            className="
+              absolute top-3 right-3
+              text-[11px] text-white/80
+              bg-black/40 border border-white/10
+              rounded-full px-2 py-1
+              shadow-sm
+            "
+          >
+            sim: <span className="font-semibold text-white">{rec.similarity.toFixed(3)}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
       <div className="px-5 py-4">
-        <Link href={`/player/${rec.id}`} className="block text-lg font-semibold truncate hover:underline">
+        <Link
+          href={`/player/${rec.id}`}
+          className="block text-base sm:text-lg font-semibold text-white/90 truncate hover:underline"
+        >
           {rec.name}
         </Link>
 
-        <div className="mt-1 text-xs text-gray-500">
+        <div className="mt-1 text-xs text-white/55">
           <div className="truncate">ID: {rec.id}</div>
           {teamLabel && <div className="truncate">{teamLabel}</div>}
         </div>
@@ -309,7 +347,13 @@ function RecCard({
         <div className="mt-4 grid grid-cols-1 gap-2">
           <Link
             href={`/player/${rec.id}`}
-            className="inline-flex items-center justify-center w-full rounded-xl border px-3 py-2 text-sm hover:bg-gray-50 transition"
+            className="
+              inline-flex items-center justify-center w-full
+              rounded-xl border border-white/10
+              bg-white/[0.03] hover:bg-white/[0.07]
+              px-3 py-2 text-sm text-white/85
+              transition
+            "
           >
             View player →
           </Link>
@@ -321,9 +365,9 @@ function RecCard({
             className={[
               "inline-flex items-center justify-center w-full rounded-xl px-3 py-2 text-sm transition border",
               isInDreamTeam
-                ? "bg-emerald-50 border-emerald-200 text-emerald-700 cursor-not-allowed"
-                : "bg-white hover:bg-gray-50",
-              (dreamTeamLoading || isAdding) ? "opacity-60 cursor-wait" : "",
+                ? "bg-emerald-500/10 border-emerald-400/20 text-emerald-200 cursor-not-allowed"
+                : "border-white/10 bg-white/[0.03] hover:bg-white/[0.07] text-white/85",
+              dreamTeamLoading || isAdding ? "opacity-60 cursor-wait" : "",
             ].join(" ")}
           >
             {isInDreamTeam ? "Added to Dream Team ✓" : isAdding ? "Adding..." : "Add to Dream Team"}
