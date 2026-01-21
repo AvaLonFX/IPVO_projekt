@@ -4,9 +4,16 @@ import { useEffect, useMemo, useState } from "react";
 
 type FunnelRow = { step: string; users: number };
 
+// conversionRate može biti stari broj ili novi objekt s više metrika
+type ConversionRateObject = {
+  viewFromSearch?: number;   // %
+  compareFromView?: number;  // %
+  compareFromSearch?: number; // %
+};
+
 type FunnelResponse = {
   funnel: FunnelRow[];
-  conversionRate?: number; // 0-100
+  conversionRate?: number | ConversionRateObject;
 };
 
 function formatPct(n: number) {
@@ -49,7 +56,18 @@ export default function FunnelPanel() {
     return (last / first) * 100;
   }, [funnel]);
 
-  const conversion = data?.conversionRate ?? computedConversion;
+  // Ako API vrati object conversionRate, glavni "headline" conversion je last/first (kao i prije)
+  const conversionHeadline = useMemo(() => {
+    const cr = data?.conversionRate;
+    if (typeof cr === "number") return cr;
+    return computedConversion;
+  }, [data?.conversionRate, computedConversion]);
+
+  const conversionDetails: ConversionRateObject | null = useMemo(() => {
+    const cr = data?.conversionRate;
+    if (cr && typeof cr === "object") return cr;
+    return null;
+  }, [data?.conversionRate]);
 
   return (
     <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -63,16 +81,44 @@ export default function FunnelPanel() {
 
         <div className="text-right">
           <div className="text-xs text-slate-500">Conversion (last / first)</div>
-          <div className="text-2xl font-semibold text-slate-900">{formatPct(conversion)}</div>
+          <div className="text-2xl font-semibold text-slate-900">
+            {formatPct(conversionHeadline)}
+          </div>
         </div>
       </div>
 
       <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-100">
         <div
           className="h-full rounded-full bg-emerald-500 transition-all"
-          style={{ width: `${Math.max(0, Math.min(100, conversion))}%` }}
+          style={{ width: `${Math.max(0, Math.min(100, conversionHeadline))}%` }}
         />
       </div>
+
+      {/* Ako API vrati dodatne metrike, prikaži ih kao “mini stat” */}
+      {conversionDetails && (
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-xs text-slate-500">Search → View</div>
+            <div className="text-lg font-semibold text-slate-900">
+              {formatPct(conversionDetails.viewFromSearch ?? 0)}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-xs text-slate-500">View → Compare</div>
+            <div className="text-lg font-semibold text-slate-900">
+              {formatPct(conversionDetails.compareFromView ?? 0)}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <div className="text-xs text-slate-500">Search → Compare</div>
+            <div className="text-lg font-semibold text-slate-900">
+              {formatPct(conversionDetails.compareFromSearch ?? 0)}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mt-6">
         {loading && <div className="text-sm text-slate-500">Učitavam funnel…</div>}
@@ -91,7 +137,7 @@ export default function FunnelPanel() {
             {funnel.map((row, idx) => {
               const prev = idx === 0 ? null : funnel[idx - 1];
               const dropFromPrev =
-                prev && prev.users > 0 ? ((row.users / prev.users) * 100) : null;
+                prev && prev.users > 0 ? (row.users / prev.users) * 100 : null;
 
               return (
                 <div

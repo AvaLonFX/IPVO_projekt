@@ -17,6 +17,8 @@ import { Suspense } from "react";
 import GAListener from "@/components/ga/GAListener";
 import { GA_ID } from "@/lib/gtag";
 
+import { Button } from "@/components/ui/button";
+
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
   : "http://localhost:3000";
@@ -92,13 +94,40 @@ export default function RootLayout({
                       <TeamsButton />
                       <DreamtButton />
                       <GuessButton />
-                      <Link className="px-3 py-2 rounded-md border" href="/analytics">
-                            Analytics
-                       </Link>
-                      <Link className="px-3 py-2 rounded-md border" href="/FunnelRetention">
-                            FunnelRetention
-                       </Link>
 
+                      <Button className="flex items-center gap-2" size="sm" asChild>
+                        <Link href="/analytics">
+                          <svg
+                            className="h-3 w-3"
+                            viewBox="0 0 76 65"
+                            fill="hsl(var(--background)/1)"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M37.5274 0L75.0548 65H0L37.5274 0Z"
+                              fill="inherit"
+                            />
+                          </svg>
+                          <span>Analytics</span>
+                        </Link>
+                      </Button>
+
+                      <Button className="flex items-center gap-2" size="sm" asChild>
+                        <Link href="/FunnelRetention">
+                          <svg
+                            className="h-3 w-3"
+                            viewBox="0 0 76 65"
+                            fill="hsl(var(--background)/1)"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M37.5274 0L75.0548 65H0L37.5274 0Z"
+                              fill="inherit"
+                            />
+                          </svg>
+                          <span>FunnelRetention</span>
+                        </Link>
+                      </Button>
                     </div>
                   </div>
 

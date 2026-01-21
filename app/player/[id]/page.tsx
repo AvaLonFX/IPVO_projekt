@@ -94,7 +94,6 @@ export default function PlayerPage({
         weight: 3,
       });
 
-
       try {
         const { data: playerData, error: playerError } = await supabase
           .from("Osnovno_NBA")
@@ -493,7 +492,17 @@ export default function PlayerPage({
         }}
       >
         <button
-          onClick={() => setShowCompareSearch(true)} // Otvori SearchPlayers komponentu
+          onClick={() => {
+            // ✅ NOVO: track compare click u funnelu
+            trackInteraction({
+              itemType: "player",
+              itemId: player?.PERSON_ID ?? resolvedParams?.id,
+              eventType: "compare_click",
+              weight: 4,
+            });
+
+            setShowCompareSearch(true); // Otvori SearchPlayers komponentu
+          }}
           style={{
             marginTop: "20px",
             marginRight: "40px",
