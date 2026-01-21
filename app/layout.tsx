@@ -115,17 +115,7 @@ export default function RootLayout({
                         ☰
                       </label>
 
-                      <Link href="/" className="flex items-center gap-2">
-                        <Image
-                          src="/slike_test/qnba_logo.png"
-                          alt="QNBA"
-                          width={28}
-                          height={28}
-                          priority
-                          className="h-7 w-7 object-contain"
-                        />
-                        <span className="font-bold">QNBA</span>
-                      </Link>
+                      
                     </div>
 
                     {/* MIDDLE: schedule ticker (takes remaining space) */}
