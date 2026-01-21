@@ -225,10 +225,7 @@ export default function PlayerPage({
 
   return (
     <div className="w-full">
-      {/* Top row: only Back button (actions are moved to bottom) */}
-      <div className="flex items-center justify-between gap-3 mb-4">
-        <BackToSearchButton />
-      </div>
+    
 
       {/* Profile */}
       <Card className="bg-background/40 backdrop-blur border-foreground/10">
