@@ -1,0 +1,113 @@
+{
+  "n_rows": 1000,
+  "features": [
+    "home_win_pct_last10",
+    "away_win_pct_last10",
+    "home_pts_for_last10",
+    "away_pts_for_last10",
+    "home_pts_against_last10",
+    "away_pts_against_last10",
+    "home_net_last10",
+    "away_net_last10",
+    "home_home_win_pct_last10",
+    "home_home_pts_for_last10",
+    "home_home_pts_against_last10",
+    "away_away_win_pct_last10",
+    "away_away_pts_for_last10",
+    "away_away_pts_against_last10",
+    "home_season_win_pct_to_date",
+    "away_season_win_pct_to_date",
+    "home_rest_days",
+    "away_rest_days",
+    "home_b2b",
+    "away_b2b",
+    "home_top3_missing",
+    "away_top3_missing",
+    "home_top5_missing",
+    "away_top5_missing"
+  ],
+  "logreg_top10": [
+    {
+      "feature": "home_home_pts_for_last10",
+      "mean_abs_shap": 0.21580070076613067
+    },
+    {
+      "feature": "home_home_pts_against_last10",
+      "mean_abs_shap": 0.17446964523626418
+    },
+    {
+      "feature": "away_top5_missing",
+      "mean_abs_shap": 0.13570337407717997
+    },
+    {
+      "feature": "away_net_last10",
+      "mean_abs_shap": 0.12381701643167671
+    },
+    {
+      "feature": "home_top3_missing",
+      "mean_abs_shap": 0.10512611715056235
+    },
+    {
+      "feature": "home_net_last10",
+      "mean_abs_shap": 0.10124726835055801
+    },
+    {
+      "feature": "home_pts_against_last10",
+      "mean_abs_shap": 0.08804033799938554
+    },
+    {
+      "feature": "away_away_win_pct_last10",
+      "mean_abs_shap": 0.08643016956586208
+    },
+    {
+      "feature": "home_season_win_pct_to_date",
+      "mean_abs_shap": 0.08423496097864146
+    },
+    {
+      "feature": "away_pts_for_last10",
+      "mean_abs_shap": 0.08257600571403242
+    }
+  ],
+  "xgb_top10": [
+    {
+      "feature": "home_season_win_pct_to_date",
+      "mean_abs_shap": 0.19335520267486572
+    },
+    {
+      "feature": "home_home_pts_for_last10",
+      "mean_abs_shap": 0.18686047196388245
+    },
+    {
+      "feature": "home_net_last10",
+      "mean_abs_shap": 0.166545107960701
+    },
+    {
+      "feature": "away_top5_missing",
+      "mean_abs_shap": 0.12991337478160858
+    },
+    {
+      "feature": "away_away_pts_against_last10",
+      "mean_abs_shap": 0.12416010349988937
+    },
+    {
+      "feature": "away_season_win_pct_to_date",
+      "mean_abs_shap": 0.12233223021030426
+    },
+    {
+      "feature": "away_away_pts_for_last10",
+      "mean_abs_shap": 0.12156327813863754
+    },
+    {
+      "feature": "away_net_last10",
+      "mean_abs_shap": 0.11983852833509445
+    },
+    {
+      "feature": "home_home_pts_against_last10",
+      "mean_abs_shap": 0.10394521802663803
+    },
+    {
+      "feature": "home_top3_missing",
+      "mean_abs_shap": 0.10308331251144409
+    }
+  ]
+}

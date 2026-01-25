@@ -115,12 +115,14 @@ export default function NBASchedule() {
             onChange={(e) => setModel(e.target.value as ModelName)}
             className="border rounded px-2 py-1 text-sm"
           >
+            <option value="xgb_moneyline_final">XGBoost</option>
+            <option value="lr_moneyline_final">LogReg</option>
             <option value="lr_moneyline_v1">Baseline (LogReg)</option>
             <option value="xgb_moneyline_v1">XGBoost_v1</option>
             <option value="xgb_moneyline_v2">XGBoost_v2</option>
             <option value="lr_moneyline_v2_scaled">Baseline (LogRegv2)</option>
             <option value="xgb_moneyline_v3">XGBoost_v3</option>
-
+            
           </select>
         </div>
       </div>
