@@ -6,7 +6,6 @@ const GA_CLIENT_SECRET = process.env.GA_CLIENT_SECRET!;
 const GA_PROPERTY_ID = process.env.GA_PROPERTY_ID!;
 
 export function getBaseUrl() {
-  // Prefer NEXT_PUBLIC_SITE_URL if you have it, otherwise Vercel URL, otherwise localhost
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   if (siteUrl) return siteUrl;
 
@@ -16,7 +15,6 @@ export function getBaseUrl() {
 
 export function getGoogleAuthUrl() {
   const baseUrl = getBaseUrl();
-  //const redirectUri = `${baseUrl}/analytics/callback`;
   const redirectUri = `${baseUrl}/api/google/callback`;
 
   const params = new URLSearchParams({
@@ -24,17 +22,20 @@ export function getGoogleAuthUrl() {
     redirect_uri: redirectUri,
     response_type: "code",
     scope: "https://www.googleapis.com/auth/analytics.readonly",
-    access_type: "offline", // gives refresh_token (first time)
-    prompt: "consent", // ensures refresh_token on first connect
+    access_type: "offline",
+    prompt: "consent",
     include_granted_scopes: "true",
   });
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
 
+function isInvalidGrantPayload(text: string) {
+  return text.includes('"error":"invalid_grant"') || text.includes("invalid_grant");
+}
+
 async function exchangeCodeForTokens(code: string) {
   const baseUrl = getBaseUrl();
-  //const redirectUri = `${baseUrl}/analytics/callback`;
   const redirectUri = `${baseUrl}/api/google/callback`;
 
   const body = new URLSearchParams({
@@ -81,6 +82,9 @@ async function refreshAccessToken(refreshToken: string) {
 
   if (!res.ok) {
     const text = await res.text();
+    if (res.status === 400 && isInvalidGrantPayload(text)) {
+      throw new Error(`GA_INVALID_GRANT: ${text}`);
+    }
     throw new Error(`Refresh token failed: ${res.status} ${text}`);
   }
 
@@ -92,12 +96,15 @@ async function refreshAccessToken(refreshToken: string) {
   };
 }
 
+/**
+ * OVO se smije jer se zove iz Route Handlera (/api/google/callback)
+ */
 export async function saveTokensFromCode(code: string) {
   const tok = await exchangeCodeForTokens(code);
+  const c = await cookies();
 
-  // store refresh_token if provided (usually first time only)
   if (tok.refresh_token) {
-    (await cookies()).set("ga_refresh_token", tok.refresh_token, {
+    c.set("ga_refresh_token", tok.refresh_token, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -105,8 +112,7 @@ export async function saveTokensFromCode(code: string) {
     });
   }
 
-  // store access token short-lived (optional but handy)
-  (await cookies()).set("ga_access_token", tok.access_token, {
+  c.set("ga_access_token", tok.access_token, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
@@ -117,15 +123,20 @@ export async function saveTokensFromCode(code: string) {
   return tok;
 }
 
+/**
+ * OVO se smije SAMO ako se zove iz Server Actiona ili Route Handlera.
+ * (Nemoj ga zvati iz "običnih" server funkcija koje renderaju page.)
+ */
 export async function disconnectGa() {
-  (await cookies()).set("ga_refresh_token", "", {
+  const c = await cookies();
+  c.set("ga_refresh_token", "", {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
     path: "/",
     maxAge: 0,
   });
-  (await cookies()).set("ga_access_token", "", {
+  c.set("ga_access_token", "", {
     httpOnly: true,
     secure: true,
     sameSite: "lax",
@@ -134,26 +145,39 @@ export async function disconnectGa() {
   });
 }
 
+/**
+ * Server component može READ cookies, ali ne smije SET.
+ * Zato ovdje samo vraćamo token, bez spremanja novog access tokena u cookie.
+ */
 async function getValidAccessToken() {
   const c = await cookies();
+
   const access = c.get("ga_access_token")?.value;
   if (access) return access;
 
   const refresh = c.get("ga_refresh_token")?.value;
   if (!refresh) return null;
 
-  const refreshed = await refreshAccessToken(refresh);
-
-
-
-  return refreshed.access_token;
+  try {
+    const refreshed = await refreshAccessToken(refresh);
+    // NE SMIJEMO c.set(...) ovdje (server component path)
+    return refreshed.access_token;
+  } catch (err: any) {
+    const msg = String(err?.message ?? "");
+    if (msg.startsWith("GA_INVALID_GRANT:")) {
+      // Token je istekao / revokean -> ponašaj se kao "not connected"
+      // (korisnik može kliknuti Disconnect/Connect)
+      return null;
+    }
+    throw err;
+  }
 }
 
 export async function fetchGuesserEventsSummary(days = 7) {
   if (!GA_PROPERTY_ID) throw new Error("Missing GA_PROPERTY_ID env var.");
 
   const token = await getValidAccessToken();
-  if (!token) return null; // not connected
+  if (!token) return null;
 
   const url = `https://analyticsdata.googleapis.com/v1beta/properties/${GA_PROPERTY_ID}:runReport`;
 
@@ -184,12 +208,17 @@ export async function fetchGuesserEventsSummary(days = 7) {
 
   if (!res.ok) {
     const text = await res.text();
+
+    // Ako je access token invalid (401) -> samo vrati null (bez cookie set-a)
+    if (res.status === 401 && isInvalidGrantPayload(text)) {
+      return null;
+    }
+
     throw new Error(`runReport failed: ${res.status} ${text}`);
   }
 
   const json = await res.json();
 
-  // Normalize to { eventName: number }
   const rows = json.rows ?? [];
   const out: Record<string, number> = {};
   for (const r of rows) {
@@ -198,7 +227,6 @@ export async function fetchGuesserEventsSummary(days = 7) {
     if (name) out[name] = Number(countStr ?? 0);
   }
 
-  // ensure keys exist
   for (const k of ["guesser_start", "guesser_guess", "guesser_hint", "guesser_end"]) {
     if (!(k in out)) out[k] = 0;
   }

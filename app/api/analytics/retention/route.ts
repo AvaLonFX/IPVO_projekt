@@ -4,48 +4,23 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("user_interactions")
-    .select("user_id, created_at");
+  const { data, error } = await supabase.rpc("retention_summary", { days_back: 30 });
 
-  if (error || !data) {
-    return NextResponse.json({ error: "Query error" }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  // grupiraj po korisniku
-  const byUser = new Map<string, Date[]>();
+  const row = Array.isArray(data) ? data[0] : data;
 
-  for (const row of data) {
-    const d = new Date(row.created_at);
-    if (!byUser.has(row.user_id)) byUser.set(row.user_id, []);
-    byUser.get(row.user_id)!.push(d);
-  }
-
-  let newUsers = 0;
-  let retainedDay1 = 0;
-
-  for (const [_, dates] of Array.from(byUser.entries())) {
-    dates.sort((a, b) => a.getTime() - b.getTime());
-
-    const firstDay = dates[0].toDateString();
-    newUsers++;
-
-    const returnedNextDay = dates.some(
-      (d) =>
-        d.toDateString() !== firstDay &&
-        (new Date(d).getTime() - dates[0].getTime()) <=
-          1000 * 60 * 60 * 24 * 2
-    );
-
-    if (returnedNextDay) retainedDay1++;
-  }
+  const newUsers = Number(row?.new_users ?? 0);
+  const day1 = Number(row?.day1_users ?? 0);
+  const day7 = Number(row?.day7_users ?? 0);
 
   return NextResponse.json({
     newUsers,
-    retainedDay1,
-    day1Retention:
-      newUsers > 0
-        ? Number(((retainedDay1 / newUsers) * 100).toFixed(2))
-        : 0,
+    day1,
+    day7,
+    day1Rate: newUsers > 0 ? Number(((day1 / newUsers) * 100).toFixed(2)) : 0,
+    day7Rate: newUsers > 0 ? Number(((day7 / newUsers) * 100).toFixed(2)) : 0,
   });
 }

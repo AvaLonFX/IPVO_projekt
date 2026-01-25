@@ -65,7 +65,6 @@ function fmtDate(yyyymmdd?: string) {
   });
 }
 
-
 export default function ScheduleTicker({ variant = "header" }: Props) {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,7 +96,9 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
     };
   }, []);
 
-  const visible = useMemo(() => games.slice(0, 16), [games]);
+  // OVDI odredujes koliko utakmica prikazujes u tickeru:
+  const MAX_GAMES = 12;
+  const visible = useMemo(() => games.slice(0, MAX_GAMES), [games]);
 
   const scrollByCards = (dir: -1 | 1) => {
     const el = scrollerRef.current;
@@ -109,6 +110,10 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
   if (!loading && visible.length === 0) return null;
 
   const isHeader = variant === "header";
+
+  const skeletonCount = 6;
+  const listToRender: Array<Game | null> =
+    loading && visible.length === 0 ? Array.from({ length: skeletonCount }).map(() => null) : visible;
 
   return (
     <div className={isHeader ? "w-full min-w-0" : "w-full"}>
@@ -166,74 +171,77 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
             ${isHeader ? "" : "pb-1"}
           `}
         >
-          {(loading && visible.length === 0 ? Array.from({ length: 6 }) : visible).map(
-            (g: any, idx: number) => {
-              if (loading && visible.length === 0) {
-                return (
-                  <div
-                    key={`sk-${idx}`}
-                    className={`
-                      shrink-0 rounded-2xl border border-white/10 bg-white/5 animate-pulse
-                      ${isHeader ? "h-10 w-[220px]" : "h-12 w-[260px]"}
-                    `}
-                  />
-                );
-              }
-
-              const homeLogo = logoUrl(g.homeTeam);
-              const awayLogo = logoUrl(g.awayTeam);
-
+          {listToRender.map((g, idx) => {
+            // SKELETON
+            if (!g) {
               return (
                 <div
-                  key={g.gameID}
+                  key={`sk-${idx}`}
                   className={`
-                    shrink-0 rounded-2xl border border-white/10
-                    bg-white/5 hover:bg-white/10 transition
-                    ${isHeader ? "w-[240px] py-2 px-3" : "w-[260px] py-2 px-3"}
+                    shrink-0 rounded-2xl border border-white/10 bg-white/5 animate-pulse
+                    ${isHeader ? "h-10 w-[220px]" : "h-12 w-[260px]"}
                   `}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-[11px] text-foreground/60 truncate">
-                      {isHeader ? "" : fmtDate(g.gameDate)}
-                    </div>
-                    <div className="text-[11px] font-semibold text-foreground/70">
-                      {g.status}
-                    </div>
-                  </div>
-
-                  <div className="mt-1 grid grid-cols-2 gap-2 items-center">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {awayLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={awayLogo}
-                          alt={g.awayTeam}
-                          className="h-5 w-5 opacity-90"
-                        />
-                      ) : (
-                        <div className="h-5 w-5 rounded bg-white/10" />
-                      )}
-                      <div className="text-sm font-bold truncate">{g.awayTeam}</div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 min-w-0">
-                      <div className="text-sm font-bold truncate">{g.homeTeam}</div>
-                      {homeLogo ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={homeLogo}
-                          alt={g.homeTeam}
-                          className="h-5 w-5 opacity-90"
-                        />
-                      ) : (
-                        <div className="h-5 w-5 rounded bg-white/10" />
-                      )}
-                    </div>
-                  </div>
-                </div>
+                />
               );
             }
-          )}
+
+            const homeLogo = logoUrl(g.homeTeam);
+            const awayLogo = logoUrl(g.awayTeam);
+
+            // KEY FIX: unikatan key (izbjegne duplikate i warning)
+            const safeKey = `${g.gameID ?? "game"}-${idx}`;
+
+            return (
+              <div
+                key={safeKey}
+                className={`
+                  shrink-0 rounded-2xl border border-white/10
+                  bg-white/5 hover:bg-white/10 transition
+                  ${isHeader ? "w-[240px] py-2 px-3" : "w-[260px] py-2 px-3"}
+                `}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  {/* DATUM SAD VIDIŠ I U HEADERU */}
+                  <div className="text-[11px] text-foreground/60 truncate">
+                    {fmtDate(g.gameDate)}
+                  </div>
+                  <div className="text-[11px] font-semibold text-foreground/70">
+                    {g.status}
+                  </div>
+                </div>
+
+                <div className="mt-1 grid grid-cols-2 gap-2 items-center">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {awayLogo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={awayLogo}
+                        alt={g.awayTeam}
+                        className="h-5 w-5 opacity-90"
+                      />
+                    ) : (
+                      <div className="h-5 w-5 rounded bg-white/10" />
+                    )}
+                    <div className="text-sm font-bold truncate">{g.awayTeam}</div>
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 min-w-0">
+                    <div className="text-sm font-bold truncate">{g.homeTeam}</div>
+                    {homeLogo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={homeLogo}
+                        alt={g.homeTeam}
+                        className="h-5 w-5 opacity-90"
+                      />
+                    ) : (
+                      <div className="h-5 w-5 rounded bg-white/10" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
