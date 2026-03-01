@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-02-03/03.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/03_frames",
+    "motion_energy": 0.1419785851261801,
+    "audio_mean_db": -20.4,
+    "motion_norm": 1.0,
+    "audio_norm": 0.7500000000000011,
+    "score": 0.9125,
+    "score_breakdown": {
+      "motion_energy": 0.1419785851261801,
+      "audio_mean_db": -20.4,
+      "motion_norm": 1.0,
+      "audio_norm": 0.7500000000000011,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-02-03/07.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/07_frames",
+    "motion_energy": 0.13673789534971076,
+    "audio_mean_db": -20.0,
+    "motion_norm": 0.7782935702336863,
+    "audio_norm": 1.0,
+    "score": 0.8559,
+    "score_breakdown": {
+      "motion_energy": 0.13673789534971076,
+      "audio_mean_db": -20.0,
+      "motion_norm": 0.7782935702336863,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-02-03/09.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/09_frames",
+    "motion_energy": 0.13902885508778676,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.8752122061254265,
+    "audio_norm": 0.6249999999999994,
+    "score": 0.7876,
+    "score_breakdown": {
+      "motion_energy": 0.13902885508778676,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.8752122061254265,
+      "audio_norm": 0.6249999999999994,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-02-03/01.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/01_frames",
+    "motion_energy": 0.13561072769751178,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.730608947297377,
+    "audio_norm": 0.6249999999999994,
+    "score": 0.6936,
+    "score_breakdown": {
+      "motion_energy": 0.13561072769751178,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.730608947297377,
+      "audio_norm": 0.6249999999999994,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-02-03/05.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/05_frames",
+    "motion_energy": 0.12445819871509212,
+    "audio_mean_db": -20.0,
+    "motion_norm": 0.2588032329695613,
+    "audio_norm": 1.0,
+    "score": 0.5182,
+    "score_breakdown": {
+      "motion_energy": 0.12445819871509212,
+      "audio_mean_db": -20.0,
+      "motion_norm": 0.2588032329695613,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-02-03/06.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/06_frames",
+    "motion_energy": 0.12330591475095784,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.21005606901564103,
+    "audio_norm": 0.9374999999999992,
+    "score": 0.4647,
+    "score_breakdown": {
+      "motion_energy": 0.12330591475095784,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.21005606901564103,
+      "audio_norm": 0.9374999999999992,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-02-03/10.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/10_frames",
+    "motion_energy": 0.12631035338972188,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.3371583002988466,
+    "audio_norm": 0.6249999999999994,
+    "score": 0.4379,
+    "score_breakdown": {
+      "motion_energy": 0.12631035338972188,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.3371583002988466,
+      "audio_norm": 0.6249999999999994,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-02-03/04.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/04_frames",
+    "motion_energy": 0.1274895733211585,
+    "audio_mean_db": -21.6,
+    "motion_norm": 0.38704498546039895,
+    "audio_norm": 0.0,
+    "score": 0.2516,
+    "score_breakdown": {
+      "motion_energy": 0.1274895733211585,
+      "audio_mean_db": -21.6,
+      "motion_norm": 0.38704498546039895,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-02-03/02.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/02_frames",
+    "motion_energy": 0.11834061584403875,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.0,
+    "audio_norm": 0.4375000000000014,
+    "score": 0.1531,
+    "score_breakdown": {
+      "motion_energy": 0.11834061584403875,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.0,
+      "audio_norm": 0.4375000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-02-03/08.mp4",
+    "frames_dir": "python/data/clips/2026-02-03/08_frames",
+    "motion_energy": 0.11874647170959886,
+    "audio_mean_db": -21.0,
+    "motion_norm": 0.017169658726425924,
+    "audio_norm": 0.37500000000000056,
+    "score": 0.1424,
+    "score_breakdown": {
+      "motion_energy": 0.11874647170959886,
+      "audio_mean_db": -21.0,
+      "motion_norm": 0.017169658726425924,
+      "audio_norm": 0.37500000000000056,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]
