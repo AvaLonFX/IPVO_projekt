@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/01.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/01_frames",
+    "motion_energy": 0.13344676973353442,
+    "audio_mean_db": -20.6,
+    "motion_norm": 1.0,
+    "audio_norm": 0.57142857142857,
+    "score": 0.85,
+    "score_breakdown": {
+      "motion_energy": 0.13344676973353442,
+      "audio_mean_db": -20.6,
+      "motion_norm": 1.0,
+      "audio_norm": 0.57142857142857,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/03.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/03_frames",
+    "motion_energy": 0.10862355617534368,
+    "audio_mean_db": -20.4,
+    "motion_norm": 0.4772993202693476,
+    "audio_norm": 0.8571428571428601,
+    "score": 0.6102,
+    "score_breakdown": {
+      "motion_energy": 0.10862355617534368,
+      "audio_mean_db": -20.4,
+      "motion_norm": 0.4772993202693476,
+      "audio_norm": 0.8571428571428601,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/04.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/04_frames",
+    "motion_energy": 0.10953563333012943,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.4965048654198869,
+    "audio_norm": 0.57142857142857,
+    "score": 0.5227,
+    "score_breakdown": {
+      "motion_energy": 0.10953563333012943,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.4965048654198869,
+      "audio_norm": 0.57142857142857,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/09.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/09_frames",
+    "motion_energy": 0.09867427591951815,
+    "audio_mean_db": -20.4,
+    "motion_norm": 0.26779801858011515,
+    "audio_norm": 0.8571428571428601,
+    "score": 0.4741,
+    "score_breakdown": {
+      "motion_energy": 0.09867427591951815,
+      "audio_mean_db": -20.4,
+      "motion_norm": 0.26779801858011515,
+      "audio_norm": 0.8571428571428601,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/10.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/10_frames",
+    "motion_energy": 0.09470254229142637,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.18416550008100846,
+    "audio_norm": 1.0,
+    "score": 0.4697,
+    "score_breakdown": {
+      "motion_energy": 0.09470254229142637,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.18416550008100846,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/02.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/02_frames",
+    "motion_energy": 0.09767159481313893,
+    "audio_mean_db": -20.5,
+    "motion_norm": 0.24668463232861731,
+    "audio_norm": 0.714285714285715,
+    "score": 0.4103,
+    "score_breakdown": {
+      "motion_energy": 0.09767159481313893,
+      "audio_mean_db": -20.5,
+      "motion_norm": 0.24668463232861731,
+      "audio_norm": 0.714285714285715,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/06.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/06_frames",
+    "motion_energy": 0.11434212775148374,
+    "audio_mean_db": -21.0,
+    "motion_norm": 0.5977148838276164,
+    "audio_norm": 0.0,
+    "score": 0.3885,
+    "score_breakdown": {
+      "motion_energy": 0.11434212775148374,
+      "audio_mean_db": -21.0,
+      "motion_norm": 0.5977148838276164,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/05.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/05_frames",
+    "motion_energy": 0.0859564669258508,
+    "audio_mean_db": -20.5,
+    "motion_norm": 0.0,
+    "audio_norm": 0.714285714285715,
+    "score": 0.25,
+    "score_breakdown": {
+      "motion_energy": 0.0859564669258508,
+      "audio_mean_db": -20.5,
+      "motion_norm": 0.0,
+      "audio_norm": 0.714285714285715,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/07.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/07_frames",
+    "motion_energy": 0.09482970091631425,
+    "audio_mean_db": -20.8,
+    "motion_norm": 0.18684307039263232,
+    "audio_norm": 0.285714285714285,
+    "score": 0.2214,
+    "score_breakdown": {
+      "motion_energy": 0.09482970091631425,
+      "audio_mean_db": -20.8,
+      "motion_norm": 0.18684307039263232,
+      "audio_norm": 0.285714285714285,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/08.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/08_frames",
+    "motion_energy": 0.09490167243367935,
+    "audio_mean_db": -21.0,
+    "motion_norm": 0.18835856962321323,
+    "audio_norm": 0.0,
+    "score": 0.1224,
+    "score_breakdown": {
+      "motion_energy": 0.09490167243367935,
+      "audio_mean_db": -21.0,
+      "motion_norm": 0.18835856962321323,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

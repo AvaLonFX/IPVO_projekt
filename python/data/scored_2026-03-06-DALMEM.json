@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/03_frames",
+    "motion_energy": 0.1409392959770115,
+    "audio_mean_db": -20.2,
+    "motion_norm": 0.9301666240671476,
+    "audio_norm": 0.9000000000000021,
+    "score": 0.9196,
+    "score_breakdown": {
+      "motion_energy": 0.1409392959770115,
+      "audio_mean_db": -20.2,
+      "motion_norm": 0.9301666240671476,
+      "audio_norm": 0.9000000000000021,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/07_frames",
+    "motion_energy": 0.13643242582980905,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.8090516161595139,
+    "audio_norm": 1.0,
+    "score": 0.8759,
+    "score_breakdown": {
+      "motion_energy": 0.13643242582980905,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.8090516161595139,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/01_frames",
+    "motion_energy": 0.12966225067613255,
+    "audio_mean_db": -20.2,
+    "motion_norm": 0.627113865460711,
+    "audio_norm": 0.9000000000000021,
+    "score": 0.7226,
+    "score_breakdown": {
+      "motion_energy": 0.12966225067613255,
+      "audio_mean_db": -20.2,
+      "motion_norm": 0.627113865460711,
+      "audio_norm": 0.9000000000000021,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/04_frames",
+    "motion_energy": 0.1435379000865052,
+    "audio_mean_db": -20.9,
+    "motion_norm": 1.0,
+    "audio_norm": 0.20000000000000284,
+    "score": 0.72,
+    "score_breakdown": {
+      "motion_energy": 0.1435379000865052,
+      "audio_mean_db": -20.9,
+      "motion_norm": 1.0,
+      "audio_norm": 0.20000000000000284,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/02_frames",
+    "motion_energy": 0.13771244177747724,
+    "audio_mean_db": -21.1,
+    "motion_norm": 0.8434500204978242,
+    "audio_norm": 0.0,
+    "score": 0.5482,
+    "score_breakdown": {
+      "motion_energy": 0.13771244177747724,
+      "audio_mean_db": -21.1,
+      "motion_norm": 0.8434500204978242,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/08_frames",
+    "motion_energy": 0.11955973653706496,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.35562477438945894,
+    "audio_norm": 0.40000000000000213,
+    "score": 0.3712,
+    "score_breakdown": {
+      "motion_energy": 0.11955973653706496,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.35562477438945894,
+      "audio_norm": 0.40000000000000213,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/09_frames",
+    "motion_energy": 0.1063264080917267,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.0,
+    "audio_norm": 0.8000000000000007,
+    "score": 0.28,
+    "score_breakdown": {
+      "motion_energy": 0.1063264080917267,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.0,
+      "audio_norm": 0.8000000000000007,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/06_frames",
+    "motion_energy": 0.11680170066110733,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.2815069218630233,
+    "audio_norm": 0.20000000000000284,
+    "score": 0.253,
+    "score_breakdown": {
+      "motion_energy": 0.11680170066110733,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.2815069218630233,
+      "audio_norm": 0.20000000000000284,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/10_frames",
+    "motion_energy": 0.10651491213315392,
+    "audio_mean_db": -20.4,
+    "motion_norm": 0.005065748007461399,
+    "audio_norm": 0.7000000000000028,
+    "score": 0.2483,
+    "score_breakdown": {
+      "motion_energy": 0.10651491213315392,
+      "audio_mean_db": -20.4,
+      "motion_norm": 0.005065748007461399,
+      "audio_norm": 0.7000000000000028,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/05_frames",
+    "motion_energy": 0.10688348416289592,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.014970538436012776,
+    "audio_norm": 0.20000000000000284,
+    "score": 0.0797,
+    "score_breakdown": {
+      "motion_energy": 0.10688348416289592,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.014970538436012776,
+      "audio_norm": 0.20000000000000284,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

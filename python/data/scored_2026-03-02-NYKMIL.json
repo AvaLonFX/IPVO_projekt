@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/01_frames",
+    "motion_energy": 0.14426492214532877,
+    "audio_mean_db": -20.1,
+    "motion_norm": 1.0,
+    "audio_norm": 1.0,
+    "score": 1.0,
+    "score_breakdown": {
+      "motion_energy": 0.14426492214532877,
+      "audio_mean_db": -20.1,
+      "motion_norm": 1.0,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/05_frames",
+    "motion_energy": 0.14116401492933356,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.925150153175126,
+    "audio_norm": 0.8666666666666671,
+    "score": 0.9047,
+    "score_breakdown": {
+      "motion_energy": 0.14116401492933356,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.925150153175126,
+      "audio_norm": 0.8666666666666671,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/04_frames",
+    "motion_energy": 0.12327042283416635,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.49323377058829826,
+    "audio_norm": 0.6000000000000014,
+    "score": 0.5306,
+    "score_breakdown": {
+      "motion_energy": 0.12327042283416635,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.49323377058829826,
+      "audio_norm": 0.6000000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/08_frames",
+    "motion_energy": 0.11532189072947188,
+    "audio_mean_db": -20.2,
+    "motion_norm": 0.3013717221367674,
+    "audio_norm": 0.9333333333333348,
+    "score": 0.5226,
+    "score_breakdown": {
+      "motion_energy": 0.11532189072947188,
+      "audio_mean_db": -20.2,
+      "motion_norm": 0.3013717221367674,
+      "audio_norm": 0.9333333333333348,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/03_frames",
+    "motion_energy": 0.12072253710511982,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.4317327828893777,
+    "audio_norm": 0.6000000000000014,
+    "score": 0.4906,
+    "score_breakdown": {
+      "motion_energy": 0.12072253710511982,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.4317327828893777,
+      "audio_norm": 0.6000000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/10_frames",
+    "motion_energy": 0.11194394673578244,
+    "audio_mean_db": -20.5,
+    "motion_norm": 0.21983474830973473,
+    "audio_norm": 0.7333333333333343,
+    "score": 0.3996,
+    "score_breakdown": {
+      "motion_energy": 0.11194394673578244,
+      "audio_mean_db": -20.5,
+      "motion_norm": 0.21983474830973473,
+      "audio_norm": 0.7333333333333343,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/06_frames",
+    "motion_energy": 0.11081529740164041,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.19259135665204077,
+    "audio_norm": 0.6000000000000014,
+    "score": 0.3352,
+    "score_breakdown": {
+      "motion_energy": 0.11081529740164041,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.19259135665204077,
+      "audio_norm": 0.6000000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/07_frames",
+    "motion_energy": 0.10283655124631552,
+    "audio_mean_db": -20.2,
+    "motion_norm": 0.0,
+    "audio_norm": 0.9333333333333348,
+    "score": 0.3267,
+    "score_breakdown": {
+      "motion_energy": 0.10283655124631552,
+      "audio_mean_db": -20.2,
+      "motion_norm": 0.0,
+      "audio_norm": 0.9333333333333348,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/02_frames",
+    "motion_energy": 0.11037733227194013,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.18201973338527339,
+    "audio_norm": 0.46666666666666856,
+    "score": 0.2816,
+    "score_breakdown": {
+      "motion_energy": 0.11037733227194013,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.18201973338527339,
+      "audio_norm": 0.46666666666666856,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-02-NYKMIL/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-02-NYKMIL/09_frames",
+    "motion_energy": 0.12010228852077232,
+    "audio_mean_db": -21.6,
+    "motion_norm": 0.41676119286814717,
+    "audio_norm": 0.0,
+    "score": 0.2709,
+    "score_breakdown": {
+      "motion_energy": 0.12010228852077232,
+      "audio_mean_db": -21.6,
+      "motion_norm": 0.41676119286814717,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

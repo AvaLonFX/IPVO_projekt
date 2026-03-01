@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/01.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/01_frames",
+    "motion_energy": 0.13344676973353442,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/02.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/02_frames",
+    "motion_energy": 0.09767159481313893,
+    "audio_mean_db": -20.5
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/03.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/03_frames",
+    "motion_energy": 0.10862355617534368,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/04.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/04_frames",
+    "motion_energy": 0.10953563333012943,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/05.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/05_frames",
+    "motion_energy": 0.0859564669258508,
+    "audio_mean_db": -20.5
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/06.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/06_frames",
+    "motion_energy": 0.11434212775148374,
+    "audio_mean_db": -21.0
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/07.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/07_frames",
+    "motion_energy": 0.09482970091631425,
+    "audio_mean_db": -20.8
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/08.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/08_frames",
+    "motion_energy": 0.09490167243367935,
+    "audio_mean_db": -21.0
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/09.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/09_frames",
+    "motion_energy": 0.09867427591951815,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-28-02-HOUMIA/10.mp4",
+    "frames_dir": "python/data/clips/2026-28-02-HOUMIA/10_frames",
+    "motion_energy": 0.09470254229142637,
+    "audio_mean_db": -20.3
+  }
+]

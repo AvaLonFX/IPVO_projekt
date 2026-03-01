@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/01_frames",
+    "motion_energy": 0.12966225067613255,
+    "audio_mean_db": -20.2
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/02_frames",
+    "motion_energy": 0.13771244177747724,
+    "audio_mean_db": -21.1
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/03_frames",
+    "motion_energy": 0.1409392959770115,
+    "audio_mean_db": -20.2
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/04_frames",
+    "motion_energy": 0.1435379000865052,
+    "audio_mean_db": -20.9
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/05_frames",
+    "motion_energy": 0.10688348416289592,
+    "audio_mean_db": -20.9
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/06_frames",
+    "motion_energy": 0.11680170066110733,
+    "audio_mean_db": -20.9
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/07_frames",
+    "motion_energy": 0.13643242582980905,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/08_frames",
+    "motion_energy": 0.11955973653706496,
+    "audio_mean_db": -20.7
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/09_frames",
+    "motion_energy": 0.1063264080917267,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-06-DALMEM/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-06-DALMEM/10_frames",
+    "motion_energy": 0.10651491213315392,
+    "audio_mean_db": -20.4
+  }
+]

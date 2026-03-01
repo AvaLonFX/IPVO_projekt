@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/01_frames",
+    "motion_energy": 0.10569098460091107,
+    "audio_mean_db": -18.8
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/02_frames",
+    "motion_energy": 0.08620331222766885,
+    "audio_mean_db": -18.7
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/03_frames",
+    "motion_energy": 0.09133066167079859,
+    "audio_mean_db": -18.1
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/04_frames",
+    "motion_energy": 0.1347885559875291,
+    "audio_mean_db": -19.6
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/05_frames",
+    "motion_energy": 0.103179205638194,
+    "audio_mean_db": -20.2
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/06_frames",
+    "motion_energy": 0.11969964925625422,
+    "audio_mean_db": -19.2
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/07_frames",
+    "motion_energy": 0.10596248638344227,
+    "audio_mean_db": -18.3
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/08_frames",
+    "motion_energy": 0.14537817894251714,
+    "audio_mean_db": -18.7
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/09_frames",
+    "motion_energy": 0.11453643048128344,
+    "audio_mean_db": -19.2
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-04-OKCDEN/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-04-OKCDEN/10_frames",
+    "motion_energy": 0.13294886982570805,
+    "audio_mean_db": -18.5
+  }
+]

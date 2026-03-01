@@ -1,20 +1,20 @@
 import subprocess
 from pathlib import Path
 
-RAW_VIDEO = "python/data/raw_videos/niEOSQrtpt0.withaudio.mp4"
-OUT_DIR = Path("python/data/clips/2026-02-03")
+RAW_VIDEO = "python/data/raw_videos/xQLBmcnCE-k.withaudio.mp4"
+OUT_DIR = Path("python/data/clips/2026-03-06-DALMEM")
 
 clips = [
-    (1, 0, 4),
-    (2, 16, 22),
-    (3, 27, 32),
-    (4, 35, 42),
-    (5, 50, 59),
-    (6, 62, 68),
-    (7, 82, 88),
-    (8, 95, 102),
-    (9, 106, 113),
-    (10, 125, 132),
+    (1, 0, 6),
+    (2, 18, 24),
+    (3, 36, 42),
+    (4, 71, 78),
+    (5, 82, 90),
+    (6, 91, 97),
+    (7, 115, 122),
+    (8, 125, 133),
+    (9, 137, 145),
+    (10, 240, 247)
 ]
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
