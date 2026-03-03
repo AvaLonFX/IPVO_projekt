@@ -1,0 +1,16 @@
+video: python\data\clips\2026-02-28-HOUMIA\09.mp4
+teams(ocr): ['HOU', 'MIA']
+teams_votes: {'HOU': 16, 'MIA': 16}
+best_num_vote: 17 (33/73)
+resolved_person_id: 2351
+Top crops:
+01 frame=156 sharp=655.89 area=101120 nums=['18', '3']
+02 frame=132 sharp=534.29 area=75258 nums=[]
+03 frame=133 sharp=595.23 area=70770 nums=[]
+04 frame=138 sharp=631.40 area=69888 nums=[]
+05 frame=156 sharp=665.91 area=69680 nums=['17']
+06 frame=134 sharp=474.45 area=68208 nums=[]
+07 frame=136 sharp=635.75 area=67468 nums=[]
+08 frame=131 sharp=585.04 area=67240 nums=[]
+09 frame=50 sharp=973.54 area=66780 nums=[]
+10 frame=135 sharp=630.08 area=66400 nums=[]

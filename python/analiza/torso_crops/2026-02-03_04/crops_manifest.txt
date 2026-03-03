@@ -1,0 +1,16 @@
+video: python\data\clips\2026-02-03\04.mp4
+teams(): []
+teams_votes: {}
+best_num_vote: 9 (83/408)
+resolved_person_id: None
+Top crops:
+01 frame=187 sharp=146.52 area=115910 nums=[]
+02 frame=235 sharp=83.11 area=84750 nums=[]
+03 frame=234 sharp=83.63 area=83750 nums=[]
+04 frame=236 sharp=65.69 area=83664 nums=[]
+05 frame=233 sharp=92.05 area=82917 nums=[]
+06 frame=237 sharp=75.73 area=81500 nums=[]
+07 frame=231 sharp=95.33 area=80028 nums=[]
+08 frame=232 sharp=80.30 area=79788 nums=[]
+09 frame=78 sharp=98.08 area=78540 nums=[]
+10 frame=79 sharp=104.57 area=77252 nums=[]

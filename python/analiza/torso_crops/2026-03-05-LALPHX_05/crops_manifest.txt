@@ -1,0 +1,16 @@
+video: python\data\clips\2026-03-05-LALPHX\05.mp4
+teams(): []
+teams_votes: {}
+best_num_vote: 5 (34/62)
+resolved_person_id: None
+Top crops:
+01 frame=232 sharp=325.24 area=72870 nums=['11', '13']
+02 frame=7 sharp=59.30 area=66216 nums=[]
+03 frame=10 sharp=56.20 area=56364 nums=[]
+04 frame=16 sharp=51.01 area=54621 nums=[]
+05 frame=174 sharp=277.01 area=52788 nums=[]
+06 frame=175 sharp=327.06 area=51584 nums=[]
+07 frame=184 sharp=122.00 area=48655 nums=[]
+08 frame=31 sharp=60.04 area=46872 nums=[]
+09 frame=19 sharp=49.31 area=46389 nums=[]
+10 frame=171 sharp=315.39 area=45126 nums=[]

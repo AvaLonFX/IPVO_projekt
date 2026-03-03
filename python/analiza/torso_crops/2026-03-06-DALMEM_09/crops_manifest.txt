@@ -1,0 +1,16 @@
+video: python\data\clips\2026-03-06-DALMEM\09.mp4
+teams(): []
+teams_votes: {}
+best_num_vote: 32 (165/537)
+resolved_person_id: None
+Top crops:
+01 frame=142 sharp=502.60 area=54227 nums=[]
+02 frame=143 sharp=543.89 area=53448 nums=[]
+03 frame=238 sharp=229.95 area=48124 nums=[]
+04 frame=141 sharp=679.54 area=47502 nums=['5']
+05 frame=94 sharp=672.73 area=47196 nums=[]
+06 frame=237 sharp=222.20 area=46647 nums=[]
+07 frame=140 sharp=551.78 area=45500 nums=[]
+08 frame=236 sharp=170.14 area=43228 nums=[]
+09 frame=96 sharp=626.62 area=41607 nums=[]
+10 frame=235 sharp=223.93 area=40660 nums=[]

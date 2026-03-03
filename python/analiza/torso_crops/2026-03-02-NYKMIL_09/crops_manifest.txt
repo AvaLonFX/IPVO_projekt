@@ -1,0 +1,16 @@
+video: python\data\clips\2026-03-02-NYKMIL\09.mp4
+teams(): []
+teams_votes: {}
+best_num_vote: 5 (37/125)
+resolved_person_id: None
+Top crops:
+01 frame=178 sharp=318.90 area=68786 nums=[]
+02 frame=232 sharp=314.39 area=65790 nums=['9']
+03 frame=233 sharp=372.81 area=65280 nums=['9']
+04 frame=231 sharp=314.73 area=65260 nums=['9']
+05 frame=229 sharp=364.69 area=65192 nums=[]
+06 frame=230 sharp=312.31 area=64500 nums=['9']
+07 frame=234 sharp=298.47 area=64256 nums=['9']
+08 frame=229 sharp=355.81 area=63984 nums=['9']
+09 frame=153 sharp=239.44 area=63506 nums=[]
+10 frame=179 sharp=360.34 area=63270 nums=[]

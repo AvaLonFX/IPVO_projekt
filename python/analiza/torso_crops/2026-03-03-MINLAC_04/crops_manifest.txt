@@ -1,0 +1,16 @@
+video: python\data\clips\2026-03-03-MINLAC\04.mp4
+teams(ocr): ['MIN', 'LAC']
+teams_votes: {'MIN': 16, 'LAC': 16}
+best_num_vote: 30 (73/78)
+resolved_person_id: 1630162
+Top crops:
+01 frame=20 sharp=106.96 area=40338 nums=[]
+02 frame=38 sharp=151.70 area=35604 nums=[]
+03 frame=48 sharp=136.80 area=30618 nums=[]
+04 frame=50 sharp=173.39 area=29946 nums=[]
+05 frame=49 sharp=136.88 area=28836 nums=[]
+06 frame=31 sharp=134.59 area=28014 nums=[]
+07 frame=21 sharp=113.65 area=27429 nums=[]
+08 frame=22 sharp=109.64 area=26880 nums=[]
+09 frame=70 sharp=300.17 area=26195 nums=[]
+10 frame=71 sharp=253.20 area=25992 nums=[]

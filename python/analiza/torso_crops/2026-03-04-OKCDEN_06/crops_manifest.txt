@@ -1,0 +1,16 @@
+video: python\data\clips\2026-03-04-OKCDEN\06.mp4
+teams(ocr): ['DEN', 'OKC']
+teams_votes: {'DEN': 16, 'OKC': 16}
+best_num_vote: 68 (16/20)
+resolved_person_id: 1863
+Top crops:
+01 frame=12 sharp=197.56 area=36337 nums=[]
+02 frame=11 sharp=232.10 area=35875 nums=[]
+03 frame=26 sharp=336.03 area=32688 nums=[]
+04 frame=27 sharp=438.45 area=32376 nums=[]
+05 frame=28 sharp=398.98 area=31603 nums=[]
+06 frame=7 sharp=243.71 area=29700 nums=[]
+07 frame=8 sharp=208.23 area=29000 nums=[]
+08 frame=9 sharp=232.19 area=28560 nums=[]
+09 frame=10 sharp=228.41 area=25650 nums=[]
+10 frame=22 sharp=86.22 area=24639 nums=[]

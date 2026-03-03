@@ -1,0 +1,16 @@
+video: python\data\clips\2026-02-03\02.mp4
+teams(ocr): ['BKN', 'BOS']
+teams_votes: {'BKN': 3, 'BOS': 3}
+best_num_vote: 30 (3/9)
+resolved_person_id: 1642849
+Top crops:
+01 frame=0 sharp=350.28 area=27430 nums=['30']
+02 frame=1 sharp=432.26 area=21128 nums=['30']
+03 frame=1 sharp=376.66 area=21060 nums=[]
+04 frame=0 sharp=364.77 area=20636 nums=[]
+05 frame=0 sharp=418.19 area=20227 nums=['88']
+06 frame=2 sharp=447.34 area=20160 nums=['88']
+07 frame=2 sharp=388.95 area=20124 nums=[]
+08 frame=1 sharp=509.48 area=20091 nums=['88']
+09 frame=2 sharp=386.58 area=18876 nums=['30']
+10 frame=0 sharp=480.70 area=18252 nums=['36']
