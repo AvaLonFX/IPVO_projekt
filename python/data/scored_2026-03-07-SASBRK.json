@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/04_frames",
+    "motion_energy": 0.10252376373002905,
+    "audio_mean_db": -19.3,
+    "motion_norm": 0.8735003229694477,
+    "audio_norm": 1.0,
+    "score": 0.9178,
+    "score_breakdown": {
+      "motion_energy": 0.10252376373002905,
+      "audio_mean_db": -19.3,
+      "motion_norm": 0.8735003229694477,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/05_frames",
+    "motion_energy": 0.10881045751633987,
+    "audio_mean_db": -20.2,
+    "motion_norm": 1.0,
+    "audio_norm": 0.500000000000001,
+    "score": 0.825,
+    "score_breakdown": {
+      "motion_energy": 0.10881045751633987,
+      "audio_mean_db": -20.2,
+      "motion_norm": 1.0,
+      "audio_norm": 0.500000000000001,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/03_frames",
+    "motion_energy": 0.09772865037218592,
+    "audio_mean_db": -19.8,
+    "motion_norm": 0.7770139484600254,
+    "audio_norm": 0.7222222222222223,
+    "score": 0.7578,
+    "score_breakdown": {
+      "motion_energy": 0.09772865037218592,
+      "audio_mean_db": -19.8,
+      "motion_norm": 0.7770139484600254,
+      "audio_norm": 0.7222222222222223,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/10_frames",
+    "motion_energy": 0.10148802744136871,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.8526594310065448,
+    "audio_norm": 0.22222222222222332,
+    "score": 0.632,
+    "score_breakdown": {
+      "motion_energy": 0.10148802744136871,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.8526594310065448,
+      "audio_norm": 0.22222222222222332,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/06_frames",
+    "motion_energy": 0.09499751061393218,
+    "audio_mean_db": -21.1,
+    "motion_norm": 0.7220584648484814,
+    "audio_norm": 0.0,
+    "score": 0.4693,
+    "score_breakdown": {
+      "motion_energy": 0.09499751061393218,
+      "audio_mean_db": -21.1,
+      "motion_norm": 0.7220584648484814,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/07_frames",
+    "motion_energy": 0.07452789073331352,
+    "audio_mean_db": -19.9,
+    "motion_norm": 0.31017260053697093,
+    "audio_norm": 0.666666666666668,
+    "score": 0.4349,
+    "score_breakdown": {
+      "motion_energy": 0.07452789073331352,
+      "audio_mean_db": -19.9,
+      "motion_norm": 0.31017260053697093,
+      "audio_norm": 0.666666666666668,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/01_frames",
+    "motion_energy": 0.0644775505962619,
+    "audio_mean_db": -19.3,
+    "motion_norm": 0.10794153527455823,
+    "audio_norm": 1.0,
+    "score": 0.4202,
+    "score_breakdown": {
+      "motion_energy": 0.0644775505962619,
+      "audio_mean_db": -19.3,
+      "motion_norm": 0.10794153527455823,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/02_frames",
+    "motion_energy": 0.07232981048544776,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.2659432407345707,
+    "audio_norm": 0.44444444444444464,
+    "score": 0.3284,
+    "score_breakdown": {
+      "motion_energy": 0.07232981048544776,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.2659432407345707,
+      "audio_norm": 0.44444444444444464,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/08_frames",
+    "motion_energy": 0.06639663636109715,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.14655702024922077,
+    "audio_norm": 0.44444444444444464,
+    "score": 0.2508,
+    "score_breakdown": {
+      "motion_energy": 0.06639663636109715,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.14655702024922077,
+      "audio_norm": 0.44444444444444464,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/09_frames",
+    "motion_energy": 0.05911314655172414,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.0,
+    "audio_norm": 0.5555555555555554,
+    "score": 0.1944,
+    "score_breakdown": {
+      "motion_energy": 0.05911314655172414,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.0,
+      "audio_norm": 0.5555555555555554,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

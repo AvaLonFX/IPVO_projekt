@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/01_frames",
+    "motion_energy": 0.1018153360003005,
+    "audio_mean_db": -21.0
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/02_frames",
+    "motion_energy": 0.07742255783032166,
+    "audio_mean_db": -21.0
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/03_frames",
+    "motion_energy": 0.10295431644880175,
+    "audio_mean_db": -21.7
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/04_frames",
+    "motion_energy": 0.08603546589576001,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/05_frames",
+    "motion_energy": 0.0787842363586849,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/06_frames",
+    "motion_energy": 0.09210040640187697,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/07_frames",
+    "motion_energy": 0.10585968137254903,
+    "audio_mean_db": -20.2
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/08_frames",
+    "motion_energy": 0.0872991051477571,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/09_frames",
+    "motion_energy": 0.09102371834150326,
+    "audio_mean_db": -21.9
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-14-BOSPHI/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-14-BOSPHI/10_frames",
+    "motion_energy": 0.10116459214404717,
+    "audio_mean_db": -20.6
+  }
+]

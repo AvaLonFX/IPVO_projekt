@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-CLIPS_DIR = Path("python/data/clips/2026-03-06-DALMEM")
+CLIPS_DIR = Path("python/data/clips/2026-03-15-OKCDAL")
 FPS = 5  # dovoljno za baseline; kasnije možeš 10
 
 def run(cmd):

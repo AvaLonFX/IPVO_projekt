@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/04_frames",
+    "motion_energy": 0.16324365186687703,
+    "audio_mean_db": -20.6,
+    "motion_norm": 1.0,
+    "audio_norm": 0.3999999999999986,
+    "score": 0.79,
+    "score_breakdown": {
+      "motion_energy": 0.16324365186687703,
+      "audio_mean_db": -20.6,
+      "motion_norm": 1.0,
+      "audio_norm": 0.3999999999999986,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/05_frames",
+    "motion_energy": 0.14939054635264068,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.8097651081423808,
+    "audio_norm": 0.6499999999999986,
+    "score": 0.7538,
+    "score_breakdown": {
+      "motion_energy": 0.14939054635264068,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.8097651081423808,
+      "audio_norm": 0.6499999999999986,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/02_frames",
+    "motion_energy": 0.13389769559784695,
+    "audio_mean_db": -19.8,
+    "motion_norm": 0.5970127556192876,
+    "audio_norm": 0.7999999999999989,
+    "score": 0.6681,
+    "score_breakdown": {
+      "motion_energy": 0.13389769559784695,
+      "audio_mean_db": -19.8,
+      "motion_norm": 0.5970127556192876,
+      "audio_norm": 0.7999999999999989,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/08_frames",
+    "motion_energy": 0.12136565280047204,
+    "audio_mean_db": -19.4,
+    "motion_norm": 0.4249190829143705,
+    "audio_norm": 1.0,
+    "score": 0.6262,
+    "score_breakdown": {
+      "motion_energy": 0.12136565280047204,
+      "audio_mean_db": -19.4,
+      "motion_norm": 0.4249190829143705,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/03_frames",
+    "motion_energy": 0.11220552315753886,
+    "audio_mean_db": -19.8,
+    "motion_norm": 0.2991295066901527,
+    "audio_norm": 0.7999999999999989,
+    "score": 0.4744,
+    "score_breakdown": {
+      "motion_energy": 0.11220552315753886,
+      "audio_mean_db": -19.8,
+      "motion_norm": 0.2991295066901527,
+      "audio_norm": 0.7999999999999989,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/01_frames",
+    "motion_energy": 0.14069549972766884,
+    "audio_mean_db": -21.4,
+    "motion_norm": 0.6903621877864641,
+    "audio_norm": 0.0,
+    "score": 0.4487,
+    "score_breakdown": {
+      "motion_energy": 0.14069549972766884,
+      "audio_mean_db": -21.4,
+      "motion_norm": 0.6903621877864641,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/10_frames",
+    "motion_energy": 0.11843663761801017,
+    "audio_mean_db": -20.7,
+    "motion_norm": 0.38469699076959163,
+    "audio_norm": 0.34999999999999964,
+    "score": 0.3726,
+    "score_breakdown": {
+      "motion_energy": 0.11843663761801017,
+      "audio_mean_db": -20.7,
+      "motion_norm": 0.38469699076959163,
+      "audio_norm": 0.34999999999999964,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/06_frames",
+    "motion_energy": 0.10599317251829508,
+    "audio_mean_db": -20.3,
+    "motion_norm": 0.21381969288532385,
+    "audio_norm": 0.5499999999999989,
+    "score": 0.3315,
+    "score_breakdown": {
+      "motion_energy": 0.10599317251829508,
+      "audio_mean_db": -20.3,
+      "motion_norm": 0.21381969288532385,
+      "audio_norm": 0.5499999999999989,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/09_frames",
+    "motion_energy": 0.09114674961419754,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.009944276450284416,
+    "audio_norm": 0.6499999999999986,
+    "score": 0.234,
+    "score_breakdown": {
+      "motion_energy": 0.09114674961419754,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.009944276450284416,
+      "audio_norm": 0.6499999999999986,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/07_frames",
+    "motion_energy": 0.09042259691232815,
+    "audio_mean_db": -20.1,
+    "motion_norm": 0.0,
+    "audio_norm": 0.6499999999999986,
+    "score": 0.2275,
+    "score_breakdown": {
+      "motion_energy": 0.09042259691232815,
+      "audio_mean_db": -20.1,
+      "motion_norm": 0.0,
+      "audio_norm": 0.6499999999999986,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

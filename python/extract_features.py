@@ -6,8 +6,8 @@ import cv2
 import numpy as np
 
 # === CONFIG ===
-CLIPS_DIR = Path("python/data/clips/2026-03-06-DALMEM")
-OUT_JSON = Path("python/data/features_2026-03-06-DALMEM.json")
+CLIPS_DIR = Path("python/data/clips/2026-03-15-OKCDAL")
+OUT_JSON = Path("python/data/features_2026-03-15-OKCDAL.json")
 FPS_NOTE = "Frames assumed already extracted at 5 fps"
 
 

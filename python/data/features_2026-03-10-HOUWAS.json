@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/01_frames",
+    "motion_energy": 0.14069549972766884,
+    "audio_mean_db": -21.4
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/02_frames",
+    "motion_energy": 0.13389769559784695,
+    "audio_mean_db": -19.8
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/03_frames",
+    "motion_energy": 0.11220552315753886,
+    "audio_mean_db": -19.8
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/04_frames",
+    "motion_energy": 0.16324365186687703,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/05_frames",
+    "motion_energy": 0.14939054635264068,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/06_frames",
+    "motion_energy": 0.10599317251829508,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/07_frames",
+    "motion_energy": 0.09042259691232815,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/08_frames",
+    "motion_energy": 0.12136565280047204,
+    "audio_mean_db": -19.4
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/09_frames",
+    "motion_energy": 0.09114674961419754,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-10-HOUWAS/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-10-HOUWAS/10_frames",
+    "motion_energy": 0.11843663761801017,
+    "audio_mean_db": -20.7
+  }
+]

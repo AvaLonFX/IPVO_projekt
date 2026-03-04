@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/01_frames",
+    "motion_energy": 0.122944843550447,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/02_frames",
+    "motion_energy": 0.11092123238184162,
+    "audio_mean_db": -20.8
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/03_frames",
+    "motion_energy": 0.08108626489811609,
+    "audio_mean_db": -20.5
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/04_frames",
+    "motion_energy": 0.1117746219402794,
+    "audio_mean_db": -21.0
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/05_frames",
+    "motion_energy": 0.0761901220602201,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/06_frames",
+    "motion_energy": 0.08446240186687701,
+    "audio_mean_db": -20.7
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/07_frames",
+    "motion_energy": 0.11430722271102173,
+    "audio_mean_db": -20.8
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/08_frames",
+    "motion_energy": 0.10540631808278868,
+    "audio_mean_db": -20.8
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/09_frames",
+    "motion_energy": 0.12092671288286558,
+    "audio_mean_db": -20.5
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-09-DENUTA/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-09-DENUTA/10_frames",
+    "motion_energy": 0.10187194228181469,
+    "audio_mean_db": -20.2
+  }
+]

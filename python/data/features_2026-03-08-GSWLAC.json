@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/01_frames",
+    "motion_energy": 0.09402302199474562,
+    "audio_mean_db": -24.0
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/02_frames",
+    "motion_energy": 0.08156086801550687,
+    "audio_mean_db": -22.6
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/03_frames",
+    "motion_energy": 0.058184405754639026,
+    "audio_mean_db": -23.8
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/04_frames",
+    "motion_energy": 0.08743230692660206,
+    "audio_mean_db": -23.9
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/05_frames",
+    "motion_energy": 0.09137888872869408,
+    "audio_mean_db": -23.5
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/06_frames",
+    "motion_energy": 0.12550007942992011,
+    "audio_mean_db": -23.2
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/07_frames",
+    "motion_energy": 0.09535885968372024,
+    "audio_mean_db": -24.9
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/08_frames",
+    "motion_energy": 0.0957553926263992,
+    "audio_mean_db": -23.0
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/09_frames",
+    "motion_energy": 0.11310323228908421,
+    "audio_mean_db": -22.9
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-08-GSWLAC/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-08-GSWLAC/10_frames",
+    "motion_energy": 0.08870723549836601,
+    "audio_mean_db": -23.9
+  }
+]
