@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/01_frames",
+    "motion_energy": 0.0644775505962619,
+    "audio_mean_db": -19.3
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/02_frames",
+    "motion_energy": 0.07232981048544776,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/03_frames",
+    "motion_energy": 0.09772865037218592,
+    "audio_mean_db": -19.8
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/04_frames",
+    "motion_energy": 0.10252376373002905,
+    "audio_mean_db": -19.3
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/05_frames",
+    "motion_energy": 0.10881045751633987,
+    "audio_mean_db": -20.2
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/06_frames",
+    "motion_energy": 0.09499751061393218,
+    "audio_mean_db": -21.1
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/07_frames",
+    "motion_energy": 0.07452789073331352,
+    "audio_mean_db": -19.9
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/08_frames",
+    "motion_energy": 0.06639663636109715,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/09_frames",
+    "motion_energy": 0.05911314655172414,
+    "audio_mean_db": -20.1
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-07-SASBRK/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-07-SASBRK/10_frames",
+    "motion_energy": 0.10148802744136871,
+    "audio_mean_db": -20.7
+  }
+]

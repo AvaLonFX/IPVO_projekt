@@ -1,0 +1,202 @@
+[
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/04_frames",
+    "motion_energy": 0.15643030124631552,
+    "audio_mean_db": -20.5,
+    "motion_norm": 1.0,
+    "audio_norm": 0.37500000000000056,
+    "score": 0.7813,
+    "score_breakdown": {
+      "motion_energy": 0.15643030124631552,
+      "audio_mean_db": -20.5,
+      "motion_norm": 1.0,
+      "audio_norm": 0.37500000000000056,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/07_frames",
+    "motion_energy": 0.1276061876504988,
+    "audio_mean_db": -19.5,
+    "motion_norm": 0.5192826449564563,
+    "audio_norm": 1.0,
+    "score": 0.6875,
+    "score_breakdown": {
+      "motion_energy": 0.1276061876504988,
+      "audio_mean_db": -19.5,
+      "motion_norm": 0.5192826449564563,
+      "audio_norm": 1.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/09_frames",
+    "motion_energy": 0.14185494176302996,
+    "audio_mean_db": -20.4,
+    "motion_norm": 0.7569178238101744,
+    "audio_norm": 0.4375000000000014,
+    "score": 0.6451,
+    "score_breakdown": {
+      "motion_energy": 0.14185494176302996,
+      "audio_mean_db": -20.4,
+      "motion_norm": 0.7569178238101744,
+      "audio_norm": 0.4375000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/03_frames",
+    "motion_energy": 0.14329884940087148,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.7809987537677598,
+    "audio_norm": 0.3124999999999997,
+    "score": 0.617,
+    "score_breakdown": {
+      "motion_energy": 0.14329884940087148,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.7809987537677598,
+      "audio_norm": 0.3124999999999997,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/01_frames",
+    "motion_energy": 0.1448074939125977,
+    "audio_mean_db": -21.1,
+    "motion_norm": 0.8061593401277595,
+    "audio_norm": 0.0,
+    "score": 0.524,
+    "score_breakdown": {
+      "motion_energy": 0.1448074939125977,
+      "audio_mean_db": -21.1,
+      "motion_norm": 0.8061593401277595,
+      "audio_norm": 0.0,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/10_frames",
+    "motion_energy": 0.14066736151159812,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.7371118223013157,
+    "audio_norm": 0.12500000000000167,
+    "score": 0.5229,
+    "score_breakdown": {
+      "motion_energy": 0.14066736151159812,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.7371118223013157,
+      "audio_norm": 0.12500000000000167,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/06_frames",
+    "motion_energy": 0.14013885602133574,
+    "audio_mean_db": -20.9,
+    "motion_norm": 0.728297613303687,
+    "audio_norm": 0.12500000000000167,
+    "score": 0.5171,
+    "score_breakdown": {
+      "motion_energy": 0.14013885602133574,
+      "audio_mean_db": -20.9,
+      "motion_norm": 0.728297613303687,
+      "audio_norm": 0.12500000000000167,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/02_frames",
+    "motion_energy": 0.12249340197680379,
+    "audio_mean_db": -20.6,
+    "motion_norm": 0.43401359417392354,
+    "audio_norm": 0.3124999999999997,
+    "score": 0.3915,
+    "score_breakdown": {
+      "motion_energy": 0.12249340197680379,
+      "audio_mean_db": -20.6,
+      "motion_norm": 0.43401359417392354,
+      "audio_norm": 0.3124999999999997,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/08_frames",
+    "motion_energy": 0.09718596461573135,
+    "audio_mean_db": -20.4,
+    "motion_norm": 0.01194599751726413,
+    "audio_norm": 0.4375000000000014,
+    "score": 0.1609,
+    "score_breakdown": {
+      "motion_energy": 0.09718596461573135,
+      "audio_mean_db": -20.4,
+      "motion_norm": 0.01194599751726413,
+      "audio_norm": 0.4375000000000014,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-15-OKCDAL/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-15-OKCDAL/05_frames",
+    "motion_energy": 0.09646967512495194,
+    "audio_mean_db": -20.5,
+    "motion_norm": 0.0,
+    "audio_norm": 0.37500000000000056,
+    "score": 0.1313,
+    "score_breakdown": {
+      "motion_energy": 0.09646967512495194,
+      "audio_mean_db": -20.5,
+      "motion_norm": 0.0,
+      "audio_norm": 0.37500000000000056,
+      "weights": {
+        "motion": 0.65,
+        "audio": 0.35
+      }
+    }
+  }
+]

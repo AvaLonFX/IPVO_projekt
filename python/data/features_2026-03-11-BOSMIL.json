@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/01_frames",
+    "motion_energy": 0.13280115019864155,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/02_frames",
+    "motion_energy": 0.12468375195519804,
+    "audio_mean_db": -20.4
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/03_frames",
+    "motion_energy": 0.13967387170385398,
+    "audio_mean_db": -20.6
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/04_frames",
+    "motion_energy": 0.10642444412405484,
+    "audio_mean_db": -20.8
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/05_frames",
+    "motion_energy": 0.13147304445282387,
+    "audio_mean_db": -21.5
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/06_frames",
+    "motion_energy": 0.12611087869055668,
+    "audio_mean_db": -20.3
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/07_frames",
+    "motion_energy": 0.11005558158721006,
+    "audio_mean_db": -19.9
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/08_frames",
+    "motion_energy": 0.09239175437331795,
+    "audio_mean_db": -20.0
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/09_frames",
+    "motion_energy": 0.1406835206783863,
+    "audio_mean_db": -20.5
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-11-BOSMIL/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-11-BOSMIL/10_frames",
+    "motion_energy": 0.09812996694890075,
+    "audio_mean_db": -19.9
+  }
+]

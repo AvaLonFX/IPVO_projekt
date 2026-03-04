@@ -1,0 +1,72 @@
+[
+  {
+    "rank": 1,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/01.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/01_frames",
+    "motion_energy": 0.08024602316416762,
+    "audio_mean_db": -24.9
+  },
+  {
+    "rank": 2,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/02.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/02_frames",
+    "motion_energy": 0.07275043432123805,
+    "audio_mean_db": -24.7
+  },
+  {
+    "rank": 3,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/03.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/03_frames",
+    "motion_energy": 0.07278890844086923,
+    "audio_mean_db": -25.0
+  },
+  {
+    "rank": 4,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/04.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/04_frames",
+    "motion_energy": 0.0657562806372549,
+    "audio_mean_db": -25.5
+  },
+  {
+    "rank": 5,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/05.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/05_frames",
+    "motion_energy": 0.04277793997500961,
+    "audio_mean_db": -24.5
+  },
+  {
+    "rank": 6,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/06.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/06_frames",
+    "motion_energy": 0.0255260407938104,
+    "audio_mean_db": -25.4
+  },
+  {
+    "rank": 7,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/07.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/07_frames",
+    "motion_energy": 0.04058509884383047,
+    "audio_mean_db": -25.0
+  },
+  {
+    "rank": 8,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/08.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/08_frames",
+    "motion_energy": 0.03638039425171778,
+    "audio_mean_db": -24.9
+  },
+  {
+    "rank": 9,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/09.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/09_frames",
+    "motion_energy": 0.07583657327310009,
+    "audio_mean_db": -24.8
+  },
+  {
+    "rank": 10,
+    "clip_file": "python/data/clips/2026-03-13-LALSAC/10.mp4",
+    "frames_dir": "python/data/clips/2026-03-13-LALSAC/10_frames",
+    "motion_energy": 0.04031277058544215,
+    "audio_mean_db": -25.3
+  }
+]

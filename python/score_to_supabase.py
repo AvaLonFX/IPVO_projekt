@@ -5,27 +5,27 @@ from dotenv import load_dotenv
 from supabase import create_client
 
 # ====== CONFIG (današnji posao) ======
-YOUTUBE_VIDEO_ID = "xQLBmcnCE-k"
-DAY = "2026-03-06"
-TITLE = "Top10 2026-03-06"
+YOUTUBE_VIDEO_ID = "2zlzBk7A5tw"
+DAY = "2026-03-15"
+TITLE = "Top10 2026-03-15"
 
 # VAŽNO: mora biti VALIDNA enum vrijednost iz Supabase dropdowna!
 DEFAULT_EVENT = "dunk"   # promijeni u npr. "three" ako ti enum nije "dunk"
 
 CLIPS = [
-    (1, 0, 6),      # Dunk
-    (2, 18, 24),    # 3pt
-    (3, 36, 42),    # Dunk
-    (4, 71, 78),    # Dunk
-    (5, 82, 90),    # 3pt
-    (6, 91, 97),    # Dunk
-    (7, 115, 122),  # 3pt
-    (8, 125, 133),  # Dunk
-    (9, 137, 145),  # 3pt
-    (10, 240, 247)  # 3pt
+    (1, 17, 24),    # 3pt
+    (2, 27, 34),    # Dunk
+    (3, 66, 73),    # Dunk
+    (4, 80, 87),    # 3pt
+    (5, 90, 97),    # 3pt
+    (6, 102, 108),  # Dunk
+    (7, 110, 114),  # Dunk
+    (8, 123, 129),  # Dunk
+    (9, 154, 162),  # 3pt
+    (10, 182, 189)  # 3pt
 ]
 
-SCORED_JSON = Path("python/data/scored_2026-03-06-DALMEM.json")
+SCORED_JSON = Path("python/data/scored_2026-03-15-OKCDAL.json")
 ENV_FILE = Path(".env.local")
 # ====================================
 

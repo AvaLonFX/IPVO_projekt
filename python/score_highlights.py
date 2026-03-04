@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-IN_JSON = Path("python/data/features_2026-03-06-DALMEM.json")
-OUT_JSON = Path("python/data/scored_2026-03-06-DALMEM.json")
+IN_JSON = Path("python/data/features_2026-03-15-OKCDAL.json")
+OUT_JSON = Path("python/data/scored_2026-03-15-OKCDAL.json")
 
 W_MOTION = 0.65
 W_AUDIO = 0.35
