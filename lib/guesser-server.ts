@@ -31,11 +31,16 @@ export function admin() {
 export async function identity() {
   const auth = await createClient();
   const {
-    data: { user },
+    data,
     error,
-  } = await auth.auth.getUser();
-  if (user) return { owner: `user:${user.id}`, signedIn: true };
-  if (error && error.name !== "AuthSessionMissingError")
+  } = await auth.auth.getClaims();
+  const userId = data?.claims?.sub;
+  if (userId) return { owner: `user:${userId}`, signedIn: true };
+  const missingSession =
+    error?.name === "AuthSessionMissingError" ||
+    error?.code === "session_not_found" ||
+    error?.message?.toLowerCase().includes("session missing");
+  if (error && !missingSession)
     throw new GameError(
       "Unable to verify your account. Please sign in again.",
       401,

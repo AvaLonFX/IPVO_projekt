@@ -367,10 +367,7 @@ export async function fanRoute(req: NextRequest, kind: string) {
     throw new InputError("Not found", 404);
   } catch (e) {
     if (e instanceof InputError) return json({ error: e.message }, e.status);
-    console.error(
-      "Fan feature failed",
-      e instanceof Error ? e.message : e,
-    );
+    console.error("Fan feature failed", e);
     return json({ error: "Temporarily unavailable. Please retry." }, 503);
   }
 }
