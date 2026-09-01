@@ -369,7 +369,7 @@ export async function fanRoute(req: NextRequest, kind: string) {
     if (e instanceof InputError) return json({ error: e.message }, e.status);
     console.error(
       "Fan feature failed",
-      e instanceof Error ? e.message : "Database error",
+      e instanceof Error ? e.message : e,
     );
     return json({ error: "Temporarily unavailable. Please retry." }, 503);
   }
