@@ -50,30 +50,38 @@ interface Game {
   model_name?: string | null;
 }
 
-type ModelName = "lr_moneyline_v1" | "xgb_moneyline_v1";
+type ModelName = "lr_moneyline_final" | "xgb_moneyline_final";
 
 export default function NBASchedule() {
   const [games, setGames] = useState<Game[]>([]);
-  const [model, setModel] = useState<ModelName>("lr_moneyline_v1");
+  const [model, setModel] = useState<ModelName>("lr_moneyline_final");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchSchedule = async () => {
       setLoading(true);
+      setError(null);
+      setGames([]);
       try {
-        const res = await fetch(`/api/nba-schedule?model=${model}`);
+        const res = await fetch(`/api/nba-schedule?model=${model}`, { signal: controller.signal });
         const data = await res.json();
+        if (!res.ok || !Array.isArray(data)) throw new Error("Schedule unavailable");
         setGames(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error("Error fetching NBA schedule:", error);
+        if (controller.signal.aborted) return;
+        setError("Could not load the schedule.");
         setGames([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchSchedule();
-  }, [model]);
+    return () => controller.abort();
+  }, [model, retry]);
 
   const getLogoUrl = (tricode: string) => {
     const teamId = teamAbbreviationToId[tricode];
@@ -117,17 +125,14 @@ export default function NBASchedule() {
           >
             <option value="xgb_moneyline_final">XGBoost</option>
             <option value="lr_moneyline_final">LogReg</option>
-            <option value="lr_moneyline_v1">Baseline (LogReg)</option>
-            <option value="xgb_moneyline_v1">XGBoost_v1</option>
-            <option value="xgb_moneyline_v2">XGBoost_v2</option>
-            <option value="lr_moneyline_v2_scaled">Baseline (LogRegv2)</option>
-            <option value="xgb_moneyline_v3">XGBoost_v3</option>
             
           </select>
         </div>
       </div>
 
       <div className="overflow-x-auto">
+        <p className="mb-3 text-xs text-foreground/60">Model estimates are generated for regular-season games within the next seven days when data is available. Times are shown in your local time zone.</p>
+        {error && <p role="alert" className="mb-3 text-sm text-red-500">{error} <button className="underline" onClick={() => setRetry(n => n + 1)}>Retry</button></p>}
         <table className="min-w-full border border-gray-300 text-sm shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-100 text-gray-700">
             <tr>
@@ -141,7 +146,7 @@ export default function NBASchedule() {
 
           <tbody className="divide-y divide-gray-200 bg-white">
             {games.map((game) => {
-              const dateStr = formatDate(game.date);
+              const dateStr = formatDate(game.startTime || game.date);
               const timeStr = formatTime(game.startTime, game.status);
 
               const homeLogo = getLogoUrl(game.homeTeam);
@@ -207,10 +212,10 @@ export default function NBASchedule() {
               );
             })}
 
-            {!loading && games.length === 0 && (
+            {!loading && !error && games.length === 0 && (
               <tr>
                 <td className="py-4 px-4 text-gray-500" colSpan={5}>
-                  No upcoming games found.
+                  No upcoming games are stored yet. The schedule may need refreshing.
                 </td>
               </tr>
             )}

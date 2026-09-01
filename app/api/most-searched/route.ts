@@ -13,12 +13,13 @@ export async function GET() {
 
         if (error) throw error;
 
-        return NextResponse.json(data, {
+        return NextResponse.json((data ?? []).map(row => ({ ...row, count: row.search_count })), {
             headers: {
                 "Cache-Control": "s-maxage=600, stale-while-revalidate=300",
             }
         });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("Most-searched query failed:", error.code ?? "network");
+        return NextResponse.json({ error: "Could not load trending players." }, { status: 503 });
     }
 }

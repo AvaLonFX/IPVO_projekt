@@ -1,12 +1,15 @@
-# python/train_event_model_v1_2.py
-# V1.2: Fine-tune last ResNet block (layer4) + head, ImageNet normalize, mid-focused frame sampling,
-# and ReduceLROnPlateau scheduler for better generalization.
+# python/train_event_model_r3d18_v4.py
+# R3D-18 v4:
+# - Train: same as v3 (uniform+jitter, consistent aug, MixUp, Focal)
+# - Eval: stronger TTA (more temporal shifts + flip TTA + 2 sampling styles)
+# - Choose decision threshold for "three" on VAL to maximize accuracy (or F1)
+# - Apply same threshold on TEST
 
 import os
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
@@ -14,10 +17,11 @@ from PIL import Image
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
-from torchvision import models, transforms
+import torchvision
+from torchvision.transforms import functional as F
 
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, f1_score
 
 from dotenv import load_dotenv
 from supabase import create_client
@@ -26,26 +30,41 @@ from supabase import create_client
 # ========= CONFIG =========
 ENV_FILE = Path(".env.local")
 CLIPS_ROOT = Path("python/data/clips")
-MODEL_OUT = Path("python/models/event_resnet18_v1_2.pt")
+MODEL_OUT = Path("python/models/event_r3d18_v4.pt")
 
-NUM_FRAMES_PER_CLIP = 10      # a bit more temporal info
-IMAGE_SIZE = 224
-BATCH_SIZE = 16
-EPOCHS = 20
+NUM_FRAMES_PER_CLIP = 16
+IMAGE_SIZE = 112
+BATCH_SIZE = 8
+EPOCHS = 70
 SEED = 42
 
-# Two learning rates: small for backbone, bigger for head
-LR_HEAD = 1e-3
-LR_BACKBONE = 1e-4
-WEIGHT_DECAY = 1e-4
+WARMUP_EPOCHS = 12
 
-# DB enum values -> class ids
+LR_HEAD_WARMUP = 2e-3
+LR_HEAD_FINETUNE = 5e-4
+LR_BACKBONE_FINETUNE = 3e-5
+
+WEIGHT_DECAY = 1e-4
+DROPOUT_P = 0.4
+
+EARLY_STOP_PATIENCE = 12
+
+# MixUp
+MIXUP_PROB = 0.6
+MIXUP_ALPHA = 0.2
+
+# Focal loss
+FOCAL_GAMMA = 2.0
+
+# Stronger TTA
+TTA_SHIFTS = [-4, -3, -2, -1, 0, 1, 2]  # 7
+USE_FLIP_TTA = True
+
 LABEL_TO_ID = {"dunk": 0, "three": 1}
 ID_TO_LABEL = {v: k for k, v in LABEL_TO_ID.items()}
 
-# ResNet pretrained expects ImageNet normalization
-IMAGENET_MEAN = (0.485, 0.456, 0.406)
-IMAGENET_STD = (0.229, 0.224, 0.225)
+KINETICS_MEAN = (0.43216, 0.394666, 0.37645)
+KINETICS_STD = (0.22803, 0.22145, 0.216989)
 # ==========================
 
 
@@ -80,14 +99,6 @@ def count_labels(samples: List[Sample]):
 
 
 def build_dataset_from_supabase() -> List[Sample]:
-    """
-    Joins:
-      player_highlights(clip_id,event)
-      yt_video_clips(id,rank,daily_video_id)
-      yt_daily_videos(id,day,clips_folder)
-
-    Uses clips_folder to find local directory under CLIPS_ROOT.
-    """
     repo_root = Path(__file__).resolve().parents[1]
     load_dotenv(dotenv_path=repo_root / ENV_FILE)
 
@@ -143,114 +154,287 @@ def build_dataset_from_supabase() -> List[Sample]:
     return samples
 
 
-class ClipFramesDataset(Dataset):
-    """
-    Returns [T,C,H,W] + label for a clip.
+def _list_frames(frames_dir: Path) -> List[Path]:
+    return sorted(frames_dir.glob("*.jpg"))
 
-    V1.2 sampling: focus on middle of clip (where action usually happens).
-    We sample indices from the central 60% of frames.
+
+def uniform_indices(n: int, t: int) -> np.ndarray:
+    if n <= 0:
+        return np.zeros((t,), dtype=np.int64)
+    if n == 1:
+        return np.zeros((t,), dtype=np.int64)
+    return np.linspace(0, n - 1, t).round().astype(np.int64)
+
+
+def center_weighted_indices(n: int, t: int) -> np.ndarray:
     """
-    def __init__(self, samples: List[Sample], num_frames: int, tfm):
+    Slightly center-biased sampling: take uniform over central 80% of frames.
+    Helps when action is mid-clip but we still want spread.
+    """
+    if n <= 0:
+        return np.zeros((t,), dtype=np.int64)
+    if n == 1:
+        return np.zeros((t,), dtype=np.int64)
+
+    lo = int(n * 0.10)
+    hi = int(n * 0.90) - 1
+    if hi <= lo:
+        lo, hi = 0, n - 1
+    return np.linspace(lo, hi, t).round().astype(np.int64)
+
+
+def jitter_indices(idxs: np.ndarray, n: int, jitter: int = 2) -> np.ndarray:
+    if n <= 1:
+        return idxs
+    out = []
+    for i in idxs.tolist():
+        j = i + random.randint(-jitter, jitter)
+        j = max(0, min(n - 1, j))
+        out.append(j)
+    return np.array(out, dtype=np.int64)
+
+
+def shift_indices(idxs: np.ndarray, n: int, shift: int) -> np.ndarray:
+    if n <= 1:
+        return idxs
+    out = idxs.astype(np.int64) + int(shift)
+    out = np.clip(out, 0, n - 1)
+    return out.astype(np.int64)
+
+
+class VideoAugmentTrain:
+    def __init__(self, size: int):
+        self.size = size
+
+    def __call__(self, frames: List[Image.Image]) -> torch.Tensor:
+        i, j, h, w = torchvision.transforms.RandomResizedCrop.get_params(
+            frames[0], scale=(0.72, 1.0), ratio=(0.9, 1.1)
+        )
+        do_flip = random.random() < 0.5
+
+        brightness = 1.0 + random.uniform(-0.10, 0.10)
+        contrast = 1.0 + random.uniform(-0.10, 0.10)
+        saturation = 1.0 + random.uniform(-0.10, 0.10)
+        hue = random.uniform(-0.02, 0.02)
+
+        out = []
+        for img in frames:
+            img = F.resized_crop(img, i, j, h, w, size=[self.size, self.size], interpolation=F.InterpolationMode.BILINEAR)
+            if do_flip:
+                img = F.hflip(img)
+            img = F.adjust_brightness(img, brightness)
+            img = F.adjust_contrast(img, contrast)
+            img = F.adjust_saturation(img, saturation)
+            img = F.adjust_hue(img, hue)
+
+            x = F.to_tensor(img)
+            x = F.normalize(x, KINETICS_MEAN, KINETICS_STD)
+            out.append(x)
+
+        return torch.stack(out, dim=0).permute(1, 0, 2, 3).contiguous()
+
+
+class VideoAugmentEval:
+    def __init__(self, size: int):
+        self.size = size
+
+    def __call__(self, frames: List[Image.Image], flip: bool = False) -> torch.Tensor:
+        out = []
+        for img in frames:
+            img = F.resize(img, [self.size, self.size], interpolation=F.InterpolationMode.BILINEAR)
+            if flip:
+                img = F.hflip(img)
+            x = F.to_tensor(img)
+            x = F.normalize(x, KINETICS_MEAN, KINETICS_STD)
+            out.append(x)
+        return torch.stack(out, dim=0).permute(1, 0, 2, 3).contiguous()
+
+
+class ClipVideoDataset(Dataset):
+    def __init__(self, samples: List[Sample], num_frames: int, augment_train: VideoAugmentTrain):
         self.samples = samples
         self.num_frames = num_frames
-        self.tfm = tfm
+        self.augment = augment_train
 
     def __len__(self):
         return len(self.samples)
 
-    def _pick_frames_mid_focus(self, frames_dir: Path) -> List[Path]:
-        frames = sorted(frames_dir.glob("*.jpg"))
+    def __getitem__(self, idx: int):
+        s = self.samples[idx]
+        frames = _list_frames(s.frames_dir)
+
         if not frames:
-            return []
+            x = torch.zeros((3, self.num_frames, IMAGE_SIZE, IMAGE_SIZE), dtype=torch.float32)
+            y = torch.tensor(s.label, dtype=torch.long)
+            return x, y
 
         n = len(frames)
-        if n <= self.num_frames:
-            return frames
+        idxs = uniform_indices(n, self.num_frames)
+        idxs = jitter_indices(idxs, n, jitter=2)
 
-        # central 60% window
-        lo = int(n * 0.20)
-        hi = int(n * 0.80) - 1
-        if hi <= lo:
-            lo, hi = 0, n - 1
-
-        idxs = np.linspace(lo, hi, self.num_frames).astype(int).tolist()
-        return [frames[i] for i in idxs]
-
-    def __getitem__(self, idx):
-        s = self.samples[idx]
-        frame_paths = self._pick_frames_mid_focus(s.frames_dir)
-
-        if not frame_paths:
-            x = torch.zeros((self.num_frames, 3, IMAGE_SIZE, IMAGE_SIZE))
-        else:
-            imgs = []
-            for p in frame_paths:
-                img = Image.open(p).convert("RGB")
-                imgs.append(self.tfm(img))
-            while len(imgs) < self.num_frames:
-                imgs.append(imgs[-1].clone())
-            x = torch.stack(imgs, dim=0)
-
+        imgs = [Image.open(frames[int(i)]).convert("RGB") for i in idxs.tolist()]
+        x = self.augment(imgs)
         y = torch.tensor(s.label, dtype=torch.long)
         return x, y
 
 
-class TemporalAverageModel(nn.Module):
-    """
-    [B,T,C,H,W] -> CNN per frame -> average logits over T.
-    """
-    def __init__(self, backbone: nn.Module, num_classes: int = 2):
+class FocalLoss(nn.Module):
+    def __init__(self, gamma: float = 2.0):
         super().__init__()
-        self.backbone = backbone
-        in_features = self.backbone.fc.in_features
-        self.backbone.fc = nn.Identity()
-        self.head = nn.Linear(in_features, num_classes)
+        self.gamma = gamma
 
-    def forward(self, x):
-        b, t, c, h, w = x.shape
-        x = x.view(b * t, c, h, w)
-        feats = self.backbone(x)            # [B*T, F]
-        logits = self.head(feats)           # [B*T, K]
-        return logits.view(b, t, -1).mean(dim=1)
+    def forward(self, logits: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+        ce = torch.nn.functional.cross_entropy(logits, targets, reduction="none")
+        pt = torch.exp(-ce)
+        loss = ((1 - pt) ** self.gamma) * ce
+        return loss.mean()
+
+
+def make_r3d18(num_classes: int = 2) -> nn.Module:
+    try:
+        weights = torchvision.models.video.R3D_18_Weights.DEFAULT
+        base = torchvision.models.video.r3d_18(weights=weights)
+    except Exception:
+        base = torchvision.models.video.r3d_18(pretrained=True)
+
+    in_features = base.fc.in_features
+    base.fc = nn.Sequential(
+        nn.Dropout(DROPOUT_P),
+        nn.Linear(in_features, num_classes),
+    )
+    return base
+
+
+def set_trainable_stage(model: nn.Module, stage: str):
+    for p in model.parameters():
+        p.requires_grad = False
+
+    for p in model.fc.parameters():
+        p.requires_grad = True
+
+    if stage == "finetune":
+        for p in model.layer4.parameters():
+            p.requires_grad = True
+
+
+def make_optimizer(model: nn.Module, stage: str):
+    if stage == "head_only":
+        return torch.optim.AdamW(model.fc.parameters(), lr=LR_HEAD_WARMUP, weight_decay=WEIGHT_DECAY)
+
+    params = [
+        {"params": model.fc.parameters(), "lr": LR_HEAD_FINETUNE},
+        {"params": model.layer4.parameters(), "lr": LR_BACKBONE_FINETUNE},
+    ]
+    return torch.optim.AdamW(params, weight_decay=WEIGHT_DECAY)
+
+
+def mixup_batch(x: torch.Tensor, y: torch.Tensor, alpha: float):
+    lam = np.random.beta(alpha, alpha)
+    idx = torch.randperm(x.size(0), device=x.device)
+    mixed = lam * x + (1 - lam) * x[idx]
+    return mixed, y, y[idx], float(lam)
 
 
 def train_one_epoch(model, loader, opt, criterion, device):
     model.train()
     total_loss, correct, total = 0.0, 0, 0
+
     for xb, yb in loader:
         xb, yb = xb.to(device), yb.to(device)
+        opt.zero_grad(set_to_none=True)
 
-        opt.zero_grad()
-        logits = model(xb)
-        loss = criterion(logits, yb)
+        if random.random() < MIXUP_PROB:
+            xb_m, y_a, y_b2, lam = mixup_batch(xb, yb, MIXUP_ALPHA)
+            logits = model(xb_m)
+            loss = lam * criterion(logits, y_a) + (1 - lam) * criterion(logits, y_b2)
+        else:
+            logits = model(xb)
+            loss = criterion(logits, yb)
+
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         opt.step()
 
         total_loss += loss.item() * yb.size(0)
         correct += (logits.argmax(dim=1) == yb).sum().item()
         total += yb.size(0)
+
     return total_loss / max(total, 1), correct / max(total, 1)
 
 
 @torch.no_grad()
-def eval_model(model, loader, criterion, device):
+def tta_logits_for_sample(model, s: Sample, augment_eval: VideoAugmentEval, device) -> torch.Tensor:
+    frames = _list_frames(s.frames_dir)
+    if not frames:
+        return torch.zeros((1, 2), device=device)
+
+    n = len(frames)
+    bases = [
+        uniform_indices(n, NUM_FRAMES_PER_CLIP),
+        center_weighted_indices(n, NUM_FRAMES_PER_CLIP),
+    ]
+
+    logits_list = []
+    for base in bases:
+        for sh in TTA_SHIFTS:
+            idxs = shift_indices(base, n, sh)
+            imgs = [Image.open(frames[int(i)]).convert("RGB") for i in idxs.tolist()]
+
+            # normal
+            clip = augment_eval(imgs, flip=False).unsqueeze(0).to(device)
+            logits_list.append(model(clip))
+
+            # flip TTA
+            if USE_FLIP_TTA:
+                clip_f = augment_eval(imgs, flip=True).unsqueeze(0).to(device)
+                logits_list.append(model(clip_f))
+
+    return torch.stack(logits_list, dim=0).mean(dim=0)  # [1,2]
+
+
+@torch.no_grad()
+def probs_and_labels_with_tta(model, samples: List[Sample], augment_eval: VideoAugmentEval, device):
     model.eval()
-    total_loss, correct, total = 0.0, 0, 0
-    all_y, all_p = [], []
-    for xb, yb in loader:
-        xb, yb = xb.to(device), yb.to(device)
-        logits = model(xb)
-        loss = criterion(logits, yb)
+    probs_three = []
+    labels = []
+    ce = nn.CrossEntropyLoss()
 
-        preds = logits.argmax(dim=1)
-        total_loss += loss.item() * yb.size(0)
-        correct += (preds == yb).sum().item()
-        total += yb.size(0)
+    total_loss = 0.0
+    for s in samples:
+        y = torch.tensor([s.label], dtype=torch.long, device=device)
+        logits = tta_logits_for_sample(model, s, augment_eval, device)
+        loss = ce(logits, y)
+        total_loss += float(loss.item())
 
-        all_y.extend(yb.cpu().numpy().tolist())
-        all_p.extend(preds.cpu().numpy().tolist())
+        p = torch.softmax(logits, dim=1)[0, 1].item()
+        probs_three.append(p)
+        labels.append(int(s.label))
 
-    return total_loss / max(total, 1), correct / max(total, 1), all_y, all_p
+    return total_loss / max(len(samples), 1), np.array(probs_three), np.array(labels)
+
+
+def pick_threshold(probs_three: np.ndarray, labels: np.ndarray, metric: str = "acc") -> Tuple[float, float]:
+    """
+    metric: "acc" or "f1"
+    returns best_threshold, best_score
+    """
+    best_thr, best_score = 0.5, -1.0
+    for thr in np.linspace(0.20, 0.80, 61):
+        preds = (probs_three >= thr).astype(np.int64)  # 1=three else 0=dunk
+        if metric == "f1":
+            score = f1_score(labels, preds, average="macro")
+        else:
+            score = (preds == labels).mean()
+        if score > best_score:
+            best_score = float(score)
+            best_thr = float(thr)
+    return best_thr, best_score
+
+
+def eval_with_threshold(probs_three: np.ndarray, labels: np.ndarray, thr: float):
+    preds = (probs_three >= thr).astype(np.int64)
+    acc = float((preds == labels).mean())
+    return acc, preds
 
 
 def main():
@@ -260,9 +444,6 @@ def main():
         raise FileNotFoundError(f"Missing clips root: {repo_root / CLIPS_ROOT}")
 
     samples = build_dataset_from_supabase()
-    if len(samples) < 20:
-        raise RuntimeError("Too few samples. Add more labeled highlights.")
-
     y = [s.label for s in samples]
     train_s, test_s = train_test_split(samples, test_size=0.15, random_state=SEED, stratify=y)
     y_train = [s.label for s in train_s]
@@ -273,93 +454,99 @@ def main():
     print("Val counts   (dunk, three):", count_labels(val_s))
     print("Test counts  (dunk, three):", count_labels(test_s))
 
-    tfm_train = transforms.Compose([
-        transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-        transforms.RandomHorizontalFlip(p=0.5),
-        transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),
-        transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
-    tfm_eval = transforms.Compose([
-        transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
-        transforms.ToTensor(),
-        transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-    ])
-
-    train_ds = ClipFramesDataset(train_s, NUM_FRAMES_PER_CLIP, tfm_train)
-    val_ds = ClipFramesDataset(val_s, NUM_FRAMES_PER_CLIP, tfm_eval)
-    test_ds = ClipFramesDataset(test_s, NUM_FRAMES_PER_CLIP, tfm_eval)
-
-    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
-    test_loader = DataLoader(test_ds, batch_size=BATCH_SIZE, shuffle=False, num_workers=0)
+    train_ds = ClipVideoDataset(train_s, NUM_FRAMES_PER_CLIP, VideoAugmentTrain(size=IMAGE_SIZE))
+    train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=True, num_workers=0, pin_memory=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Device:", device)
 
-    backbone = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
-    model = TemporalAverageModel(backbone, num_classes=2).to(device)
+    model = make_r3d18(num_classes=2).to(device)
 
-    # Freeze everything first
-    for p in model.backbone.parameters():
-        p.requires_grad = False
+    stage = "head_only"
+    set_trainable_stage(model, stage)
+    opt = make_optimizer(model, stage)
 
-    # Unfreeze ONLY last block (layer4) for light fine-tuning
-    for p in model.backbone.layer4.parameters():
-        p.requires_grad = True
+    criterion = FocalLoss(gamma=FOCAL_GAMMA)
 
-    # Different LR for head vs backbone layer4
-    params = [
-        {"params": model.head.parameters(), "lr": LR_HEAD},
-        {"params": model.backbone.layer4.parameters(), "lr": LR_BACKBONE},
-    ]
-
-    criterion = nn.CrossEntropyLoss()
-    opt = torch.optim.Adam(params, weight_decay=WEIGHT_DECAY)
-
-    # Reduce LR when val accuracy stops improving
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         opt, mode="max", factor=0.5, patience=3
     )
 
-    best_val = -1.0
-    best_state = None
+    aug_eval = VideoAugmentEval(size=IMAGE_SIZE)
+
+    best_val_acc = -1.0
+    best_state: Optional[dict] = None
+    bad = 0
 
     for epoch in range(1, EPOCHS + 1):
-        tr_loss, tr_acc = train_one_epoch(model, train_loader, opt, criterion, device)
-        va_loss, va_acc, _, _ = eval_model(model, val_loader, criterion, device)
+        if epoch == WARMUP_EPOCHS + 1:
+            stage = "finetune"
+            set_trainable_stage(model, stage)
+            opt = make_optimizer(model, stage)
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                opt, mode="max", factor=0.5, patience=3
+            )
+            print(f"\n==> Switched to FINETUNE (layer4 unfrozen) at epoch {epoch}\n")
 
-        # step scheduler on val acc
+        tr_loss, tr_acc = train_one_epoch(model, train_loader, opt, criterion, device)
+
+        # VAL with TTA + threshold picked on VAL
+        va_loss, va_probs, va_labels = probs_and_labels_with_tta(model, val_s, aug_eval, device)
+        thr_acc, _ = pick_threshold(va_probs, va_labels, metric="acc")
+        va_acc, _ = eval_with_threshold(va_probs, va_labels, thr_acc)
+
         scheduler.step(va_acc)
 
-        lr_head_now = opt.param_groups[0]["lr"]
-        lr_back_now = opt.param_groups[1]["lr"]
+        if len(opt.param_groups) == 1:
+            lr0 = opt.param_groups[0]["lr"]
+            lr1 = 0.0
+        else:
+            lr0 = opt.param_groups[0]["lr"]
+            lr1 = opt.param_groups[1]["lr"]
 
         print(
             f"Epoch {epoch:02d}/{EPOCHS}  "
             f"train: loss={tr_loss:.4f} acc={tr_acc:.3f}   "
-            f"val: loss={va_loss:.4f} acc={va_acc:.3f}   "
-            f"lr_head={lr_head_now:.1e} lr_back={lr_back_now:.1e}"
+            f"val(TTA+thr): loss={va_loss:.4f} acc={va_acc:.3f} thr={thr_acc:.2f}   "
+            f"lr0={lr0:.1e} lr1={lr1:.1e}"
         )
 
-        if va_acc > best_val:
-            best_val = va_acc
+        if va_acc > best_val_acc + 1e-4:
+            best_val_acc = va_acc
+            bad = 0
             best_state = {k: v.detach().cpu() for k, v in model.state_dict().items()}
+        else:
+            bad += 1
+            if bad >= EARLY_STOP_PATIENCE:
+                print(f"\nEarly stopping at epoch {epoch} (best val acc={best_val_acc:.3f})")
+                break
 
     if best_state:
         model.load_state_dict({k: v.to(device) for k, v in best_state.items()})
 
-    te_loss, te_acc, y_true, y_pred = eval_model(model, test_loader, criterion, device)
-    print(f"\nBEST VAL ACC: {best_val:.3f}")
-    print(f"TEST: loss={te_loss:.4f} acc={te_acc:.3f}\n")
+    # FINAL: pick threshold on VAL once, apply to TEST
+    va_loss, va_probs, va_labels = probs_and_labels_with_tta(model, val_s, aug_eval, device)
+    thr_acc, score_acc = pick_threshold(va_probs, va_labels, metric="acc")
+    thr_f1, score_f1 = pick_threshold(va_probs, va_labels, metric="f1")
 
-    cm = confusion_matrix(y_true, y_pred)
+    # Choose threshold strategy (ACC usually better for you right now)
+    chosen_thr = thr_acc
+
+    te_loss, te_probs, te_labels = probs_and_labels_with_tta(model, test_s, aug_eval, device)
+    te_acc, te_pred = eval_with_threshold(te_probs, te_labels, chosen_thr)
+
+    print(f"\nBEST VAL ACC (TTA+thr): {best_val_acc:.3f}")
+    print(f"VAL threshold candidates: thr_acc={thr_acc:.2f} (acc={score_acc:.3f})  thr_f1={thr_f1:.2f} (macroF1={score_f1:.3f})")
+    print(f"USING threshold: {chosen_thr:.2f}")
+    print(f"TEST (TTA+thr): loss={te_loss:.4f} acc={te_acc:.3f}\n")
+
+    cm = confusion_matrix(te_labels.tolist(), te_pred.tolist())
     print("Confusion matrix (rows=true, cols=pred):")
     print(cm)
 
     print("\nClassification report:")
     print(classification_report(
-        y_true, y_pred,
+        te_labels.tolist(), te_pred.tolist(),
         target_names=[ID_TO_LABEL[0], ID_TO_LABEL[1]],
         zero_division=0
     ))
@@ -371,8 +558,27 @@ def main():
         "label_to_id": LABEL_TO_ID,
         "num_frames": NUM_FRAMES_PER_CLIP,
         "image_size": IMAGE_SIZE,
-        "arch": "resnet18_temporal_avg_finetune_layer4",
-        "best_val_acc": float(best_val),
+        "arch": "r3d_18_v4_strong_tta_val_threshold_mixup_focal",
+        "best_val_acc": float(best_val_acc),
+        "chosen_threshold_three": float(chosen_thr),
+        "tta": {
+            "shifts": TTA_SHIFTS,
+            "flip": USE_FLIP_TTA,
+            "bases": ["uniform", "center_weighted"],
+        },
+        "config": {
+            "frames": NUM_FRAMES_PER_CLIP,
+            "image_size": IMAGE_SIZE,
+            "warmup_epochs": WARMUP_EPOCHS,
+            "lr_head_warmup": LR_HEAD_WARMUP,
+            "lr_head_finetune": LR_HEAD_FINETUNE,
+            "lr_backbone_finetune": LR_BACKBONE_FINETUNE,
+            "weight_decay": WEIGHT_DECAY,
+            "dropout_p": DROPOUT_P,
+            "mixup_prob": MIXUP_PROB,
+            "mixup_alpha": MIXUP_ALPHA,
+            "focal_gamma": FOCAL_GAMMA,
+        }
     }, out_path)
     print(f"Saved model to: {out_path}")
 

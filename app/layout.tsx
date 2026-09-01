@@ -2,7 +2,6 @@ import { EnvVarWarning } from "@/components/env-var-warning";
 import HeaderAuth from "@/components/header-auth";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
-import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,27 +13,13 @@ import GAListener from "@/components/ga/GAListener";
 import { GA_ID } from "@/lib/gtag";
 
 import ScheduleTicker from "@/components/ScheduleTicker";
-
-const geistSans = Geist({
-  display: "swap",
-  subsets: ["latin"],
-});
-
-const NAV = [
-  { href: "/", label: "Home"},
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/teams", label: "NBA Teams" },
-  { href: "/dreamteam", label: "Dream Team" },
-  { href: "/guess", label: "Guesser" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/FunnelRetention", label: "Funnel" },
-];
+import AppNavigation from "@/components/AppNavigation";
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={geistSans.className} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"
@@ -85,16 +70,7 @@ export default function RootLayout({
                   </div>
                 </div>
 
-                <nav className="flex-1 p-3">
-                  <div className="text-xs text-foreground/60 px-2 mb-2">MENU</div>
-                  <div className="flex flex-col gap-1">
-                    {NAV.map((item) => (
-                      <SideNavLink key={item.href} href={item.href}>
-                        {item.label}
-                      </SideNavLink>
-                    ))}
-                  </div>
-                </nav>
+                <nav className="flex-1 p-3"><AppNavigation /></nav>
 
                 <div className="border-t p-3 flex items-center justify-between">
                   <span className="text-xs text-foreground/60">Theme</span>
@@ -198,35 +174,7 @@ export default function RootLayout({
               </label>
             </div>
 
-            <nav className="p-3">
-              <div className="text-xs text-foreground/60 px-2 mb-2">MENU</div>
-
-              <div className="flex flex-col gap-1">
-                {NAV.map((item) => (
-                  <label
-                    key={item.href}
-                    htmlFor="mobile-nav"
-                    className="cursor-pointer"
-                  >
-                    <Link
-                      href={item.href}
-                      className="
-                        block rounded-xl px-3 py-2 text-sm font-semibold
-                        text-foreground/80 hover:bg-foreground/5
-                        transition
-                      "
-                    >
-                      {item.label}
-                    </Link>
-                  </label>
-                ))}
-              </div>
-
-              <div className="mt-4 rounded-2xl border p-3 flex items-center justify-between">
-                <span className="text-xs text-foreground/60">Theme</span>
-                <ThemeSwitcher />
-              </div>
-            </nav>
+            <nav className="p-3"><AppNavigation /></nav>
           </div>
         </ThemeProvider>
       </body>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../lib/supabase";
 import Button from "@/components/backtosearchbutton";
+import PlayerImage from "@/components/PlayerImage";
 
 import {
   ResponsiveContainer,
@@ -41,6 +42,7 @@ type PlayerRow = {
 };
 
 type StatsRow = {
+  GP?: number;
   PERSON_ID: string;
   PTS?: number | null;
   REB?: number | null;
@@ -63,6 +65,7 @@ export default function ComparePage() {
   const [stats2, setStats2] = useState<StatsRow | null>(null);
 
   const [activeChart, setActiveChart] = useState<"total" | "perGame">("total");
+  const [loadError, setLoadError] = useState("");
 
   // Read IDs from URL
   useEffect(() => {
@@ -81,20 +84,43 @@ export default function ComparePage() {
   // Fetch both players + stats
   useEffect(() => {
     if (!player1Id || !player2Id) return;
+    let cancelled = false;
+    setLoadError("");
+    setPlayer1(null);
+    setPlayer2(null);
 
     const fetchPlayer = async (
       playerId: string,
       setPlayer: (p: PlayerRow | null) => void,
-      setStats: (s: StatsRow | null) => void
+      setStats: (s: StatsRow | null) => void,
     ) => {
-      const [{ data: playerData, error: playerError }, { data: playerStats, error: statsError }] =
-        await Promise.all([
-          supabase.from("Osnovno_NBA").select("*").eq("PERSON_ID", playerId).single(),
-          supabase.from("FullStats_NBA").select("*").eq("PERSON_ID", playerId).single(),
-        ]);
+      const [
+        { data: playerData, error: playerError },
+        { data: playerStats, error: statsError },
+      ] = await Promise.all([
+        supabase
+          .from("Osnovno_NBA")
+          .select("*")
+          .eq("PERSON_ID", playerId)
+          .single(),
+        supabase
+          .from("FullStats_NBA")
+          .select("*")
+          .eq("PERSON_ID", playerId)
+          .maybeSingle(),
+      ]);
 
-      if (playerError || statsError) {
-        console.error("Error fetching compare data:", playerError || statsError);
+      if (cancelled) return;
+      if (playerError || statsError || !playerStats) {
+        setLoadError(
+          !playerStats && !statsError
+            ? "Historical comparison data is unavailable for one of these players. Use Lineup Duel for verified season comparisons."
+            : "Unable to load this comparison. Check the player links and retry.",
+        );
+        console.error(
+          "Error fetching compare data:",
+          playerError || statsError,
+        );
         setPlayer(null);
         setStats(null);
         return;
@@ -106,6 +132,9 @@ export default function ComparePage() {
 
     fetchPlayer(player1Id, setPlayer1, setStats1);
     fetchPlayer(player2Id, setPlayer2, setStats2);
+    return () => {
+      cancelled = true;
+    };
   }, [player1Id, player2Id]);
 
   const isReady = player1 && player2 && stats1 && stats2;
@@ -113,23 +142,47 @@ export default function ComparePage() {
   const totalStatsData = useMemo(
     () => [
       { stat: "Points", player1: stats1?.PTS ?? 0, player2: stats2?.PTS ?? 0 },
-      { stat: "Rebounds", player1: stats1?.REB ?? 0, player2: stats2?.REB ?? 0 },
+      {
+        stat: "Rebounds",
+        player1: stats1?.REB ?? 0,
+        player2: stats2?.REB ?? 0,
+      },
       { stat: "Assists", player1: stats1?.AST ?? 0, player2: stats2?.AST ?? 0 },
       { stat: "Steals", player1: stats1?.STL ?? 0, player2: stats2?.STL ?? 0 },
       { stat: "Blocks", player1: stats1?.BLK ?? 0, player2: stats2?.BLK ?? 0 },
     ],
-    [stats1, stats2]
+    [stats1, stats2],
   );
 
   const perGameStatsData = useMemo(
     () => [
-      { stat: "PPG", player1: player1?.PTS ?? 0, player2: player2?.PTS ?? 0 },
-      { stat: "RPG", player1: player1?.REB ?? 0, player2: player2?.REB ?? 0 },
-      { stat: "APG", player1: player1?.AST ?? 0, player2: player2?.AST ?? 0 },
-      { stat: "FG%", player1: (stats1?.FG_PCT ?? 0) * 100, player2: (stats2?.FG_PCT ?? 0) * 100 },
-      { stat: "FT%", player1: (stats1?.FT_PCT ?? 0) * 100, player2: (stats2?.FT_PCT ?? 0) * 100 },
+      {
+        stat: "PPG",
+        player1: stats1?.GP ? Number(stats1.PTS) / stats1.GP : null,
+        player2: stats2?.GP ? Number(stats2.PTS) / stats2.GP : null,
+      },
+      {
+        stat: "RPG",
+        player1: stats1?.GP ? Number(stats1.REB) / stats1.GP : null,
+        player2: stats2?.GP ? Number(stats2.REB) / stats2.GP : null,
+      },
+      {
+        stat: "APG",
+        player1: stats1?.GP ? Number(stats1.AST) / stats1.GP : null,
+        player2: stats2?.GP ? Number(stats2.AST) / stats2.GP : null,
+      },
+      {
+        stat: "FG%",
+        player1: (stats1?.FG_PCT ?? 0) * 100,
+        player2: (stats2?.FG_PCT ?? 0) * 100,
+      },
+      {
+        stat: "FT%",
+        player1: (stats1?.FT_PCT ?? 0) * 100,
+        player2: (stats2?.FT_PCT ?? 0) * 100,
+      },
     ],
-    [player1, player2, stats1, stats2]
+    [player1, player2, stats1, stats2],
   );
 
   if (!isReady) {
@@ -141,9 +194,23 @@ export default function ComparePage() {
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-background/40 backdrop-blur p-6 text-center">
-          <div className="text-lg font-semibold">Loading...</div>
+          <div
+            className="text-lg font-semibold"
+            role={loadError ? "alert" : "status"}
+          >
+            {loadError || "Loading…"}
+          </div>
           <div className="text-sm text-foreground/60 mt-1">
-            Fetching players & stats
+            {loadError ? (
+              <button
+                className="underline"
+                onClick={() => window.location.reload()}
+              >
+                Retry comparison
+              </button>
+            ) : (
+              "Fetching players & stats"
+            )}
           </div>
         </div>
       </div>
@@ -159,6 +226,11 @@ export default function ComparePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Compare</h1>
+          <p className="text-sm text-foreground/60">
+            Historical archive, not current-season statistics. Per-game values
+            use the same archived totals divided by games played. Coverage and
+            last update are unverified.
+          </p>
           <p className="text-sm text-foreground/60">
             {p1Name} vs {p2Name}
           </p>
@@ -212,7 +284,11 @@ export default function ComparePage() {
           {/* Responsive chart container */}
           <div className="w-full h-[320px] sm:h-[380px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={activeChart === "total" ? totalStatsData : perGameStatsData}>
+              <BarChart
+                data={
+                  activeChart === "total" ? totalStatsData : perGameStatsData
+                }
+              >
                 <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
                 <XAxis dataKey="stat" tick={{ fill: "currentColor" }} />
                 <YAxis tick={{ fill: "currentColor" }} />
@@ -225,14 +301,23 @@ export default function ComparePage() {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="player1" fill="#8884d8" name={player1.PLAYER_FIRST_NAME} radius={[8, 8, 0, 0]} />
-                <Bar dataKey="player2" fill="#82ca9d" name={player2.PLAYER_FIRST_NAME} radius={[8, 8, 0, 0]} />
+                <Bar
+                  dataKey="player1"
+                  fill="#8884d8"
+                  name={player1.PLAYER_FIRST_NAME}
+                  radius={[8, 8, 0, 0]}
+                />
+                <Bar
+                  dataKey="player2"
+                  fill="#82ca9d"
+                  name={player2.PLAYER_FIRST_NAME}
+                  radius={[8, 8, 0, 0]}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="mt-3 text-xs text-foreground/60">
-          </div>
+          <div className="mt-3 text-xs text-foreground/60"></div>
         </CardContent>
       </Card>
     </div>
@@ -250,15 +335,19 @@ function PlayerCard({ player }: { player: PlayerRow }) {
 
       <CardContent className="flex flex-col sm:flex-row gap-5 sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <img
-            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.PERSON_ID}.png`}
+          <PlayerImage
+            playerId={player.PERSON_ID}
             alt={fullName}
             className="w-28 sm:w-36 md:w-44 h-auto rounded-2xl border border-border/60 bg-black/10 object-contain"
           />
           <div className="text-sm text-foreground/80 space-y-1">
-            <div className="font-semibold text-base text-foreground">{player.TEAM_NAME || "No Team"}</div>
+            <div className="font-semibold text-base text-foreground">
+              {player.TEAM_NAME || "No Team"}
+            </div>
             <div className="text-foreground/70">
-              {player.POSITION ? `Position: ${player.POSITION}` : "Position: N/A"}
+              {player.POSITION
+                ? `Position: ${player.POSITION}`
+                : "Position: N/A"}
             </div>
             <div className="text-foreground/70">
               {player.HEIGHT ? `Height: ${player.HEIGHT}` : "Height: N/A"}{" "}
@@ -283,8 +372,12 @@ function PlayerCard({ player }: { player: PlayerRow }) {
 function MiniStat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl border border-border/60 bg-background/30 px-3 py-2 text-center">
-      <div className="text-[11px] uppercase tracking-wide text-foreground/60">{label}</div>
-      <div className="text-lg font-bold">{Number.isFinite(value) ? value : 0}</div>
+      <div className="text-[11px] uppercase tracking-wide text-foreground/60">
+        {label}
+      </div>
+      <div className="text-lg font-bold">
+        {Number.isFinite(value) ? value : 0}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,8 @@
+from io import StringIO
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from pipeline_config import get_supabase as pipeline_database, season as configured_season
 import os
 import re
 import time
@@ -10,8 +15,6 @@ import pandas as pd
 from supabase import create_client
 
 # ================== PLACEHOLDERS (STAVI SVOJE) ==================
-SUPABASE_URL = "https://fdlcdiqvbldqwjbbdjhv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbGNkaXF2YmxkcXdqYmJkamh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzQwNTcsImV4cCI6MjA3ODY1MDA1N30._ZYUsn03GY-Co6gKNCJCovjvrMkxewilL9tzYGP8jWM"
 # ================================================================
 
 ESPN_INJ_URL = "https://www.espn.com/nba/injuries"
@@ -62,9 +65,7 @@ ESPN_TEAMNAME_TO_ABBR = {
 }
 
 def get_supabase():
-    if "PASTE_" in SUPABASE_URL or "PASTE_" in SUPABASE_KEY:
-        raise SystemExit("❌ Stavi SUPABASE_URL i SUPABASE_KEY (placeholdere zamijeni).")
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    return pipeline_database()
 
 def norm_name(s: str) -> str:
     """
@@ -102,7 +103,7 @@ def parse_espn_injuries(html: str) -> pd.DataFrame:
     We'll return a dataframe with columns:
     team_name, player_name, player_name_norm, status, status_norm, weight
     """
-    tables = pd.read_html(html)
+    tables = pd.read_html(StringIO(html))
     rows = []
 
     # ESPN tables typically include columns like: "NAME", "POS", "EST. RETURN DATE", "STATUS", "COMMENT"
@@ -164,6 +165,8 @@ def parse_espn_injuries(html: str) -> pd.DataFrame:
                 "weight": float(weight),
             })
 
+    if not rows:
+        raise RuntimeError("No injury rows parsed; refusing to mark every player healthy")
     df = pd.DataFrame(rows).drop_duplicates(subset=["player_name_norm","status"])
     return df
 
@@ -172,6 +175,8 @@ def fetch_upcoming(sb, limit: int):
         sb.table("GameSchedule")
         .select("nba_game_id,date,startTime,home_team_id,away_team_id,homeTeam,awayTeam,status")
         .gt("startTime", pd.Timestamp.utcnow().isoformat())
+        .lt("startTime", (pd.Timestamp.now(tz="UTC") + pd.Timedelta(days=7)).isoformat())
+        .like("nba_game_id", "002%")
         .order("startTime", desc=False)
         .limit(limit)
         .execute()
@@ -221,6 +226,9 @@ def main():
     # 1) upcoming games -> which teams & which report_dates we need
     upcoming = fetch_upcoming(sb, args.limit)
     print("Upcoming games:", len(upcoming))
+    if not upcoming:
+        print("No upcoming games; availability refresh not needed.")
+        return
 
     # collect (report_date, team_id, team_abbr)
     need = set()

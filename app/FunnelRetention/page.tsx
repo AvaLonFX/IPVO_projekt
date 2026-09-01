@@ -1,7 +1,12 @@
 import FunnelPanel from "@/components/analytics/FunnelPanel";
 import RetentionPanel from "@/components/analytics/RetentionPanel";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function FunnelRetentionPage() {
+export default async function FunnelRetentionPage() {
+  const db = await createClient();
+  const { data: { user } } = await db.auth.getUser();
+  if (!user) redirect("/sign-in?redirect=/FunnelRetention");
   return (
     <div className="w-full space-y-6">
       <div>

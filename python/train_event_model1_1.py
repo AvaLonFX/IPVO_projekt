@@ -1,7 +1,7 @@
 # python/train_event_model.py
-# V1.1 Baseline event classifier (dunk vs three) using existing extracted frames.
-# Pulls labels from Supabase (player_highlights.event) and maps clips via yt_video_clips + yt_daily_videos.clips_folder.
-# Uses pretrained ResNet18 + temporal average. FREEZES backbone (train head only) to avoid overfitting on small dataset.
+# V1.1b Baseline event classifier (dunk vs three) using extracted frames.
+# Change vs V1.1: frame sampling bias towards END of clip (30% -> 100%).
+# Keeps ResNet18 pretrained + temporal average. Freezes backbone (train head only).
 # Saves model to python/models/event_resnet18_v1_1.pt
 
 import os
@@ -30,13 +30,17 @@ ENV_FILE = Path(".env.local")
 CLIPS_ROOT = Path("python/data/clips")
 MODEL_OUT = Path("python/models/event_resnet18_v1_1.pt")
 
-NUM_FRAMES_PER_CLIP = 8      # was 5 -> more signal
+NUM_FRAMES_PER_CLIP = 12
 IMAGE_SIZE = 224
 BATCH_SIZE = 16
-EPOCHS = 15                  # train head only, so ok
-LR = 1e-3                    # head-only can use higher LR
+EPOCHS = 15
+LR = 1e-3
 WEIGHT_DECAY = 1e-4
 SEED = 42
+
+# Frame sampling window: take frames from 30% -> 100% of the clip
+SAMPLE_START_FRAC = 0.30
+SAMPLE_END_FRAC = 1.00
 
 # DB enum values -> class ids
 LABEL_TO_ID = {"dunk": 0, "three": 1}
@@ -138,7 +142,9 @@ def build_dataset_from_supabase() -> List[Sample]:
 
 class ClipFramesDataset(Dataset):
     """
-    Returns [T,C,H,W] + label for a clip, sampling T frames evenly across extracted frames.
+    Returns [T,C,H,W] + label for a clip.
+    Samples T frames evenly, but only from a window [SAMPLE_START_FRAC, SAMPLE_END_FRAC]
+    so we bias toward the end of the highlight (where the shot/dunk often happens).
     """
     def __init__(self, samples: List[Sample], num_frames: int, tfm):
         self.samples = samples
@@ -149,11 +155,34 @@ class ClipFramesDataset(Dataset):
         return len(self.samples)
 
     def _pick_frames(self, frames_dir: Path) -> List[Path]:
-        frames = sorted(frames_dir.glob("*.jpg"))
-        if not frames:
+        frames_all = sorted(frames_dir.glob("*.jpg"))
+        if not frames_all:
             return []
+
+        n = len(frames_all)
+
+        # clamp fractions
+        start_frac = max(0.0, min(1.0, SAMPLE_START_FRAC))
+        end_frac = max(0.0, min(1.0, SAMPLE_END_FRAC))
+        if end_frac <= start_frac:
+            # fallback to full range if misconfigured
+            start_frac, end_frac = 0.0, 1.0
+
+        start_idx = int(round((n - 1) * start_frac))
+        end_idx = int(round((n - 1) * end_frac))
+
+        start_idx = max(0, min(n - 1, start_idx))
+        end_idx = max(0, min(n - 1, end_idx))
+        if end_idx < start_idx:
+            start_idx, end_idx = 0, n - 1
+
+        frames = frames_all[start_idx:end_idx + 1]
+        if not frames:
+            frames = frames_all  # fallback
+
         if len(frames) <= self.num_frames:
             return frames
+
         idxs = np.linspace(0, len(frames) - 1, self.num_frames).astype(int).tolist()
         return [frames[i] for i in idxs]
 
@@ -322,7 +351,6 @@ def main():
         target_names=[ID_TO_LABEL[0], ID_TO_LABEL[1]],
         zero_division=0
     ))
-    
 
     out_path = repo_root / MODEL_OUT
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -332,6 +360,7 @@ def main():
         "num_frames": NUM_FRAMES_PER_CLIP,
         "image_size": IMAGE_SIZE,
         "arch": "resnet18_temporal_avg_head_only",
+        "sampling_window": [SAMPLE_START_FRAC, SAMPLE_END_FRAC],
     }, out_path)
     print(f"Saved model to: {out_path}")
 

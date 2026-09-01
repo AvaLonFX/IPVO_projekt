@@ -5,7 +5,7 @@ export default function CurrentDailyPage() {
     <GuessGame
       apiPath="/api/guess/current-daily"
       title="Current Daily"
-      subtitle="Jedan aktualni igrač dnevno. Svi isti."
+      subtitle="One current player each day. Everyone gets the same challenge."
     />
   );
 }

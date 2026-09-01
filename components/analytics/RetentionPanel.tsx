@@ -113,7 +113,7 @@ export default function RetentionPanel() {
         <div>
           <h2 className="text-xl font-semibold text-foreground">Retention</h2>
           <p className="text-sm text-foreground/70">
-            Koliko novih korisnika se vrati nakon 1 i 7 dana.
+            How many new users return after 1 and 7 days.
           </p>
         </div>
 
@@ -128,16 +128,16 @@ export default function RetentionPanel() {
       </div>
 
       <div className="mt-5">
-        {loading && <div className="text-sm text-foreground/70">Učitavam retention…</div>}
+        {loading && <div className="text-sm text-foreground/70">Loading retention data…</div>}
 
         {!loading && err && (
           <div className="text-sm text-foreground/60">
-            Nema podataka još. (ili endpoint nije postavljen)
+            Unable to load retention data. Please try again later.
           </div>
         )}
 
         {!loading && !err && !hasNumbers && (
-          <div className="text-sm text-foreground/60">Nema podataka još.</div>
+          <div className="text-sm text-foreground/60">No data yet.</div>
         )}
 
         {!loading && hasNumbers && (
@@ -148,7 +148,7 @@ export default function RetentionPanel() {
             <div className="sm:col-span-2 rounded-2xl border border-border bg-muted/30 p-4">
               <div className="text-sm font-semibold text-foreground">Trend (mini)</div>
               <p className="mt-1 text-xs text-foreground/60">
-                Ovo je samo “D1 → D7” vizual. Za pravi trend po danima treba timeseries iz GA.
+                This chart compares day 1 and day 7 retention. A daily trend requires time-series data from Google Analytics.
               </p>
 
               <div className="mt-4 flex items-end gap-3">

@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { safeRedirect } from "@/lib/safe-redirect";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
@@ -25,7 +26,7 @@ export const signUpAction = async (formData: FormData) => {
     email,
     password,
     options: {
-      data: {username},
+      data: { username },
       emailRedirectTo: `${origin}/auth/callback`,
     },
   });
@@ -45,16 +46,20 @@ export const signUpAction = async (formData: FormData) => {
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const redirectTo = (formData.get("redirectTo") as string) || "/";
+  const redirectTo = safeRedirect(formData.get("redirectTo"));
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    return {
-      message: error.message,
-      redirect: redirectTo,
-    };
+    redirect(
+      "/sign-in?error=" +
+        encodeURIComponent(
+          "Unable to sign in. Check your email and password.",
+        ) +
+        "&redirect=" +
+        encodeURIComponent(redirectTo),
+    );
   }
 
   redirect(redirectTo);
@@ -84,7 +89,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   }
 
   if (callbackUrl) {
-    return redirect(callbackUrl);
+    return redirect(safeRedirect(callbackUrl));
   }
 
   return encodedRedirect(
@@ -136,13 +141,13 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
-export async function signInWithGoogleAction() {
+export async function signInWithGoogleAction(formData: FormData) {
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`, 
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || (await headers()).get("origin")}/auth/callback?redirect_to=${encodeURIComponent(safeRedirect(formData.get("redirectTo")))}`,
       // ili neka tvoja ruta na koju Supabase vraća usera
     },
   });

@@ -56,7 +56,7 @@ export default function GuesserEventsCharts({
             <div>
               <CardTitle className="text-base sm:text-lg">Events overview</CardTitle>
               <p className="text-sm text-foreground/70 mt-1">
-                Usporedba eventa (zadnjih {days} dana)
+                Event comparison (last {days} days)
               </p>
             </div>
 
@@ -118,7 +118,7 @@ export default function GuesserEventsCharts({
         <CardHeader className="pb-2">
           <CardTitle className="text-base sm:text-lg">Event share</CardTitle>
           <p className="text-sm text-foreground/70 mt-1">
-            Udio svakog eventa u totalu
+            Share of the total for each event
           </p>
         </CardHeader>
 

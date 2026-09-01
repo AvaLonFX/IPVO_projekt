@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import PlayerImage from "@/components/PlayerImage";
+import { addDreamTeamPlayer } from "@/lib/dream-team";
 import { createClient } from "@/utils/supabase/client";
 
 type Rec = {
@@ -114,7 +116,7 @@ export default function Recommendations() {
   };
 
   const addToDreamTeam = async (playerId: string | number) => {
-    if (!userId) return;
+    if (!userId || addingId) return;
 
     const pid = String(playerId);
 
@@ -129,26 +131,15 @@ export default function Recommendations() {
 
     setAddingId(pid);
     try {
-      // position = current size + 1 (isto kao tvoj DreamTeam page)
-      const { error } = await supabase.from("UserDreamTeams").insert([
-        {
-          user_id: userId,
-          player_id: Number(pid),
-          position: dreamTeamIds.size + 1,
-        },
-      ]);
-
-      if (error) {
-        console.error("Error adding player to Dream Team:", error);
-        alert("Failed to add player to Dream Team.");
-        return;
-      }
+      await addDreamTeamPlayer(supabase, Number(pid));
 
       setDreamTeamIds((prev) => {
         const next = new Set(prev);
         next.add(pid);
         return next;
       });
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Could not add player.");
     } finally {
       setAddingId(null);
     }
@@ -285,7 +276,6 @@ function RecCard({
 }) {
   const teamLabel = rec.team ? `Team: ${rec.team}` : null;
 
-  const playerImageUrl = `https://cdn.nba.com/headshots/nba/latest/1040x760/${rec.id}.png`;
 
   return (
     <article
@@ -304,15 +294,11 @@ function RecCard({
     >
       {/* Image area */}
       <div className="relative h-[190px] bg-gradient-to-b from-white/[0.06] to-transparent flex items-center justify-center">
-        <img
-          src={playerImageUrl}
+        <PlayerImage
+          playerId={rec.id}
           alt={rec.name}
           className="h-full w-full object-contain"
           loading="lazy"
-          onError={(e) => {
-            const img = e.currentTarget;
-            img.style.display = "none";
-          }}
         />
 
         {typeof rec.similarity === "number" && (

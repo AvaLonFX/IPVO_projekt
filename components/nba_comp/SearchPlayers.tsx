@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import PlayerImage from "@/components/PlayerImage";
 import { useRouter } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { updateSearchCount } from "../../app/api/updateSearch";
 import { trackInteraction } from "@/lib/trackInteraction";
 
 interface SearchPlayersProps {
-  onPlayerClick?: (player: any) => void;      // dobije cijeli player objekt
+  onPlayerClick?: (player: any) => void; // dobije cijeli player objekt
   onPlayerSelect?: (playerId: string) => void;
-  inputTextColor?: string;                    // npr. "black" samo za guess igru
+  inputTextColor?: string; // npr. "black" samo za guess igru
 }
 
 export default function SearchPlayers({
@@ -19,18 +20,32 @@ export default function SearchPlayers({
 }: SearchPlayersProps) {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [players, setPlayers] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState("");
   const [hoveredPlayer, setHoveredPlayer] = useState<any | null>(null);
-  const [cursorPosition, setCursorPosition] = useState<{ x: number; y: number }>({
+  const [cursorPosition, setCursorPosition] = useState<{
+    x: number;
+    y: number;
+  }>({
     x: 0,
     y: 0,
   });
   const router = useRouter();
+  const searchVersion = useRef(0);
 
   const handleSearch = async (term: string) => {
     setSearchTerm(term);
+    const version = ++searchVersion.current;
+    setSearchError("");
+    setSearching(true);
+    const query = term
+      .replace(new RegExp("[^\\p{L}\\p{N} .'-]", "gu"), "")
+      .trim()
+      .slice(0, 64);
 
-    if (term.trim() === "") {
+    if (!query) {
       setPlayers([]);
+      setSearching(false);
       return;
     }
 
@@ -39,32 +54,44 @@ export default function SearchPlayers({
         .from("Osnovno_NBA")
         .select("*")
         .or(
-          `PLAYER_FIRST_NAME.ilike.%${term}%,PLAYER_LAST_NAME.ilike.%${term}%,player_full_name.ilike.%${term}%`
+          `PLAYER_FIRST_NAME.ilike.%${query}%,PLAYER_LAST_NAME.ilike.%${query}%,player_full_name.ilike.%${query}%`,
         )
         .limit(5);
 
       if (error) {
+        if (version === searchVersion.current) {
+          setSearchError(
+            "Search is temporarily unavailable. Please try again.",
+          );
+          setPlayers([]);
+        }
         console.error("Error fetching players:", error);
         return;
       }
 
-      setPlayers(data || []);
+      if (version === searchVersion.current) setPlayers(data || []);
     } catch (err) {
+      if (version === searchVersion.current)
+        setSearchError("Unable to search. Check your connection and retry.");
       console.error("Unexpected error:", err);
+    } finally {
+      if (version === searchVersion.current) setSearching(false);
     }
   };
 
   const handlePlayerClick = async (player: any) => {
-    console.log("Player clicked:", player);
-    console.log(`Sending player ID ${player.PERSON_ID} to updateSearchCount`);
-
-    await updateSearchCount(player.PERSON_ID);
-    await trackInteraction({
+    searchVersion.current++;
+    setSearchTerm("");
+    setPlayers([]);
+    setHoveredPlayer(null);
+    setSearching(false);
+    void updateSearchCount(player.PERSON_ID).catch(() => {});
+    void trackInteraction({
       itemType: "player",
       itemId: player.PERSON_ID,
       eventType: "search_click",
       weight: 2,
-    });
+    }).catch(() => {});
 
     // 1) Pošalji cijeli objekt (za guess history itd.)
     if (onPlayerClick) {
@@ -106,11 +133,21 @@ export default function SearchPlayers({
           color: inputTextColor ?? "inherit", // 👈 ovdje mijenjamo boju teksta
         }}
       />
+      {searching && <p role="status">Searching…</p>}
+      {searchError && <p role="alert">{searchError}</p>}
       {players.length > 0 ? (
         <ul style={{ listStyleType: "none", padding: "0" }}>
           {players.map((player) => (
             <li
               key={player.PERSON_ID}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  void handlePlayerClick(player);
+                }
+              }}
               style={{
                 marginBottom: "10px",
                 cursor: "pointer",
@@ -123,7 +160,8 @@ export default function SearchPlayers({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                transition: "background-color 0.3s ease, border-color 0.3s ease",
+                transition:
+                  "background-color 0.3s ease, border-color 0.3s ease",
               }}
               onClick={() => {
                 handlePlayerClick(player);
@@ -160,7 +198,7 @@ export default function SearchPlayers({
           ))}
         </ul>
       ) : (
-        searchTerm && <p>No players found.</p>
+        searchTerm && !searching && !searchError && <p>No players found.</p>
       )}
       {hoveredPlayer && (
         <div
@@ -176,8 +214,8 @@ export default function SearchPlayers({
             zIndex: 1000,
           }}
         >
-          <img
-            src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${hoveredPlayer.PERSON_ID}.png`}
+          <PlayerImage
+            playerId={hoveredPlayer.PERSON_ID}
             alt={`${hoveredPlayer.PLAYER_FIRST_NAME} ${hoveredPlayer.PLAYER_LAST_NAME}`}
             style={{
               width: "200px",

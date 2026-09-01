@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import SearchPlayers from "../components/nba_comp/SearchPlayers";
 import HighlightClipCard from "@/components/HighlightClipCard";
+import DailyChallenges from "@/components/DailyChallenges";
 
 type BestHighlight = {
   clip_id: number;
@@ -97,10 +98,12 @@ export default function HomeLanding() {
           </div>
         </div>
 
+        <DailyChallenges />
+
         {/* HIGHLIGHT OF THE DAY */}
         <div className="mt-10">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Highlight of the day</h2>
+            <h2 className="text-lg font-semibold">Latest highlight</h2>
             <span className="text-xs text-foreground/60">
               {best?.day ? best.day : ""}
             </span>
@@ -118,9 +121,7 @@ export default function HomeLanding() {
                 No highlight yet
               </div>
               <p className="mt-1 text-sm text-foreground/60">
-                Add one row to <code className="px-1 border rounded">yt_daily_videos</code>,
-                10 rows to <code className="px-1 border rounded">yt_video_clips</code>,
-                and at least one row to <code className="px-1 border rounded">player_highlights</code>.
+                No highlight is available right now. Try a daily challenge or explore your favorite players.
               </p>
             </div>
           ) : (
@@ -172,12 +173,7 @@ export default function HomeLanding() {
                 />
               </div>
 
-              <div className="mt-3 text-xs text-foreground/50">
-                Conf: event{" "}
-                {best.event_conf != null ? Number(best.event_conf).toFixed(2) : "—"}
-                {" · "}player{" "}
-                {best.player_conf != null ? Number(best.player_conf).toFixed(2) : "—"}
-              </div>
+
             </div>
           )}
         </div>
@@ -197,10 +193,10 @@ export default function HomeLanding() {
             badge="Popular"
           />
           <FeatureCard
-            title="Analytics"
-            desc="See what users search, add, and how funnels behave."
-            href="/analytics"
-            badge="Data"
+            title="Follow your players"
+            desc="Keep player stats and upcoming team games together."
+            href="/watchlist"
+            badge="Personal"
           />
           <FeatureCard
             title="Guesser"

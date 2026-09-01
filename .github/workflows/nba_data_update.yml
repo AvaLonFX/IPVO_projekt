@@ -1,8 +1,7 @@
 name: NBA Data Update
 
 on:
-  schedule:
-    - cron: '0 6 * * *'  # Runs at 6 AM UTC every day
+  # Scheduled refresh now runs on the owner's laptop. Keep manual dispatch only.
   workflow_dispatch:  # Allows manual triggering of the action
 
 jobs:
@@ -13,17 +12,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '20.15.0'  # You can choose the Node.js version
+          python-version: '3.13'
 
       - name: Install dependencies
         run: |
-          npm install axios @supabase/supabase-js  # Install dependencies
+          python -m pip install -r requirements-pipeline.lock.txt
 
       - name: Run NBA Data Update Script
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}  # Store your Supabase URL in GitHub secrets
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}  # Store your Supabase key in GitHub secrets
-        run: node components/scripte/updateNBAData.js  # Replace with your actual script filename
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NBA_SEASON: '2025-26'
+        run: python components/scripte/update_nba_players.py

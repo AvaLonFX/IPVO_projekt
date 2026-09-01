@@ -5,7 +5,7 @@ export default function AllTimeDailyPage() {
     <GuessGame
       apiPath="/api/guess/alltime-daily"
       title="All-Time Daily"
-      subtitle="Jedan all-time igrač dnevno. Svi dobivaju istog."
+      subtitle="One all-time player each day. Everyone gets the same challenge."
     />
   );
 }

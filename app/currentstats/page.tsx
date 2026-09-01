@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
+import DataStatus from "@/components/DataStatus";
 import Button from "@/components/backtosearchbutton";
 
 export default function CurrentStats() {
@@ -13,19 +14,52 @@ export default function CurrentStats() {
   const [teamFilter, setTeamFilter] = useState<string>(""); // Team filter
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
   const playersPerPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [retry, setRetry] = useState(0);
   const router = useRouter();
 
   const nbaTeams = [
-    "ATL", "BOS", "BKN", "CHA", "CHI", "CLE", "DAL", "DEN", "DET", "GSW",
-    "HOU", "IND", "LAC", "LAL", "MEM", "MIA", "MIL", "MIN", "NOP", "NYK",
-    "OKC", "ORL", "PHI", "PHX", "POR", "SAC", "SAS", "TOR", "UTA", "WAS"
+    "ATL",
+    "BOS",
+    "BKN",
+    "CHA",
+    "CHI",
+    "CLE",
+    "DAL",
+    "DEN",
+    "DET",
+    "GSW",
+    "HOU",
+    "IND",
+    "LAC",
+    "LAL",
+    "MEM",
+    "MIA",
+    "MIL",
+    "MIN",
+    "NOP",
+    "NYK",
+    "OKC",
+    "ORL",
+    "PHI",
+    "PHX",
+    "POR",
+    "SAC",
+    "SAS",
+    "TOR",
+    "UTA",
+    "WAS",
   ];
 
   useEffect(() => {
+    let cancelled = false;
     const fetchPlayers = async () => {
+      setLoading(true);
+      setLoadError("");
       try {
         let query = supabase
-          .from("CurrentStats_NBA")
+          .from("verified_current_stats")
           .select("*", { count: "exact" })
           .neq(filter, 0)
           .order(filter, { ascending: order === "asc" })
@@ -36,20 +70,30 @@ export default function CurrentStats() {
         }
 
         const { data, error, count } = await query;
+        if (cancelled) return;
 
+        if (cancelled) return;
         if (error) {
+          setLoadError("Statistics are temporarily unavailable. Please retry.");
           console.error("Error fetching players:", error);
         } else {
           setPlayers(data || []);
           setTotalPlayers(count || 0);
         }
       } catch (err) {
+        if (!cancelled)
+          setLoadError("Could not load statistics. Please retry.");
         console.error("Unexpected error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchPlayers();
-  }, [filter, order, page, teamFilter]);
+    return () => {
+      cancelled = true;
+    };
+  }, [filter, order, page, teamFilter, retry]);
 
   const nextPage = () => {
     if (page < Math.ceil(totalPlayers / playersPerPage)) setPage(page + 1);
@@ -71,15 +115,30 @@ export default function CurrentStats() {
         <Button />
       </div>
 
-      <h2 className="text-2xl font-semibold mb-4">Explore Players by Stats</h2>
+      <h2 className="text-2xl font-semibold mb-4">
+        Verified season statistics
+      </h2>
+      <DataStatus />
 
+      {loading && <p role="status">Loading statistics…</p>}
+      {loadError && (
+        <p role="alert">
+          {loadError}{" "}
+          <button className="underline" onClick={() => setRetry((r) => r + 1)}>
+            Retry
+          </button>
+        </p>
+      )}
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium">Filter by:</label>
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPage(1);
+            }}
             className="mt-1 px-3 py-2 border border-gray-300 rounded-md"
           >
             <option value="PTS">Points</option>
@@ -89,7 +148,7 @@ export default function CurrentStats() {
             <option value="BLK">Blocks</option>
             <option value="FG_PCT">Field Goal %</option>
             <option value="FT_PCT">Free Throw %</option>
-            <option value="Player_Rating">Player Rating</option>
+            <option value="GP">Games</option>
           </select>
         </div>
 
@@ -126,7 +185,7 @@ export default function CurrentStats() {
       </div>
 
       {/* Table */}
-      {players.length > 0 ? (
+      {!loading && !loadError && players.length > 0 ? (
         <div>
           <table className="w-full border-collapse border border-gray-300 mb-6 text-sm">
             <thead>
@@ -140,7 +199,7 @@ export default function CurrentStats() {
                   "Blocks",
                   "FG %",
                   "FT %",
-                  "Player Rating"
+                  "Games",
                 ].map((heading) => (
                   <th key={heading} className="px-4 py-2 text-left border">
                     {heading}
@@ -164,13 +223,17 @@ export default function CurrentStats() {
                   <td className="px-4 py-2 border">{player.STL || 0}</td>
                   <td className="px-4 py-2 border">{player.BLK || 0}</td>
                   <td className="px-4 py-2 border">
-                    {player.FG_PCT ? parseFloat(player.FG_PCT).toFixed(2) : 0}
+                    {player.FG_PCT
+                      ? (Number(player.FG_PCT) * 100).toFixed(1)
+                      : 0}
                   </td>
                   <td className="px-4 py-2 border">
-                    {player.FT_PCT ? parseFloat(player.FT_PCT).toFixed(2) : 0}
+                    {player.FT_PCT
+                      ? (Number(player.FT_PCT) * 100).toFixed(1)
+                      : 0}
                   </td>
                   <td className="px-4 py-2 border bg-green-100 text-green-700 font-semibold">
-                    {player.Player_Rating || 0}
+                    {player.GP || 0}
                   </td>
                 </tr>
               ))}
@@ -215,7 +278,9 @@ export default function CurrentStats() {
           </div>
         </div>
       ) : (
-        <p className="text-center text-gray-500">No players found.</p>
+        <p className="text-center text-gray-500">
+          {loading || loadError ? "" : "No players match these filters."}
+        </p>
       )}
     </div>
   );

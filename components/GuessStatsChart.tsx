@@ -46,9 +46,7 @@ export function GuessStatsChart({ pts, reb, ast }: Props) {
         .call(d3.axisBottom(x));
 
     const yAxis = (g: any) =>
-      g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y));
+      g.attr("transform", `translate(${margin.left},0)`).call(d3.axisLeft(y));
 
     svg.append("g").call(xAxis);
     svg.append("g").call(yAxis);
@@ -63,12 +61,26 @@ export function GuessStatsChart({ pts, reb, ast }: Props) {
       .attr("width", x.bandwidth())
       .attr("height", (d) => y(0) - y(d.value))
       .attr("fill", "steelblue");
+
+    svg
+      .append("g")
+      .selectAll("text")
+      .data(data)
+      .join("text")
+      .attr("x", (d) => x(d.stat)! + x.bandwidth() / 2)
+      .attr("y", (d) => y(d.value) - 6)
+      .attr("text-anchor", "middle")
+      .attr("fill", "currentColor")
+      .attr("font-size", 13)
+      .text((d) => d.value.toFixed(1));
   }, [pts, reb, ast]);
 
   return (
     <svg
       ref={ref}
-      viewBox="0 -100 400 450"
+      viewBox="0 0 480 300"
+      role="img"
+      aria-label={`Player stats: ${pts} points, ${reb} rebounds, ${ast} assists per game`}
       className="w-full h-auto max-w-5xl mx-auto"
     />
   );

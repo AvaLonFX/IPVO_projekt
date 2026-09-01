@@ -13,14 +13,5 @@ export const createClient = () => {
     }
   );
 
-  // 📌 Ručno dohvaćanje sesije kod inicijalizacije
-  supabase.auth.getSession().then(({ data }) => {
-    if (data.session) {
-      console.log("Session initialized:", data.session);
-    } else {
-      console.log("No active session found.");
-    }
-  });
-
   return supabase;
 };

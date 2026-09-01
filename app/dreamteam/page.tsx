@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import SearchPlayers from "@/components/nba_comp/SearchPlayers";
-import { DndContext, closestCorners } from "@dnd-kit/core";
-import { SortableContext, useSortable, arrayMove } from "@dnd-kit/sortable";
+import PlayerImage from "@/components/PlayerImage";
+import { addDreamTeamPlayer, dreamTeamError, DREAM_TEAM_LIMIT, DREAM_TEAM_SELECT } from "@/lib/dream-team";
+import { DndContext, closestCorners, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, useSortable, arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 export default function DreamTeam() {
@@ -13,14 +16,21 @@ export default function DreamTeam() {
   const [user, setUser] = useState<any>(null);
   const [dreamTeam, setDreamTeam] = useState<any[]>([]);
   const router = useRouter();
-  const supabase = createClient();
-  const MAX_PLAYERS = 12;
+  const supabase = useMemo(() => createClient(), []);
+  const MAX_PLAYERS = DREAM_TEAM_LIMIT;
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data } = await supabase.auth.getSession();
-      setUser(data?.session?.user ?? null);
-      setLoading(false);
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user ?? null);
+      if (!data.user) setLoading(false);
     };
     checkAuth();
   }, [supabase]);
@@ -29,21 +39,24 @@ export default function DreamTeam() {
     if (!user) return;
 
     const fetchDreamTeam = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("UserDreamTeams")
         .select(
-          "player_id, FullStats_NBA(PLAYER_NAME, PTS, REB, AST, Player_Rating)"
+          DREAM_TEAM_SELECT
         )
         .eq("user_id", user.id)
         .order("position", { ascending: true });
 
-      setDreamTeam(data || []);
+      if (error) setSaveError("Could not load your team. Please reload the page.");
+      else setDreamTeam(data || []);
+      setLoading(false);
     };
 
     fetchDreamTeam();
   }, [user, supabase]);
 
   const handleDragEnd = async (event: any) => {
+    if (savingRef.current || !user) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -52,51 +65,65 @@ export default function DreamTeam() {
 
     if (oldIndex === -1 || newIndex === -1) return;
 
+    const previous = dreamTeam;
     const updated = arrayMove(dreamTeam, oldIndex, newIndex);
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
     setDreamTeam(updated);
-
-    for (let i = 0; i < updated.length; i++) {
-      await supabase
-        .from("UserDreamTeams")
-        .update({ position: i + 1 })
-        .match({ user_id: user.id, player_id: updated[i].player_id });
+    try {
+      const { error } = await supabase.rpc("reorder_dream_team", {
+        player_ids: updated.map((p) => p.player_id),
+      });
+      if (error) throw new Error(dreamTeamError(error));
+    } catch (error) {
+      setDreamTeam(previous);
+      setSaveError(error instanceof Error ? error.message : "Could not save the order.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
     }
   };
 
   const addToDreamTeam = async (playerId: number) => {
-    if (!user) return;
+    if (!user || savingRef.current) return;
     if (dreamTeam.some((p) => p.player_id === playerId)) return;
-    if (dreamTeam.length >= MAX_PLAYERS) return;
+    if (dreamTeam.length >= MAX_PLAYERS) {
+      setSaveError("Your Dream Team can contain up to 12 players.");
+      return;
+    }
 
-    const { data } = await supabase
-      .from("FullStats_NBA")
-      .select("PLAYER_NAME, PTS, REB, AST, Player_Rating")
-      .eq("PERSON_ID", playerId)
-      .single();
-
-    if (!data) return;
-
-    await supabase.from("UserDreamTeams").insert([
-      {
-        user_id: user.id,
-        player_id: playerId,
-        position: dreamTeam.length + 1,
-      },
-    ]);
-
-    setDreamTeam((prev) => [
-      ...prev,
-      { player_id: playerId, FullStats_NBA: data },
-    ]);
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const data = await addDreamTeamPlayer(supabase, playerId);
+      setDreamTeam((prev) => [...prev, data]);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not add player.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   const removeFromDreamTeam = async (playerId: number) => {
-    await supabase
-      .from("UserDreamTeams")
-      .delete()
-      .match({ user_id: user.id, player_id: playerId });
-
-    setDreamTeam((prev) => prev.filter((p) => p.player_id !== playerId));
+    if (!user || savingRef.current) return;
+    savingRef.current = true;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const { data, error } = await supabase.from("UserDreamTeams").delete()
+        .match({ user_id: user.id, player_id: playerId }).select("player_id");
+      if (error) throw new Error(dreamTeamError(error));
+      if (!data?.length) throw new Error("Your team changed. Please reload the page.");
+      setDreamTeam((prev) => prev.filter((p) => p.player_id !== playerId));
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not remove player.");
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -147,13 +174,16 @@ export default function DreamTeam() {
         <p className="text-sm text-foreground/70">
           {dreamTeam.length}/{MAX_PLAYERS} players selected
         </p>
+        <Link href="/matchups" className="inline-block mt-3 text-sm font-semibold underline">Compare your starting five →</Link>
       </div>
 
       <SearchPlayers
         onPlayerSelect={(id: string) => addToDreamTeam(Number(id))}
       />
+      {saveError && <p role="alert" className="text-sm text-red-500">{saveError}</p>}
+      {saving && <p role="status" className="text-sm text-foreground/70">Saving…</p>}
 
-      <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <SortableContext items={dreamTeam.map((p) => p.player_id)}>
           <Section title="Starting 5">
             <Grid>
@@ -161,6 +191,7 @@ export default function DreamTeam() {
                 <PlayerCard
                   key={p.player_id}
                   player={p}
+                  disabled={saving}
                   onRemove={removeFromDreamTeam}
                 />
               ))}
@@ -174,6 +205,7 @@ export default function DreamTeam() {
                   <PlayerCard
                     key={p.player_id}
                     player={p}
+                    disabled={saving}
                     onRemove={removeFromDreamTeam}
                   />
                 ))}
@@ -201,9 +233,9 @@ function Grid({ children, cols = "grid-cols-1 sm:grid-cols-2 md:grid-cols-5" }: 
   return <div className={`grid ${cols} gap-4`}>{children}</div>;
 }
 
-function PlayerCard({ player, onRemove }: any) {
+function PlayerCard({ player, onRemove, disabled }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: player.player_id });
+    useSortable({ id: player.player_id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -227,14 +259,19 @@ function PlayerCard({ player, onRemove }: any) {
       "
     >
       <button
+        disabled={disabled}
+        aria-label={`Remove ${stats.PLAYER_NAME || "player"}`}
+        onPointerDown={(event) => event.stopPropagation()}
+        onKeyDown={(event) => event.stopPropagation()}
         onClick={() => onRemove(player.player_id)}
         className="absolute top-2 right-2 h-6 w-6 rounded-full bg-red-500/90 text-white text-xs font-bold"
       >
         ×
       </button>
 
-      <img
-        src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${player.player_id}.png`}
+      <PlayerImage
+        playerId={player.player_id}
+        imageSize="small"
         alt={stats.PLAYER_NAME}
         className="mx-auto h-28 w-28 object-cover rounded-xl"
       />

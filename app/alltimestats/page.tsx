@@ -5,7 +5,6 @@ import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import Button from "@/components/backtosearchbutton";
 
-
 export default function AllTimeStats() {
   const [players, setPlayers] = useState<any[]>([]);
   const [filter, setFilter] = useState<string>("PTS");
@@ -13,10 +12,16 @@ export default function AllTimeStats() {
   const [page, setPage] = useState<number>(1);
   const [totalPlayers, setTotalPlayers] = useState<number>(0);
   const playersPerPage = 10;
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [retry, setRetry] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
+    let cancelled = false;
     const fetchPlayers = async () => {
+      setLoading(true);
+      setLoadError("");
       try {
         const { data, error, count } = await supabase
           .from("FullStats_NBA")
@@ -25,19 +30,28 @@ export default function AllTimeStats() {
           .order(filter, { ascending: order === "asc" })
           .range((page - 1) * playersPerPage, page * playersPerPage - 1);
 
+        if (cancelled) return;
         if (error) {
+          setLoadError("Statistics are temporarily unavailable. Please retry.");
           console.error("Error fetching players:", error);
         } else {
           setPlayers(data || []);
           setTotalPlayers(count || 0);
         }
       } catch (err) {
+        if (!cancelled)
+          setLoadError("Could not load statistics. Please retry.");
         console.error("Unexpected error:", err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchPlayers();
-  }, [filter, order, page]);
+    return () => {
+      cancelled = true;
+    };
+  }, [filter, order, page, retry]);
 
   const nextPage = () => {
     if (page < Math.ceil(totalPlayers / playersPerPage)) setPage(page + 1);
@@ -57,18 +71,36 @@ export default function AllTimeStats() {
     <div className="p-6">
       {/* Back to Search Button */}
       <div className="mb-6">
-        <Button/>
+        <Button />
       </div>
 
-      <h2 className="text-2xl font-semibold mb-4">Explore Players by Stats</h2>
+      <h2 className="text-2xl font-semibold mb-4">
+        Historical archive statistics
+      </h2>
+      <p className="text-sm text-foreground/60 mb-4">
+        Original project archive. Totals have unverified coverage and update
+        date; these are not live career totals.
+      </p>
 
+      {loading && <p role="status">Loading statistics…</p>}
+      {loadError && (
+        <p role="alert">
+          {loadError}{" "}
+          <button className="underline" onClick={() => setRetry((r) => r + 1)}>
+            Retry
+          </button>
+        </p>
+      )}
       {/* Filters */}
       <div className="flex items-center gap-4 mb-6">
         <div>
           <label className="block text-sm font-medium">Filter by:</label>
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+            onChange={(e) => {
+              setFilter(e.target.value);
+              setPage(1);
+            }}
             className="mt-1 px-3 py-2 border border-gray-300 rounded-md"
           >
             <option value="PTS">Points</option>
@@ -96,7 +128,7 @@ export default function AllTimeStats() {
       </div>
 
       {/* Players Table */}
-      {players.length > 0 ? (
+      {!loading && !loadError && players.length > 0 ? (
         <div>
           <table className="w-full border-collapse border border-gray-300 mb-6 text-sm">
             <thead>
@@ -123,7 +155,9 @@ export default function AllTimeStats() {
                 <tr
                   key={player.PERSON_ID}
                   className="hover:bg-gray-100 cursor-pointer"
-                  onClick={() => window.location.assign(`/player/${player.PERSON_ID}`)}
+                  onClick={() =>
+                    window.location.assign(`/player/${player.PERSON_ID}`)
+                  }
                 >
                   <td className="px-4 py-2 border">{player.PLAYER_NAME}</td>
                   <td className="px-4 py-2 border">{player.PTS || 0}</td>
@@ -132,10 +166,14 @@ export default function AllTimeStats() {
                   <td className="px-4 py-2 border">{player.STL || 0}</td>
                   <td className="px-4 py-2 border">{player.BLK || 0}</td>
                   <td className="px-4 py-2 border">
-                    {player.FG_PCT ? parseFloat(player.FG_PCT).toFixed(2) : 0}
+                    {player.FG_PCT
+                      ? (Number(player.FG_PCT) * 100).toFixed(1)
+                      : 0}
                   </td>
                   <td className="px-4 py-2 border">
-                    {player.FT_PCT ? parseFloat(player.FT_PCT).toFixed(2) : 0}
+                    {player.FT_PCT
+                      ? (Number(player.FT_PCT) * 100).toFixed(1)
+                      : 0}
                   </td>
                   <td className="px-4 py-2 border text-green-600 font-semibold">
                     {player.Player_Rating || 0}
@@ -183,7 +221,9 @@ export default function AllTimeStats() {
           </div>
         </div>
       ) : (
-        <p className="text-center text-gray-500">No players found.</p>
+        <p className="text-center text-gray-500">
+          {loading || loadError ? "" : "No players match these filters."}
+        </p>
       )}
     </div>
   );

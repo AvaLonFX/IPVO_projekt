@@ -144,7 +144,7 @@ export default function FunnelPanel() {
         <div className="min-w-0">
           <h2 className="text-xl font-semibold text-foreground">Funnel</h2>
           <p className="text-sm text-foreground/70">
-            Pregled koraka (Search → View → …) i pad korisnika po koracima.
+            See each step (Search → View → …) and how many users continue.
           </p>
         </div>
 
@@ -182,7 +182,7 @@ export default function FunnelPanel() {
       )}
 
       <div className="mt-6">
-        {loading && <div className="text-sm text-foreground/70">Učitavam funnel…</div>}
+        {loading && <div className="text-sm text-foreground/70">Loading funnel data…</div>}
 
         {err && (
           <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
@@ -191,7 +191,7 @@ export default function FunnelPanel() {
         )}
 
         {!loading && !err && funnel.length === 0 && (
-          <div className="text-sm text-foreground/70">Nema podataka još.</div>
+          <div className="text-sm text-foreground/70">No data yet.</div>
         )}
 
         {!loading && !err && funnel.length > 0 && (
@@ -218,13 +218,13 @@ export default function FunnelPanel() {
                       <div className="mt-1 text-xs text-foreground/60">
                         {prev ? (
                           <>
-                            od prethodnog:{" "}
+                            From the previous step:{" "}
                             <span className="font-semibold text-foreground/80">
                               {dropFromPrev ? formatPct(dropFromPrev) : "—"}
                             </span>
                           </>
                         ) : (
-                          "prvi korak"
+                          "First step"
                         )}
                       </div>
                     </div>

@@ -41,7 +41,7 @@ export default async function AnalyticsPage({
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Analytics</h1>
         <p className="text-sm text-foreground/70">
-          GA4 eventi za Guesser (Google Analytics Data API — runReport).
+          GA4 events for Guesser (Google Analytics Data API — runReport).
         </p>
       </div>
 
@@ -55,9 +55,9 @@ export default async function AnalyticsPage({
         <div className="rounded-2xl border bg-background/30 backdrop-blur p-5 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
-              <div className="text-base font-semibold">Nisi povezan s Google Analytics</div>
+              <div className="text-base font-semibold">Not connected to Google Analytics</div>
               <div className="text-sm text-foreground/70">
-                Klikni ispod i autoriziraj <b>analytics.readonly</b>.
+                Connect below and grant access to <b>analytics.readonly</b>.
               </div>
             </div>
 
@@ -115,7 +115,7 @@ function ConnectedView({
             </div>
             <div className="space-y-1">
               <div className="font-semibold">Connected</div>
-              <div className="text-sm text-foreground/70">Prikaz za zadnjih 7 dana.</div>
+              <div className="text-sm text-foreground/70">Showing the last 7 days.</div>
             </div>
           </div>
 
@@ -144,7 +144,7 @@ function ConnectedView({
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-lg font-semibold">Events overview</div>
-              <div className="text-sm text-foreground/70">Usporedba eventa (zadnjih 7 dana)</div>
+              <div className="text-sm text-foreground/70">Event comparison (last 7 days)</div>
             </div>
 
             <div className="text-right">
@@ -162,7 +162,7 @@ function ConnectedView({
                 <div className="space-y-1">
                   <div className="text-sm font-semibold">Mini funnel</div>
                   <div className="text-xs text-foreground/70">
-                    Brzi uvid u “Start → End” prolaz.
+                    See how many started games reach the end.
                   </div>
                 </div>
 
@@ -192,7 +192,7 @@ function ConnectedView({
         <div className="rounded-2xl border bg-background/30 backdrop-blur p-4 sm:p-6">
           <div className="space-y-1">
             <div className="text-lg font-semibold">Event share</div>
-            <div className="text-sm text-foreground/70">Udio svakog eventa u totalu</div>
+            <div className="text-sm text-foreground/70">Share of the total for each event</div>
           </div>
 
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">

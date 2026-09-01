@@ -1,3 +1,4 @@
+from pipeline_config import get_supabase as pipeline_database, season as configured_season
 import argparse
 import time
 from datetime import datetime, timezone
@@ -8,8 +9,6 @@ import joblib
 from supabase import create_client
 
 # ----------------- PLACEHOLDERS (STAVI SVOJE) -----------------
-SUPABASE_URL = "https://fdlcdiqvbldqwjbbdjhv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbGNkaXF2YmxkcXdqYmJkamh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzQwNTcsImV4cCI6MjA3ODY1MDA1N30._ZYUsn03GY-Co6gKNCJCovjvrMkxewilL9tzYGP8jWM"
 # ---------------------------------------------------------------
 
 # v3 feature columns (mora biti identično trainu)
@@ -41,9 +40,7 @@ FEATURE_COLS_V3 = [
 ]
 
 def sb_client():
-    if "PASTE_" in SUPABASE_KEY:
-        raise SystemExit("❌ Stavi SUPABASE_KEY u placeholder.")
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    return pipeline_database()
 
 def utc_now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -63,6 +60,8 @@ def fetch_upcoming_games(sb, limit: int):
         sb.table("GameSchedule")
         .select("nba_game_id,date,startTime,home_team_id,away_team_id,homeTeam,awayTeam")
         .gt("startTime", utc_now_iso())
+        .lt("startTime", (pd.Timestamp.now(tz="UTC") + pd.Timedelta(days=7)).isoformat())
+        .like("nba_game_id", "002%")
         .order("startTime", desc=False)
         .limit(limit)
         .execute()
@@ -378,6 +377,8 @@ def predict_and_write(sb, model_path: str, model_name: str, rows: list[dict], ma
         # fallback (rijetko)
         p_home = model.predict(X)
 
+    if not np.isfinite(p_home).all():
+        raise RuntimeError("Model returned non-finite probabilities")
     p_home = np.clip(p_home, 1e-6, 1 - 1e-6)
     p_away = 1.0 - p_home
 
@@ -407,15 +408,8 @@ def predict_and_write(sb, model_path: str, model_name: str, rows: list[dict], ma
             "model_name": model_name,
         })
 
-    # upsert (preporuka: napravi unique(nba_game_id, model_name) u GameOdds)
-    # ako nemaš unique, supabase će insertat nove redove svaki put.
-    try:
-        sb.table("GameOdds").upsert(out, on_conflict="nba_game_id,model_name").execute()
-        print(f"✅ Upserted GameOdds: {len(out)} rows for model={model_name}")
-    except Exception as e:
-        print(f"⚠️ Upsert failed (likely missing unique constraint). Doing insert. err={e}")
-        sb.table("GameOdds").insert(out).execute()
-        print(f"✅ Inserted GameOdds: {len(out)} rows for model={model_name}")
+    sb.table("GameOdds").upsert(out, on_conflict="nba_game_id,model_name").execute()
+    print(f"Upserted {len(out)} predictions for {model_name}")
 
 def main():
     ap = argparse.ArgumentParser()

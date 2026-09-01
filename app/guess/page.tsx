@@ -8,7 +8,7 @@ export default function GuessPage() {
           QNBA Guesser modes
         </h1>
         <p className="mt-1 text-foreground/70">
-          Odaberi način igre: all-time ili current, practice ili daily.
+          Choose all-time or current players, then practice or take on the daily challenge.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -18,7 +18,7 @@ export default function GuessPage() {
           >
             <div className="text-lg font-semibold">All-Time Practice</div>
             <div className="mt-1 text-sm text-foreground/70">
-              Random all-time player based on career averages.
+              Random player from the stored historical dataset.
             </div>
             <div className="mt-4 text-sm font-semibold underline underline-offset-4 opacity-80 group-hover:opacity-100">
               Open →
@@ -31,7 +31,7 @@ export default function GuessPage() {
           >
             <div className="text-lg font-semibold">All-Time Daily</div>
             <div className="mt-1 text-sm text-foreground/70">
-              Jedan all-time igrač dnevno za sve korisnike.
+              One all-time player each day, shared by everyone.
             </div>
             <div className="mt-4 text-sm font-semibold underline underline-offset-4 opacity-80 group-hover:opacity-100">
               Open →
@@ -44,7 +44,7 @@ export default function GuessPage() {
           >
             <div className="text-lg font-semibold">Current Practice</div>
             <div className="mt-1 text-sm text-foreground/70">
-              Aktivni NBA igrači, trenutne sezone statistike.
+              NBA players from the latest verified season dataset.
             </div>
             <div className="mt-4 text-sm font-semibold underline underline-offset-4 opacity-80 group-hover:opacity-100">
               Open →
@@ -57,7 +57,7 @@ export default function GuessPage() {
           >
             <div className="text-lg font-semibold">Current Daily</div>
             <div className="mt-1 text-sm text-foreground/70">
-              Jedan aktualni igrač dnevno.
+              One current player each day, shared by everyone.
             </div>
             <div className="mt-4 text-sm font-semibold underline underline-offset-4 opacity-80 group-hover:opacity-100">
               Open →

@@ -2,11 +2,12 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
+import { safeRedirect } from "@/lib/safe-redirect";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const redirectTo = url.searchParams.get("redirect_to") || "/";
+  const redirectTo = safeRedirect(url.searchParams.get("redirect_to"));
 
   const cookieStore = await cookies();
 
@@ -30,13 +31,19 @@ export async function GET(request: Request) {
           response.cookies.set({ name, value: "", ...options, maxAge: 0 });
         },
       },
-    }
+    },
   );
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
     console.error("exchangeCodeForSession error:", error.message);
+    return NextResponse.redirect(
+      new URL(
+        "/sign-in?error=Sign-in+link+expired.+Please+try+again.",
+        url.origin,
+      ),
+    );
   }
 
   return response;

@@ -27,11 +27,13 @@ export async function GET() {
         // Mapiranje rezultata kako bi se osiguralo da je ime dostupno
         const finalData = data.map((p: any) => ({
             ...p,
+            count: p.add_count,
             player_name: players.find((player: any) => player.PERSON_ID === p.player_id)?.PLAYER_NAME || "Unknown Player",
         }));
 
         return NextResponse.json(finalData);
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("Most-added query failed:", error.code ?? "network");
+        return NextResponse.json({ error: "Could not load popular players." }, { status: 503 });
     }
 }

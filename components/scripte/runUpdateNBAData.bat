@@ -1,3 +1,3 @@
 @echo off
-cd C:\Users\Nutzer\IPVO_projekt\components\scripte
-node updateNBAData.js
+call "%~dp0..\..\run_daily_pipeline.bat" --only players
+exit /b %errorlevel%

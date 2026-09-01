@@ -1,10 +1,14 @@
 import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+  try {
   const supabase = await createClient();
 
   const { searchParams } = new URL(req.url);
-  const model = searchParams.get("model") || "lr_moneyline_v1";
+  const model = searchParams.get("model") || "lr_moneyline_final";
+  const models = ["lr_moneyline_final", "xgb_moneyline_final", "lr_moneyline_v1", "xgb_moneyline_v1", "xgb_moneyline_v2", "lr_moneyline_v2_scaled", "xgb_moneyline_v3"];
+  if (!models.includes(model)) return NextResponse.json({ error: "Unknown prediction model" }, { status: 400 });
 
   // 1) Upcoming schedule (kao prije)
   const { data: games, error: gamesError } = await supabase
@@ -15,7 +19,7 @@ export async function GET(req: Request) {
     .limit(25);
 
   if (gamesError) {
-    return new Response(JSON.stringify({ error: gamesError.message }), { status: 500 });
+    throw gamesError;
   }
 
   const gameIds = (games || [])
@@ -33,7 +37,7 @@ export async function GET(req: Request) {
       .eq("model_name", model);
 
     if (oddsError) {
-      return new Response(JSON.stringify({ error: oddsError.message }), { status: 500 });
+      throw oddsError;
     }
 
     (odds || []).forEach((o: any) => oddsMap.set(o.nba_game_id, o));
@@ -55,4 +59,7 @@ export async function GET(req: Request) {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
+  } catch {
+    return NextResponse.json({ error: "Could not load the schedule. Please try again." }, { status: 503 });
+  }
 }

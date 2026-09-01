@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import SearchPlayers from "../../components/nba_comp/SearchPlayers";
 import Recommendations from "@/components/Recommendations";
 import NBASchedule from "@/components/NBASchedule";
+import PlayerImage from "@/components/PlayerImage";
 
 type SidebarPlayer = {
   player_id: string | number;
@@ -20,6 +21,8 @@ export default function DashboardPage() {
   const [mostAdded, setMostAdded] = useState<SidebarPlayer[]>([]);
   const [loadingA, setLoadingA] = useState(true);
   const [loadingB, setLoadingB] = useState(true);
+  const [errorA, setErrorA] = useState(false);
+  const [errorB, setErrorB] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -27,8 +30,10 @@ export default function DashboardPage() {
         setLoadingA(true);
         const r = await fetch("/api/most-searched");
         const j = await r.json();
+        if (!r.ok || !Array.isArray(j)) throw new Error("Trending request failed");
         setMostSearched(Array.isArray(j) ? j : []);
       } catch {
+        setErrorA(true);
         setMostSearched([]);
       } finally {
         setLoadingA(false);
@@ -42,8 +47,10 @@ export default function DashboardPage() {
         setLoadingB(true);
         const r = await fetch("/api/most-added");
         const j = await r.json();
+        if (!r.ok || !Array.isArray(j)) throw new Error("Popularity request failed");
         setMostAdded(Array.isArray(j) ? j : []);
       } catch {
+        setErrorB(true);
         setMostAdded([]);
       } finally {
         setLoadingB(false);
@@ -83,7 +90,7 @@ export default function DashboardPage() {
         <Kpi title="Trending list" value={String(kpiTrending)} sub="players" />
         <Kpi title="Dream Team list" value={String(kpiAdded)} sub="players" />
         <Kpi title="Tools" value="Stats" sub="all-time • current" />
-        <Kpi title="Schedule" value="Live" sub="upcoming games" />
+        <Kpi title="Schedule" value="NBA" sub="stored upcoming games" />
       </div>
 
       {/* Main grid */}
@@ -97,6 +104,8 @@ export default function DashboardPage() {
           >
             {loadingA ? (
               <Muted>Loading…</Muted>
+            ) : errorA ? (
+              <p role="alert" className="text-sm text-red-500">Could not load trending players. Please reload to retry.</p>
             ) : mostSearched.length === 0 ? (
               <Muted>No data yet.</Muted>
             ) : (
@@ -123,6 +132,8 @@ export default function DashboardPage() {
           >
             {loadingB ? (
               <Muted>Loading…</Muted>
+            ) : errorB ? (
+              <p role="alert" className="text-sm text-red-500">Could not load popular players. Please reload to retry.</p>
             ) : mostAdded.length === 0 ? (
               <Muted>No data yet.</Muted>
             ) : (
@@ -240,7 +251,6 @@ function RankRow({
   metricFallback?: string | null;
   onClick: () => void;
 }) {
-  const imgUrl = `https://cdn.nba.com/headshots/nba/latest/1040x760/${id}.png`;
 
   return (
     <li>
@@ -253,14 +263,12 @@ function RankRow({
           #{rank}
         </div>
 
-        <img
-          src={imgUrl}
+        <PlayerImage
+          playerId={id}
+          imageSize="small"
           alt={name}
           className="h-10 w-10 rounded-full object-cover bg-foreground/5"
           loading="lazy"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
         />
 
         <div className="min-w-0 flex-1">

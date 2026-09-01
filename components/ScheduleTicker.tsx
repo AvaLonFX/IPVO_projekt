@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Game = {
-  gameID: string;
-  gameDate?: string; // "20260121"
+  nba_game_id: string;
+  startTime?: string;
   homeTeam: string; // "LAL"
   awayTeam: string; // "DEN"
   status: string; // "7:30 pm ET" / "Final" / "Live"
@@ -54,15 +54,17 @@ function logoUrl(tricode: string) {
   return `https://cdn.nba.com/logos/nba/${id}/global/L/logo.svg`;
 }
 
-function fmtDate(yyyymmdd?: string) {
-  if (!yyyymmdd || yyyymmdd.length !== 8) return "";
-  const y = Number(yyyymmdd.slice(0, 4));
-  const m = Number(yyyymmdd.slice(4, 6)) - 1;
-  const d = Number(yyyymmdd.slice(6, 8));
-  return new Date(y, m, d).toLocaleDateString("en-US", {
+function fmtDate(iso?: string) {
+  if (!iso || Number.isNaN(new Date(iso).getTime())) return "";
+  return new Date(iso).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
+}
+
+function fmtTime(game: Game) {
+  if (!game.startTime || Number.isNaN(new Date(game.startTime).getTime())) return game.status;
+  return new Date(game.startTime).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 }
 
 export default function ScheduleTicker({ variant = "header" }: Props) {
@@ -78,6 +80,7 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
         setLoading(true);
         const res = await fetch("/api/nba-schedule", { cache: "no-store" });
         const data = await res.json();
+        if (!res.ok || !Array.isArray(data)) throw new Error("Schedule unavailable");
         if (!mounted) return;
         setGames(Array.isArray(data) ? data : []);
       } catch (e) {
@@ -189,7 +192,7 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
             const awayLogo = logoUrl(g.awayTeam);
 
             // KEY FIX: unikatan key (izbjegne duplikate i warning)
-            const safeKey = `${g.gameID ?? "game"}-${idx}`;
+            const safeKey = `${g.nba_game_id ?? "game"}-${idx}`;
 
             return (
               <div
@@ -203,10 +206,10 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
                 <div className="flex items-center justify-between gap-2">
                   {/* DATUM SAD VIDIŠ I U HEADERU */}
                   <div className="text-[11px] text-foreground/60 truncate">
-                    {fmtDate(g.gameDate)}
+                    {fmtDate(g.startTime)}
                   </div>
                   <div className="text-[11px] font-semibold text-foreground/70">
-                    {g.status}
+                    {fmtTime(g)}
                   </div>
                 </div>
 
@@ -247,7 +250,7 @@ export default function ScheduleTicker({ variant = "header" }: Props) {
 
       {!isHeader && (
         <div className="mt-1 text-[11px] text-foreground/40">
-          Tip: na mobu swipe lijevo/desno.
+          Tip: swipe left or right on mobile.
         </div>
       )}
     </div>

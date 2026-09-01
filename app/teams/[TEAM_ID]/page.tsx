@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import Link from "next/link";
+import PlayerImage from "@/components/PlayerImage";
 
 interface Player {
   PERSON_ID: number;
@@ -19,10 +20,19 @@ export default function TeamPlayersPage() {
   const TEAM_ID = params?.TEAM_ID;
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
     const fetchPlayers = async () => {
       if (!TEAM_ID) return;
+      setLoading(true);
+      setLoadError("");
+      if (!/^\d+$/.test(String(TEAM_ID))) {
+        setLoadError("Invalid team link.");
+        setLoading(false);
+        return;
+      }
 
       const { data, error } = await supabase
         .from("Osnovno_NBA")
@@ -31,18 +41,36 @@ export default function TeamPlayersPage() {
         .eq("ROSTER_STATUS", "1");
 
       if (error) {
+        if (!cancelled) {
+          setLoadError("Could not load the stored roster. Please retry.");
+          setLoading(false);
+        }
         console.error("Error fetching players:", error);
         return;
       }
 
+      if (cancelled) return;
       setPlayers(data || []);
       setLoading(false);
     };
 
     fetchPlayers();
+    return () => {
+      cancelled = true;
+    };
   }, [TEAM_ID]);
 
   if (loading) return <p>Loading team players...</p>;
+  if (loadError)
+    return (
+      <p role="alert">
+        {loadError}{" "}
+        <button className="underline" onClick={() => window.location.reload()}>
+          Retry
+        </button>{" "}
+        <Link href="/teams">All teams</Link>
+      </p>
+    );
 
   return (
     <div className="p-6">
@@ -63,13 +91,11 @@ export default function TeamPlayersPage() {
             className="block border p-4 rounded hover:shadow transition"
           >
             <div className="flex items-center gap-4">
-              <img
-                src={`https://cdn.nba.com/headshots/nba/latest/260x190/${player.PERSON_ID}.png`}
+              <PlayerImage
+                playerId={player.PERSON_ID}
+                imageSize="small"
                 alt={`${player.PLAYER_FIRST_NAME} ${player.PLAYER_LAST_NAME}`}
                 className="w-20 h-20 object-cover rounded"
-                onError={(e) =>
-                  ((e.target as HTMLImageElement).style.display = "none")
-                }
               />
               <div>
                 <p className="font-semibold">

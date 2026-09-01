@@ -1,3 +1,4 @@
+from pipeline_config import get_supabase as pipeline_database, season as configured_season
 import time
 import pandas as pd
 from nba_api.stats.endpoints import leaguegamefinder
@@ -6,18 +7,8 @@ from supabase import create_client
 # -----------------------
 # CONFIG
 # -----------------------
-SUPABASE_URL = "https://fdlcdiqvbldqwjbbdjhv.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbGNkaXF2YmxkcXdqYmJkamh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMwNzQwNTcsImV4cCI6MjA3ODY1MDA1N30._ZYUsn03GY-Co6gKNCJCovjvrMkxewilL9tzYGP8jWM"  # anon ili service_role (server-side)
 
-SEASONS = [
-    "2019-20",
-    "2020-21",
-    "2021-22",
-    "2022-23",
-    "2023-24",
-    "2024-25",
-    "2025-26",
-]
+SEASONS = [configured_season()]
 SEASON_TYPE = "Regular Season"
 
 BATCH_SIZE = 500
@@ -27,7 +18,7 @@ SLEEP_BETWEEN_BATCHES = 0.25
 SLEEP_BETWEEN_SEASONS = 1.5
 MAX_RETRIES = 4
 
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = pipeline_database()
 
 def fetch_season(season: str) -> pd.DataFrame:
     """Fetch season data with basic retry/backoff."""
@@ -37,6 +28,8 @@ def fetch_season(season: str) -> pd.DataFrame:
             print(f"  -> Fetching {season} (attempt {attempt}/{MAX_RETRIES})")
             lgf = leaguegamefinder.LeagueGameFinder(
                 season_nullable=season,
+                league_id_nullable="00",
+                timeout=30,
                 season_type_nullable=SEASON_TYPE
             )
             df = lgf.get_data_frames()[0]
@@ -141,7 +134,7 @@ def upsert_rows(out: pd.DataFrame):
         time.sleep(SLEEP_BETWEEN_BATCHES)
 
 def main():
-    print("Fetching games from NBA API (multi-season) ...")
+    print("Fetching configured season from NBA API ...")
 
     total = 0
     for season in SEASONS:
