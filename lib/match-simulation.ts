@@ -89,6 +89,13 @@ export type Play = {
   run: { side: number; points: number } | null;
   event: string;
   possession: number;
+  onCourt?: number[][];
+  participants?: {
+    primaryId: number;
+    primarySide: number;
+    offensiveId: number;
+    secondaryId?: number;
+  };
 };
 export type Simulation = {
   model: string;
@@ -118,6 +125,7 @@ export const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));
 export function defaultRotation(team: Array<{ minutes?: number }>): number[] {
   if (!team.length) return [];
+  if (team.length === 5) return [48, 48, 48, 48, 48];
   const target = team.map((p, i) =>
     clamp(
       Number.isFinite(p.minutes) ? Number(p.minutes) : i < 5 ? 30 : 12,
@@ -332,6 +340,18 @@ export function simulate(
     }
   };
   const first = random() < 0.5 ? 0 : 1;
+  const onCourt = (side: number, required: number[]) => {
+    const unique = Array.from(new Set(required));
+    const rest = teams[side]
+      .map((_, index) => index)
+      .filter((index) => !unique.includes(index))
+      .sort((a, b) => {
+        const waveA = ((serial * 13 + a * 17 + side * 7) % 23) - 11;
+        const waveB = ((serial * 13 + b * 17 + side * 7) % 23) - 11;
+        return rotation[side][b] + waveB * 0.45 - (rotation[side][a] + waveA * 0.45);
+      });
+    return [...unique, ...rest].slice(0, Math.min(5, teams[side].length));
+  };
   for (let period = 1; period <= 10; period++) {
     if (period > 4 && score[0] !== score[1]) break;
     const before = [...score];
@@ -376,7 +396,12 @@ export function simulate(
         h = team[handler];
       let text = "",
         event = "",
-        keep = false;
+        keep = false,
+        primarySide = side,
+        primaryIndex = i,
+        offensiveIndex = i,
+        secondaryIndex: number | undefined,
+        secondarySide = side;
       const rebound = () => {
         const chance = clamp(
           0.24 +
@@ -392,6 +417,8 @@ export function simulate(
         r.reb++;
         if (offense) r.oreb++;
         else r.dreb++;
+        primarySide = rSide;
+        primaryIndex = idx;
         text += ` ${r.name} takes the ${offense ? "offensive" : "defensive"} rebound.`;
         if (offense && left > 0) {
           keep = true;
@@ -409,11 +436,17 @@ export function simulate(
       if (random() < toChance) {
         boxes[side][handler].tov++;
         event = "turnover";
+        primaryIndex = handler;
+        offensiveIndex = handler;
         if (random() < 0.65) {
           const steal = weighted(other, "stl");
           boxes[other][steal].stl++;
           text = `${def[steal].name} steals the ball from ${h.name}!`;
           event = "steal";
+          primarySide = other;
+          primaryIndex = steal;
+          secondaryIndex = handler;
+          secondarySide = side;
         } else text = `${h.name} loses the ball out of bounds.`;
       } else if (
         random() <
@@ -431,6 +464,8 @@ export function simulate(
         )
       ) {
         const fouler = pick(def.map((_, j) => Math.max(1, rotation[other][j] - boxes[other][j].pf * 5)));
+        secondaryIndex = fouler;
+        secondarySide = other;
         boxes[other][fouler].pf++;
         box.fta += 2;
         const one = random() < p.ft,
@@ -487,12 +522,18 @@ export function simulate(
               ),
             );
             boxes[side][helper].ast++;
+            secondaryIndex = helper;
+            secondarySide = side;
             text += ` Assist: ${team[helper].name}.`;
           }
         } else {
           if (blocked) {
             boxes[other][defenderIndex].blk++;
             text = `${defender.name} blocks ${p.name}'s shot!`;
+            primarySide = other;
+            primaryIndex = defenderIndex;
+            secondaryIndex = i;
+            secondarySide = side;
           } else
             text = `${p.name} misses ${three ? "from three" : "a two-point shot"}.`;
           rebound();
@@ -514,6 +555,21 @@ export function simulate(
         run: run,
         event,
         possession: serial,
+        onCourt: [0, 1].map((courtSide) => {
+          const required = courtSide === side ? [offensiveIndex] : [];
+          if (primarySide === courtSide) required.push(primaryIndex);
+          if (secondaryIndex !== undefined && secondarySide === courtSide)
+            required.push(secondaryIndex);
+          return onCourt(courtSide, required).map((index) => teams[courtSide][index].id);
+        }),
+        participants: {
+          primaryId: teams[primarySide][primaryIndex].id,
+          primarySide,
+          offensiveId: team[offensiveIndex].id,
+          secondaryId: secondaryIndex === undefined
+            ? undefined
+            : teams[secondarySide][secondaryIndex]?.id,
+        },
       });
       if (keep) {
         continuation = true;

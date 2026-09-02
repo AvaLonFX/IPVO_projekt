@@ -16,6 +16,7 @@ import {
 } from "@/components/MatchInsights";
 import { assignLineup } from "@/lib/lineup-roles";
 import PlayerImage from "@/components/PlayerImage";
+import TacticalCourt from "@/components/TacticalCourt";
 const button =
   "rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-foreground/10 disabled:opacity-40";
 const labels = Object.fromEntries(
@@ -45,6 +46,7 @@ type ChallengeState = {
   role: "creator" | "opponent" | "spectator";
   bestOf: number;
   mode: "classic" | "salary" | "draft";
+  era?: "current" | "alltime";
   creator: ChallengeSetup;
   opponent?: ChallengeSetup;
   ready: boolean[];
@@ -80,6 +82,7 @@ export default function MatchSimulation({
   challengeState,
   onSimulationActiveChange,
   onChallengeUpdate,
+  era = "current",
 }: {
   a: number[];
   b: number[];
@@ -92,6 +95,7 @@ export default function MatchSimulation({
   challengeState?: ChallengeState | null;
   onSimulationActiveChange?: (active: boolean) => void;
   onChallengeUpdate?: (state: ChallengeState) => void;
+  era?: "current" | "alltime";
 }) {
   const [plans, setPlans] = useState<Tactic[]>([
     challengeCreator?.tactic || "balanced",
@@ -113,7 +117,7 @@ export default function MatchSimulation({
   const [busy, setBusy] = useState(false),
     [running, setRunning] = useState(false),
     [cursor, setCursor] = useState(challengeResult?.plays.length || 0),
-    [speed, setSpeed] = useState(100),
+    [speed, setSpeed] = useState(1400),
     [halftimePending, setHalftimePending] = useState(false),
     [halftimeApplied, setHalftimeApplied] = useState(!!challengeResult),
     [savedId, setSavedId] = useState<string | null>(null),
@@ -265,6 +269,7 @@ export default function MatchSimulation({
           b,
           plans,
           rotations,
+          era,
           ...(resumeAtHalftime && result
             ? {
                 secondHalfPlans: secondPlans,
@@ -348,7 +353,7 @@ export default function MatchSimulation({
       const res = await fetch("/api/match-challenges", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ creator: sideSetup(0), bestOf, mode: challengeMode }),
+        body: JSON.stringify({ creator: sideSetup(0), bestOf, mode: challengeMode, era }),
       });
       const data = await res.json();
       if (!res.ok) throw Error(data.error || "Unable to create challenge.");
@@ -612,7 +617,7 @@ export default function MatchSimulation({
               Mode{" "}
               <select aria-label="Challenge mode" className="rounded-lg border bg-background p-2" value={challengeMode} onChange={(event) => setChallengeMode(event.target.value as typeof challengeMode)}>
                 <option value="classic">Classic</option>
-                <option value="salary">Salary cap · 160</option>
+                {era === "current" && <option value="salary">Salary cap · 160</option>}
                 <option value="draft">Draft · unique players</option>
               </select>
             </label>
@@ -664,6 +669,7 @@ export default function MatchSimulation({
                 value={speed}
                 onChange={(e) => setSpeed(Number(e.target.value))}
               >
+                <option value={1400}>Very slow</option>
                 <option value={500}>Slow</option>
                 <option value={100}>Fast</option>
                 <option value={25}>Instant pace</option>
@@ -856,6 +862,7 @@ export default function MatchSimulation({
               />
             </div>
           </div>
+          <TacticalCourt result={result} cursor={cursor} speed={speed} />
           <section className="rounded-xl border bg-background/40 p-4">
             <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-center">
               {result.profiles.map((team, side) => (
@@ -934,7 +941,7 @@ export default function MatchSimulation({
               />
               {shareCopied && <p role="status" className="text-sm font-semibold text-emerald-500">Result and link copied ✓</p>}
               <div className="flex flex-wrap gap-3">
-                {!challengeCode && (
+                {!challengeCode && era === "current" && (
                   <button
                     className={button}
                     disabled={busy || !!savedId}
@@ -1086,8 +1093,7 @@ export default function MatchSimulation({
             </>
           )}
           <p className="text-xs text-foreground/60">
-            Source: NBA Stats · {result.season} regular season · synced{" "}
-            {new Date(result.syncedAt).toLocaleString("en-US")}. {result.model}.
+            Source: {era === "alltime" ? `${result.season} · career totals converted to per-game profiles` : `NBA Stats · ${result.season} regular season · synced ${new Date(result.syncedAt).toLocaleString("en-US")}`}. {result.model}.
             Results stay on this page only; replay does not generate a new
             outcome.
           </p>

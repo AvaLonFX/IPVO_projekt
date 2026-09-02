@@ -1,5 +1,5 @@
 import "server-only";
-import { simulationPlayers } from "./simulation-data";
+import { simulationPlayers, type SimulationEra } from "./simulation-data";
 import { assignLineup } from "./lineup-roles";
 import { simulate, tactics, type Tactic } from "./match-simulation";
 import { seededRandom } from "./match-security";
@@ -35,11 +35,11 @@ export function validSide(value: unknown): value is SavedSide {
   );
 }
 
-export async function prepareSavedMatch(sides: SavedSide[]) {
+export async function prepareSavedMatch(sides: SavedSide[], era: SimulationEra = "current") {
   if (sides.length !== 2 || sides.some((side) => !validSide(side)))
     throw new Error("Invalid saved match setup");
   const ids = Array.from(new Set(sides.flatMap((side) => side.ids)));
-  const dataset = await simulationPlayers(ids);
+  const dataset = await simulationPlayers(ids, era);
   const players = new Map(dataset.players.map((player) => [player.id, player]));
   if (ids.some((id) => !players.has(id)))
     throw new Error("A selected player is no longer available");
@@ -58,6 +58,7 @@ export async function prepareSavedMatch(sides: SavedSide[]) {
       ...result,
       season: dataset.season,
       syncedAt: dataset.syncedAt,
+      era,
     };
   };
 }

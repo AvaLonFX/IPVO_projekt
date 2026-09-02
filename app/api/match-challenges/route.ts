@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await admin()
       .from("match_challenges")
       .select(
-        "share_code,status,best_of,mode,creator_key,opponent_key,creator_setup,opponent_setup,creator_ready,opponent_ready,creator_halftime_ready,opponent_halftime_ready,current_game,game_started_at,halftime_started_at,wins,games,result_id,match_results(payload,title,created_at)",
+        "share_code,status,best_of,mode,era,creator_key,opponent_key,creator_setup,opponent_setup,creator_ready,opponent_ready,creator_halftime_ready,opponent_halftime_ready,current_game,game_started_at,halftime_started_at,wins,games,result_id,match_results(payload,title,created_at)",
       )
       .eq("share_code", code)
       .maybeSingle();
@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
       status: data.status,
       bestOf: data.best_of,
       mode: data.mode,
+      era: data.era || "current",
       role:
         owner === data.creator_key
           ? "creator"
@@ -71,6 +72,7 @@ export async function POST(req: NextRequest) {
     const body = JSON.parse(raw);
     const bestOf = Number(body.bestOf);
     const mode = String(body.mode || "classic");
+    const era = body.era === "alltime" ? "alltime" : "current";
     if (!validSide(body.creator))
       return json(
         {
@@ -83,6 +85,8 @@ export async function POST(req: NextRequest) {
       return json({ error: "Choose BO1, BO3, BO5 or BO7." }, 400);
     if (!["classic", "salary", "draft"].includes(mode))
       return json({ error: "Choose a valid challenge mode." }, 400);
+    if (era === "alltime" && mode === "salary")
+      return json({ error: "All-time challenges currently support Classic and Draft modes." }, 400);
     await validateChallengeRules(mode, [body.creator]);
     const { owner } = await identity();
     const { data, error } = await admin()
@@ -92,6 +96,7 @@ export async function POST(req: NextRequest) {
         creator_setup: body.creator,
         best_of: bestOf,
         mode,
+        era,
       })
       .select("share_code")
       .single();

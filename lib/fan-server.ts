@@ -128,7 +128,23 @@ export async function fanRoute(req: NextRequest, kind: string) {
         if (error) throw error;
         dreamIds = data.map((p) => Number(p.player_id));
       }
-      const [base, sim] = await Promise.all([roster(), simulationPlayers()]);
+      const era = req.nextUrl.searchParams.get("era") === "alltime" ? "alltime" : "current";
+      let base = await roster();
+      if (era === "alltime") {
+        const rows: any[] = [];
+        for (let offset = 0; ; offset += 1000) {
+          const page = await db.from("FullStats_NBA").select("PERSON_ID,PLAYER_NAME,GP,PTS,REB,AST,FGM,FGA").gt("GP", 0).order("PERSON_ID").range(offset, offset + 999);
+          if (page.error) throw page.error;
+          rows.push(...(page.data || []));
+          if ((page.data || []).length < 1000) break;
+        }
+        base = rows.map((p) => {
+          const gp = Number(p.GP), pts = Number(p.PTS) / gp, reb = Number(p.REB) / gp, ast = Number(p.AST) / gp;
+          const score = Math.round((pts + 1.2 * reb + 1.5 * ast) * 10) / 10;
+          return { id: Number(p.PERSON_ID), name: p.PLAYER_NAME, team: "Career", teamId: "", pts: Math.round(pts * 10) / 10, reb: Math.round(reb * 10) / 10, ast: Math.round(ast * 10) / 10, fgm: Number(p.FGM) / gp, fga: Number(p.FGA) / gp, score, cost: Math.max(8, Math.min(28, Math.round(score / 2))) };
+        });
+      }
+      const sim = await simulationPlayers(undefined, era);
       const usable = new Map(sim.players.map((p) => [p.id, p]));
       return json({
         players: base
@@ -143,8 +159,9 @@ export async function fanRoute(req: NextRequest, kind: string) {
               confidence: details.confidence,
             };
           }),
-        dreamIds,
+        dreamIds: era === "current" ? dreamIds : [],
         signedIn,
+        era,
       });
     }
     if (kind === "watchlist") {

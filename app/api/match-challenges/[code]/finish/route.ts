@@ -7,7 +7,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ code: 
   const { code } = await context.params;
   try {
     const { owner } = await identity(); const db = admin();
-    const select = "id,creator_key,opponent_key,creator_setup,opponent_setup,status,mode,best_of,wins,games,current_game,version";
+    const select = "id,creator_key,opponent_key,creator_setup,opponent_setup,status,mode,era,best_of,wins,games,current_game,version";
     const { data: challenge, error } = await db.from("match_challenges").select(select).eq("share_code", code).maybeSingle();
     if (error) throw error; if (!challenge) return json({ error: "Challenge not found." }, 404);
     if (owner !== challenge.creator_key && owner !== challenge.opponent_key) return json({ error: "You are not a participant." }, 403);
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ code: 
     if (!claimed) return json({ status: "syncing" }, 202);
     const series = { bestOf: challenge.best_of, needed, wins, winner: wins[0] > wins[1] ? 0 : 1, games };
     const setup = [challenge.creator_setup, challenge.opponent_setup], title = `QNBA BO${challenge.best_of} ${challenge.mode} challenge`;
-    const creatorPayload = { setup, result: challenge.current_game, series, viewerSide: 0 };
+    const creatorPayload = { setup, result: challenge.current_game, series, era: challenge.era || "current", viewerSide: 0 };
     const { data: saved, error: saveError } = await db.from("match_results").insert({ owner_key: challenge.creator_key, source: "challenge", title, score: wins, payload: creatorPayload }).select("id").single();
     if (saveError) throw saveError;
     const { error: finishError } = await db.from("match_challenges").update({ status: "completed", games, wins, result_id: saved.id, current_game: null, completed_at: new Date().toISOString(), version: challenge.version + 2 }).eq("id", challenge.id).eq("version", challenge.version + 1);

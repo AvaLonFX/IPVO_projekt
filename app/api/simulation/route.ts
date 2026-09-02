@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   } catch {
     return reply({ error: "Invalid JSON." }, 400);
   }
-  const { a, b, plans, secondHalfPlans, simulationToken, rotations } =
+  const { a, b, plans, secondHalfPlans, simulationToken, rotations, era } =
     input || {};
   if (
     [a, b].some(
@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
       400,
     );
   try {
-    const dataset = await simulationPlayers(Array.from(new Set([...a, ...b])));
+    const simulationEra = era === "alltime" ? "alltime" : "current";
+    const dataset = await simulationPlayers(Array.from(new Set([...a, ...b])), simulationEra);
     const players = new Map(dataset.players.map((p) => [p.id, p]));
     if ([...a, ...b].some((id) => !players.has(id)))
       return reply(
@@ -114,6 +115,7 @@ export async function POST(req: NextRequest) {
       season: dataset.season,
       syncedAt: dataset.syncedAt,
       simulationToken: matchToken(seed, issued),
+      era: simulationEra,
     });
   } catch (e) {
     console.error(

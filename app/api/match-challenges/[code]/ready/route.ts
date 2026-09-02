@@ -29,7 +29,7 @@ export async function POST(
     const { owner } = await identity();
     const db = admin();
     const select =
-      "id,creator_key,opponent_key,creator_setup,opponent_setup,status,mode,best_of,wins,games,creator_ready,opponent_ready,version";
+      "id,creator_key,opponent_key,creator_setup,opponent_setup,status,mode,era,best_of,wins,games,creator_ready,opponent_ready,version";
     const { data: challenge, error } = await db
       .from("match_challenges")
       .select(select)
@@ -85,7 +85,7 @@ export async function POST(
     if (!claimed) return json({ status: "generating" }, 202);
 
     const currentSides = [claimed.creator_setup, claimed.opponent_setup];
-    const play = await prepareSavedMatch(currentSides);
+    const play = await prepareSavedMatch(currentSides, challenge.era === "alltime" ? "alltime" : "current");
     const game = play(newMatchSeed());
     const startedAt = new Date().toISOString();
     const { error: gameError } = await db

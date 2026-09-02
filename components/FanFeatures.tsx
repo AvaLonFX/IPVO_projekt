@@ -25,7 +25,8 @@ export default function FanFeatures({ kind }: { kind: string }) {
   const [a, setA] = useState<number[]>([]),
     [b, setB] = useState<number[]>([]),
     [side, setSide] = useState<"a" | "b">("a"),
-    [query, setQuery] = useState("");
+    [query, setQuery] = useState(""),
+    [matchEra, setMatchEra] = useState<"current" | "alltime">("current");
   const [month, setMonth] = useState(() =>
     new Date().toISOString().slice(0, 7),
   );
@@ -34,7 +35,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
   const [matchChallenge, setMatchChallenge] = useState<any>(null);
   const [matchActive, setMatchActive] = useState(false);
   const [positionFilter, setPositionFilter] = useState("all");
-  const endpoint = "/api/fan/" + (kind === "matchups" ? "roster" : kind);
+  const endpoint = "/api/fan/" + (kind === "matchups" ? `roster?era=${matchEra}` : kind);
   async function load(payload?: any) {
     if (lock.current) return;
     lock.current = true;
@@ -75,6 +76,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
             return;
           }
           setMatchChallenge(challenge);
+          setMatchEra(challenge.era === "alltime" ? "alltime" : "current");
           setSide("b");
           if (challenge.result) {
             setA(challenge.result.profiles[0].map((p: any) => p.id));
@@ -93,7 +95,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
         setB(read("b"));
       }
     });
-  }, [kind]);
+  }, [kind, matchEra]);
   const pool: FanPlayer[] = data?.pool || data?.players || [];
   const showMatchupBuilder =
     kind !== "matchups" ||
@@ -212,15 +214,16 @@ export default function FanFeatures({ kind }: { kind: string }) {
       {busy && !data && <p role="status">Loading…</p>}
       {kind === "matchups" && data && (
         <>
+          {!matchChallenge && <div className="inline-flex rounded-xl border bg-background/50 p-1" role="tablist" aria-label="Player era"><button role="tab" aria-selected={matchEra === "current"} className={`${button} ${matchEra === "current" ? "bg-orange-500 text-black" : "border-transparent"}`} onClick={() => { setMatchEra("current"); setA([]); setB([]); setQuery(""); setMatchActive(false); }}>Current players</button><button role="tab" aria-selected={matchEra === "alltime"} className={`${button} ${matchEra === "alltime" ? "bg-orange-500 text-black" : "border-transparent"}`} onClick={() => { setMatchEra("alltime"); setA([]); setB([]); setQuery(""); setMatchActive(false); }}>All-time players</button></div>}
           <p className="text-foreground/60">
-            Build two lineups, choose your tactics and watch an experimental
-            simulated game. Import your Dream Team or try the demo matchup.
+            {matchEra === "current" ? "Build two lineups from the latest verified season." : "Build lineups from stored career profiles across NBA history. Career averages are used, not peak seasons."}
           </p>
           <MatchSimulation
-            key={a.join(",") + "|" + b.join(",")}
+            key={matchEra + "|" + a.join(",") + "|" + b.join(",")}
             a={a}
             b={b}
             teams={[selected(a), selected(b)]}
+            era={matchEra}
             challengeCode={matchChallenge?.code}
             challengeCreator={matchChallenge?.creator}
             challengeResult={matchChallenge?.result}
@@ -469,6 +472,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
                     .toLowerCase()
                     .includes(query.toLowerCase()),
                 )
+                .slice(0, matchEra === "alltime" ? 180 : 1000)
                 .map((p) => {
                   const chosen = (
                     kind === "daily-five" || side === "a" ? a : b
