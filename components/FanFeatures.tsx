@@ -32,6 +32,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
   const lock = useRef(false);
   const [sharedLink, setSharedLink] = useState("");
   const [matchChallenge, setMatchChallenge] = useState<any>(null);
+  const [matchActive, setMatchActive] = useState(false);
   const [positionFilter, setPositionFilter] = useState("all");
   const endpoint = "/api/fan/" + (kind === "matchups" ? "roster" : kind);
   async function load(payload?: any) {
@@ -94,6 +95,9 @@ export default function FanFeatures({ kind }: { kind: string }) {
     });
   }, [kind]);
   const pool: FanPlayer[] = data?.pool || data?.players || [];
+  const showMatchupBuilder =
+    kind !== "matchups" ||
+    (!matchActive && (!matchChallenge || matchChallenge.status === "open"));
   const selected = (ids: number[]) =>
     ids
       .map((id) => pool.find((p) => p.id === id))
@@ -223,12 +227,13 @@ export default function FanFeatures({ kind }: { kind: string }) {
             challengeBestOf={matchChallenge?.bestOf}
             challengeSeries={matchChallenge?.series}
             challengeState={matchChallenge}
+            onSimulationActiveChange={setMatchActive}
             onChallengeUpdate={(next) => {
               setMatchChallenge(next);
               if (next.opponent?.ids) setB(next.opponent.ids);
             }}
           />
-          <div className="flex flex-wrap gap-3">
+          {showMatchupBuilder && <div className="flex flex-wrap gap-3">
             <button
               className={button}
               disabled={!!matchChallenge}
@@ -292,12 +297,12 @@ export default function FanFeatures({ kind }: { kind: string }) {
             <button disabled={!a.length} className={button} onClick={share}>
               Copy lineup link
             </button>
-          </div>
-          <div className="grid md:grid-cols-2 gap-4">
+          </div>}
+          {showMatchupBuilder && <div className="grid md:grid-cols-2 gap-4">
             {lineup(a, "Lineup A")}
             {lineup(b, "Lineup B")}
-          </div>
-          {a.length >= 5 && b.length >= 5 && (
+          </div>}
+          {showMatchupBuilder && a.length >= 5 && b.length >= 5 && (
             <div className={panel}>
               <h2 className="font-semibold mb-1">Starter comparison</h2>
               <p className="text-xs text-foreground/50 mb-3">
@@ -420,6 +425,7 @@ export default function FanFeatures({ kind }: { kind: string }) {
       )}
       {(kind === "matchups" || kind === "daily-five") &&
         data &&
+        (kind !== "matchups" || showMatchupBuilder) &&
         !(kind === "daily-five" && data.result) && (
           <section className={panel}>
             <h2 className="font-semibold">

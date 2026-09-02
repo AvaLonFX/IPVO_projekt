@@ -9,6 +9,9 @@ import {
 import {
   MatchLineups,
   MatchInsights,
+  HalftimeCoachingReport,
+  FinalGameSummary,
+  playPresentation,
   type PreviewPlayer,
 } from "@/components/MatchInsights";
 import { assignLineup } from "@/lib/lineup-roles";
@@ -75,6 +78,7 @@ export default function MatchSimulation({
   challengeBestOf,
   challengeSeries,
   challengeState,
+  onSimulationActiveChange,
   onChallengeUpdate,
 }: {
   a: number[];
@@ -86,6 +90,7 @@ export default function MatchSimulation({
   challengeBestOf?: number;
   challengeSeries?: MatchSeries | null;
   challengeState?: ChallengeState | null;
+  onSimulationActiveChange?: (active: boolean) => void;
   onChallengeUpdate?: (state: ChallengeState) => void;
 }) {
   const [plans, setPlans] = useState<Tactic[]>([
@@ -114,6 +119,7 @@ export default function MatchSimulation({
     [savedId, setSavedId] = useState<string | null>(null),
     [shareUrl, setShareUrl] = useState(""),
     [shareCopied, setShareCopied] = useState(false),
+    [showFullLineups, setShowFullLineups] = useState(false),
     [bestOf, setBestOf] = useState(challengeBestOf || 1),
     [challengeMode, setChallengeMode] = useState<"classic" | "salary" | "draft">("classic"),
     [lobby, setLobby] = useState<ChallengeState | null>(challengeState || null),
@@ -166,6 +172,9 @@ export default function MatchSimulation({
   useEffect(() => {
     if (result && cursor >= result.plays.length) setRunning(false);
   }, [cursor, result]);
+  useEffect(() => {
+    onSimulationActiveChange?.(!!result);
+  }, [result, onSimulationActiveChange]);
   useEffect(() => {
     if (
       result &&
@@ -386,6 +395,7 @@ export default function MatchSimulation({
     score = finished && result ? result.score : current?.score || [0, 0];
   const activeGames = series?.games || lobby?.games || [];
   const seriesStats = seriesSummary(activeGames);
+  const showSetup = !result || coaching;
   async function copyShareCard() {
     if (!activeGames.length) return;
     const wins = series?.wins || lobby?.wins || [0, 0], mvp = seriesStats.mvp;
@@ -393,9 +403,25 @@ export default function MatchSimulation({
     const text = [`🏀 QNBA Arena · BO${challengeBestOf || bestOf}`, `Lineup A ${wins[0]}–${wins[1]} Lineup B`, activeGames.map((g, i) => `G${i + 1}: ${g.score[0]}–${g.score[1]}`).join(" · "), mvp ? `⭐ Series MVP: ${mvp.name} — ${(mvp.pts / mvp.games).toFixed(1)} PPG, ${(mvp.reb / mvp.games).toFixed(1)} RPG, ${(mvp.ast / mvp.games).toFixed(1)} APG` : "", link].filter(Boolean).join("\n");
     await navigator.clipboard.writeText(text); setShareCopied(true); window.setTimeout(() => setShareCopied(false), 2500);
   }
+  async function copyGameResult() {
+    if (!result) return;
+    if (activeGames.length) return copyShareCard();
+    const winner = result.score[0] === result.score[1] ? "Draw" : `Lineup ${result.score[0] > result.score[1] ? "A" : "B"} wins`;
+    const top = result.boxes.flat().sort((x, y) => y.pts - x.pts)[0];
+    const text = [
+      "🏀 QNBA Arena",
+      `FINAL · Lineup A ${result.score[0]}–${result.score[1]} Lineup B`,
+      winner,
+      top ? `⭐ Top scorer: ${top.name} · ${top.pts} PTS` : "",
+      window.location.href,
+    ].filter(Boolean).join("\n");
+    await navigator.clipboard.writeText(text);
+    setShareCopied(true);
+    window.setTimeout(() => setShareCopied(false), 2500);
+  }
   return (
     <section className="rounded-2xl border border-orange-500/30 bg-gradient-to-br from-orange-500/10 via-card to-card p-6 space-y-5">
-      <div className="flex justify-between items-start gap-4">
+      {showSetup && <div className="flex justify-between items-start gap-4">
         <div>
           <p className="text-xs uppercase tracking-widest text-orange-500 font-bold">
             QNBA Arena · Experimental
@@ -409,7 +435,7 @@ export default function MatchSimulation({
               : "A statistical basketball sandbox, not a real-world prediction."}
           </p>
         </div>
-        {challengeCode && (
+        {challengeCode && !result && (
           <a
             href="/matchups"
             className={`${button} shrink-0 border-red-500/30 text-red-400 hover:bg-red-500/10`}
@@ -417,8 +443,8 @@ export default function MatchSimulation({
             Leave challenge
           </a>
         )}
-      </div>
-      <MatchLineups teams={result ? result.profiles : teams} />
+      </div>}
+      {showSetup && <MatchLineups teams={result ? result.profiles : teams} />}
       {(!result || coaching) && (
         <section className="rounded-xl border bg-background/40 p-4 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -505,7 +531,7 @@ export default function MatchSimulation({
           </div>
         </section>
       )}
-      <div className="grid grid-cols-2 gap-4">
+      {showSetup && <div className="grid grid-cols-2 gap-4">
         {[0, 1].map((side) => (
           <label key={side} className="text-sm font-semibold">
             Lineup {side === 0 ? "A" : "B"} tactic
@@ -538,13 +564,13 @@ export default function MatchSimulation({
             </span>
           </label>
         ))}
-      </div>
-      <p className="text-xs text-foreground/60">
+      </div>}
+      {showSetup && <p className="text-xs text-foreground/60">
         The first five must cover G / G / F / F / C. Add up to three bench
         players; their season minutes determine an abstract 240-minute rotation.
-      </p>
+      </p>}
       <div className="flex flex-wrap gap-3 items-center">
-        <button
+        {(!challengeCode || !result || coaching) && <button
           className={`${button} bg-orange-500 text-black hover:bg-orange-400`}
           disabled={
             busy ||
@@ -564,7 +590,7 @@ export default function MatchSimulation({
               : result
                 ? "Simulate a new match"
                 : "Simulate match"}
-        </button>
+        </button>}
         {!challengeCode && !result && legalSides[0] && validMinuteSides[0] && (
           <>
             <label className="text-sm font-semibold">
@@ -658,6 +684,7 @@ export default function MatchSimulation({
       {challengeCode && result && (lobby?.status === "playing_first_half" || lobby?.status === "halftime") && cursor >= halftimeIndex && (
         <section className="rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5 space-y-3">
           <p className="text-xs uppercase tracking-widest text-amber-500 font-bold">Synchronized halftime</p><h3 className="text-xl font-bold">Both coaches must confirm the second half</h3><p className="text-sm text-foreground/60">The shared game is paused for everyone. The same second-half timeline starts for both screens only after A and B are ready.</p>
+          <HalftimeCoachingReport result={result} />
           <p className="text-sm">A {lobby.halftimeReady?.[0] ? "✓ Ready" : "Waiting"} · B {lobby.halftimeReady?.[1] ? "✓ Ready" : "Waiting"}</p>
           {editableSide >= 0 && <button className={`${button} bg-amber-500 text-black`} disabled={busy || !!lobby.halftimeReady?.[editableSide]} onClick={() => void markHalftimeReady()}>{lobby.halftimeReady?.[editableSide] ? "Waiting for the other coach…" : `Ready Lineup ${editableSide === 0 ? "A" : "B"} for second half`}</button>}
         </section>
@@ -685,6 +712,7 @@ export default function MatchSimulation({
               signed match timeline with your new second-half tactics.
             </p>
           </div>
+          <HalftimeCoachingReport result={result} />
           <div className="grid grid-cols-2 gap-4">
             {[0, 1].map((side) => (
               <label key={side} className="text-sm font-semibold">
@@ -733,6 +761,16 @@ export default function MatchSimulation({
       )}
       {result && (
         <>
+          {challengeCode && (
+            <div className="flex justify-end">
+              <a
+                href="/matchups"
+                className={`${button} border-red-500/30 text-red-400 hover:bg-red-500/10`}
+              >
+                Leave challenge
+              </a>
+            </div>
+          )}
           {series && (
             <section className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -818,6 +856,35 @@ export default function MatchSimulation({
               />
             </div>
           </div>
+          <section className="rounded-xl border bg-background/40 p-4">
+            <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-center">
+              {result.profiles.map((team, side) => (
+                <div key={side} className="min-w-0">
+                  <p className={`text-xs font-bold uppercase ${side === 0 ? "text-orange-500" : "text-sky-500"}`}>
+                    Lineup {side === 0 ? "A" : "B"} starters
+                  </p>
+                  <p className="mt-1 truncate text-sm text-foreground/70">
+                    {team.slice(0, 5).map((player) => player.name).join(" · ")}
+                  </p>
+                </div>
+              ))}
+              <button
+                className={button}
+                onClick={() => {
+                  setShowFullLineups(true);
+                  window.setTimeout(
+                    () =>
+                      document
+                        .getElementById("full-match-lineups")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                    0,
+                  );
+                }}
+              >
+                View full lineups
+              </button>
+            </div>
+          </section>
           <MatchInsights result={result} cursor={cursor} />
           <div className="rounded-xl border bg-background/40 p-4">
             <h3 className="font-bold mb-3">Play-by-play</h3>
@@ -825,25 +892,47 @@ export default function MatchSimulation({
               {result.plays
                 .slice(Math.max(0, cursor - 12), cursor)
                 .reverse()
-                .map((p, i) => (
-                  <p
-                    key={cursor - i}
-                    className={`text-sm border-l-2 pl-3 ${p.side === 0 ? "border-orange-500" : "border-sky-500"}`}
-                  >
+                .map((p, i) => {
+                  const index = cursor - i - 1;
+                  const presentation = playPresentation(p, result.plays[index - 1]);
+                  return (
+                  <p key={index} className={`rounded-r-lg border-l-2 py-1 pl-3 pr-2 text-sm ${p.side === 0 ? "border-orange-500" : "border-sky-500"} ${presentation.important ? "bg-amber-500/10" : ""}`}>
                     <span className="text-foreground/50 tabular-nums">
                       {p.period <= 4 ? `Q${p.period}` : `OT${p.period - 4}`}{" "}
                       {p.clock} ·{" "}
                     </span>
+                    {presentation.label && <span className="mr-2 rounded bg-amber-500/20 px-1.5 py-0.5 text-[10px] font-black text-amber-400">{presentation.label}</span>}
                     {p.text}
                   </p>
-                ))}
+                )})}
               {cursor === 0 && (
                 <p className="text-sm text-foreground/60">Ready for tip-off.</p>
               )}
             </div>
           </div>
+          {showFullLineups && (
+            <section id="full-match-lineups" className="scroll-mt-6 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="text-lg font-bold">Full lineups</h3>
+                <button
+                  className={button}
+                  onClick={() => setShowFullLineups(false)}
+                >
+                  Hide full lineups
+                </button>
+              </div>
+              <MatchLineups teams={result.profiles} />
+            </section>
+          )}
           {finished && (
             <>
+              <FinalGameSummary
+                result={result}
+                shared={!!challengeCode}
+                onRematch={!challengeCode ? () => void start() : undefined}
+                onShare={() => void copyGameResult()}
+              />
+              {shareCopied && <p role="status" className="text-sm font-semibold text-emerald-500">Result and link copied ✓</p>}
               <div className="flex flex-wrap gap-3">
                 {!challengeCode && (
                   <button
